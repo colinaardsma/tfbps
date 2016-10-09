@@ -37,19 +37,35 @@ class MainHandler(webapp2.RequestHandler):
                 [name.findAll('a',attrs={'class':'player-name'})] #remove all <a class="player-name"></a> tags but keep their contents and add a ","; player name
 
                 [team.replaceWith(team.renderContents()) for team in td('a')] #remove all <a></a> tags but keep their contents and add a ","; team name
-                [teamPos.replaceWith(teamPos.renderContents().replace(",", "/").replace("(", "").replace(")","").replace(" - ", ",")) for teamPos in td('small')] #remove all <small></small> tags but keep their contents, change "," to "/", change "(" to "", change ")" to "", change " - " to ",",; team and position
+                [teamPos.replaceWith(teamPos.renderContents().replace(",", "/").replace("(", "").replace(")","").replace(" - ", ", ")) for teamPos in td('small')] #remove all <small></small> tags but keep their contents, change "," to "/", change "(" to "", change ")" to "", change " - " to ",",; team and position
                 [div.extract() for div in td('div',attrs={'id':'directions_extension'})] #remove all <div id="directions-extension"></div> tags and their contents; empty div tag
                 players.append(td) #add td to players list
 
         # players = [i.split(',')[0] for i in players]
+
         # pl = [players[x:x+20] for x in range(0, len(players), 20)]
+
+        # [str(players[i]).split(",") for i in range(0, len(players))]
+        players = str(players[0:len(players)]).split(", ")
+        players = [pl.replace("[", "").replace("]", "").rstrip() for pl in players]
+
+        # players = str(players)
+        # for pl in players:
+        #     str(pl)
+        # players = players.split(", ")
+        # pl = []
+        # for i in range(0, len(players) - 1):
+        #     if i % 17 == 0:
+        #         pl.append(players[i].split(", "))
+        #     else:
+        #         int(players[i])
+        #         pl.append(players[i])
 
         # player = dbmodels.fantProProj(name=name, team=team, pos=pos, ab=ab, r=r, hr=hr, rbi=rbi, sb=sb, avg=avg, obp=obp, h=h, double=double, triple=triple, bb=bb, k=k, slg=slg, ops=ops)
 
 
         #need to get all of this into a dictionary instead of a list so that i can easily push it into a db
         #use regular expressions to fix team/position (maybe also ", "?)
-
         self.response.write(players)
 
 app = webapp2.WSGIApplication([
