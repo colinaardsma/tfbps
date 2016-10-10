@@ -9,7 +9,7 @@ class Users(db.Model):
     last_modified = db.DateTimeProperty(auto_now = True) #sets last_modified to equal current date/time (this can be modified)
 
 #define columns of database objects
-class fantProProj(db.Model):
+class fantProProjB(db.Model):
     name = db.StringProperty(required = True) #sets title to a string and makes it required
     team = db.StringProperty(required = True) #sets title to a string and makes it required
     pos = db.StringProperty(required = True) #sets title to a string and makes it required
@@ -28,4 +28,4 @@ class fantProProj(db.Model):
     k = db.IntegerProperty(required = True)
     slg = db.FloatProperty(required = True)
     ops = db.FloatProperty(required = True)
-    value = db.FloatProperty(required = False) #change to true later
+    sgp = db.FloatProperty(required = False) #change to true later

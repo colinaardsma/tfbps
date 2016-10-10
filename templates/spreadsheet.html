@@ -1,0 +1,33 @@
+{% extends "main.html" %}
+{%- block content -%}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Team</th>
+      <th>POS</th>
+      <th>SGP</th>
+      <th>AB</th>
+      <th>R</th>
+      <th>HR</th>
+      <th>RBI</th>
+      <th>SB</th>
+      <th>OPS</th>
+    </tr>
+  </thead>
+{%- for player in players -%}
+  <tr>
+    <td>{{player.name}}</td>
+    <td>{{player.team}}</td>
+    <td>{{player.pos}}</td>
+    <td>{{player.sgp}}</td>
+    <td>{{player.ab}}</td>
+    <td>{{player.r}}</td>
+    <td>{{player.hr}}</td>
+    <td>{{player.rbi}}</td>
+    <td>{{player.sb}}</td>
+    <td>{{player.ops}}</td>
+  </tr>
+{% endfor %}
+</table>
+{%- endblock -%}
