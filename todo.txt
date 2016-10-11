@@ -1,0 +1,49 @@
+HTML Parsing:
+-Fantasy Pros Pitcher
+
+Hopefully Non-HTML Parsing:
+-Custom Batter Projections (parse 3 years of past data, to include minors)
+-Custom Batter Projections (parse 3 years of past data, to include minors)
+-Fangraphs Batter
+-Fangraphs Pitcher
+
+Non-HTML Parsing:
+-Yahoo league specific data:
+	-league number
+	-league number history
+	-custom sgp calcs
+	-Advanced plans:
+		-some sort of manager performance data?
+		-mock draft simulator
+		-integration with draft/auction webapp?
+		-advanced "auto-drafter"
+		-advanced "auto-manager"
+
+Data Manipulation:
+-z-score
+-position filtering
+-weigh values by position
+-data sorting
+-delete spreadsheet and replace on pull
+-custom modify individual player?
+
+-Json export
+-memcached
+
+Users:
+-admins
+-power-users
+-commissioners?
+-basic users
+-viewers only
+-ability to save some data manipulation/mocks (how would this work?)
+
+Blog/Message Board:
+-reuse code from blog (limit post character length?)
+
+CSS:
+-add normalize.css
+-what sites to model after?
+
+Javascript:
+-?
