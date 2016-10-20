@@ -29,3 +29,25 @@ class fantProProjB(db.Model):
     slg = db.FloatProperty(required = True)
     ops = db.FloatProperty(required = True)
     sgp = db.FloatProperty(required = False) #change to true later
+
+#define columns of database objects
+class fantProProjP(db.Model):
+    name = db.StringProperty(required = True) #sets title to a string and makes it required
+    team = db.StringProperty(required = True) #sets title to a string and makes it required
+    pos = db.StringProperty(required = True) #sets title to a string and makes it required
+#how to do multiple positions?
+    ip = db.FloatProperty(required = True)
+    k = db.IntegerProperty(required = True)
+    w = db.IntegerProperty(required = True)
+    sv = db.IntegerProperty(required = True)
+    era = db.FloatProperty(required = True)
+    whip = db.FloatProperty(required = True)
+    er = db.IntegerProperty(required = True)
+    h = db.IntegerProperty(required = True)
+    bb = db.IntegerProperty(required = True)
+    hr = db.IntegerProperty(required = True)
+    g = db.IntegerProperty(required = True)
+    gs = db.IntegerProperty(required = True)
+    l = db.IntegerProperty(required = True)
+    cg = db.IntegerProperty(required = True)
+    sgp = db.FloatProperty(required = False) #change to true later

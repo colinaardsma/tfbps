@@ -39,8 +39,7 @@ class Handler(webapp2.RequestHandler):
 
 class MainHandler(Handler):
     def render_spreadsheet(self):
-        players = gqlqueries.get_fpp()
-        self.render("spreadsheet.html", players=players)
+        self.render("home.html")
 
     def get(self):
         self.render_spreadsheet()
@@ -48,24 +47,54 @@ class MainHandler(Handler):
 # class MainHandler(Handler):
 #     def render_spreadsheet(self):
 #         URL = "http://www.fantasypros.com/mlb/projections/hitters.php" #currently does not work with https
-#         htmlParsing.fppDataPull(URL)
+#         htmlParsing.fpDataPull(URL)
 #         players = gqlqueries.get_fpp()
 #         self.render("spreadsheet.html", players=players)
 #
 #     def get(self):
 #         self.render_spreadsheet()
 
-class FPPDataPull(Handler):
+class FPBatter(Handler):
+    def render_spreadsheet(self):
+        players = gqlqueries.get_fpb()
+        self.render("spreadsheet.html", players=players)
+
+    def get(self):
+        self.render_spreadsheet()
+
+class FPPitcher(Handler):
+    def render_spreadsheet(self):
+        players = gqlqueries.get_fpp()
+        self.render("spreadsheet.html", players=players)
+
+    def get(self):
+        self.render_spreadsheet()
+
+class FPBDataPull(Handler):
     def render_pull(self):
         #this will only work for fantasypros.com
         URL = "http://www.fantasypros.com/mlb/projections/hitters.php" #currently does not work with https
-        htmlParsing.fppDataPull(URL)
-        self.redirect("/")
+        htmlParsing.fpbDataPull(URL)
+        self.redirect("/fpbatter")
 
     def get(self):
         self.render_pull()
 
+class FPPDataPull(Handler):
+    def render_pull(self):
+        #this will only work for fantasypros.com
+        URL = "http://www.fantasypros.com/mlb/projections/pitchers.php" #currently does not work with https
+        htmlParsing.fppDataPull(URL)
+        self.redirect("/fppitcher")
+
+    def get(self):
+        self.render_pull()
+
+
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
+    ('/fpbatter', FPBatter),
+    ('/fppitcher', FPPitcher),
+    ('/fpbdatapull', FPBDataPull),
     ('/fppdatapull', FPPDataPull)
 ], debug=True)

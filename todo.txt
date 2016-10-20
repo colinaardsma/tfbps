@@ -7,18 +7,6 @@ Hopefully Non-HTML Parsing:
 -Fangraphs Batter
 -Fangraphs Pitcher
 
-Non-HTML Parsing:
--Yahoo league specific data:
-	-league number
-	-league number history
-	-custom sgp calcs
-	-Advanced plans:
-		-some sort of manager performance data?
-		-mock draft simulator
-		-integration with draft/auction webapp?
-		-advanced "auto-drafter"
-		-advanced "auto-manager"
-
 Data Manipulation:
 -z-score
 -position filtering
@@ -47,3 +35,18 @@ CSS:
 
 Javascript:
 -?
+
+Non-HTML Parsing:
+-Yahoo league specific data:
+	-league number
+	-league number history
+	-custom sgp calcs
+	-Advanced plans:
+		-some sort of manager performance data?
+		-mock draft simulator
+		-integration with draft/auction webapp?
+		-advanced "auto-drafter"
+		-advanced "auto-manager"
+	-Yahoo 2016 standings:
+		-select * from fantasysports.leagues.standings where league_key='357.l.3091'
+		-https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20fantasysports.leagues.standings%20where%20league_key%3D'357.l.3091'&diagnostics=true

@@ -5,10 +5,32 @@
     <!-- <link type="text/css" rel="stylesheet" href="/styles/normalize.css" />
     <link type="text/css" rel="stylesheet" href="/styles/styles.css" /> -->
   </head>
-  <body>
-    <form action="/fppdatapull">
-      <button>pull data</button>
-    </form>
+    <body>
+      <table>
+        <tr>
+          <td>
+            <form action="/fpbatter">
+              <button>Fantasy Pros Batter Projections</button>
+            </form>
+          </td>
+          <td>
+            <form action="/fppitcher">
+              <button>Fantasy Pros Pitcher Projections</button>
+            </form>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <form action="/fpbdatapull">
+              <button>batter pull data</button>
+            </form>
+          </td>
+          <td>
+            <form action="/fppdatapull">
+              <button>pitcher pull data</button>
+            </form>
+          </td></tr>
+      </table>
     {%- block content -%}
     {%- endblock -%}
   </body>

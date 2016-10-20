@@ -1,4 +1,4 @@
-from dbmodels import Users, fantProProjB #import Users and Blog classes from python file named dbmodels
+from dbmodels import Users, fantProProjB, fantProProjP #import Users and Blog classes from python file named dbmodels
 from google.appengine.ext import db
 import logging
 
@@ -29,9 +29,16 @@ import logging
 #         if name.username == username:
 #             return name.key().id()
 
+def get_fpb():
+    logging.error("get_fpb QUERY")
+    query = fantProProjB.all().order("-sgp") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
+    # players = query.fetch()
+    players = list(query)
+    return players
+
 def get_fpp():
     logging.error("get_fpp QUERY")
-    query = fantProProjB.all().order("-sgp") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
+    query = fantProProjP.all().order("-sgp") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
     # players = query.fetch()
     players = list(query)
     return players
