@@ -56,14 +56,8 @@ class MainHandler(Handler):
 
 class FPBatter(Handler):
     def render_spreadsheet(self):
-        # players = gqlqueries.get_fpb()
         players = caching.cached_get_fpb()
-        #
-        # keys = []
-        # for key in players.keys():
-        #     keys.append(key)
-        #
-        # self.render("spreadsheet.html", players=players, header0=keys[0], header1=keys[1], header2=keys[2], header3=keys[3], header4=keys[4], header5=keys[5], header6=keys[6], header7=keys[7], header8=keys[8], header9=keys[9])
+
         self.render("spreadsheet.html", players=players)
 
     def get(self):
@@ -71,7 +65,6 @@ class FPBatter(Handler):
 
 class FPPitcher(Handler):
     def render_spreadsheet(self):
-        # players = gqlqueries.get_fpp()
         players = caching.cached_get_fpp()
 
         self.render("spreadsheet.html", players=players)
