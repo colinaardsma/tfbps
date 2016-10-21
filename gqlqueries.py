@@ -31,14 +31,14 @@ import logging
 
 def get_fpb():
     logging.error("get_fpb QUERY")
-    query = fantProProjB.all().order("-sgp") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
+    sheet = fantProProjB.all().order("-sgp") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
     # players = query.fetch()
-    players = list(query)
+    players = list(sheet)
     return players
 
 def get_fpp():
     logging.error("get_fpp QUERY")
-    query = fantProProjP.all().order("-sgp") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
+    sheet = fantProProjP.all().order("-sgp") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
     # players = query.fetch()
-    players = list(query)
+    players = list(sheet)
     return players
