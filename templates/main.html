@@ -2,22 +2,26 @@
 <html>
   <head>
     <title>tFBPs</title>
-    <!-- <link type="text/css" rel="stylesheet" href="/styles/normalize.css" />
-    <link type="text/css" rel="stylesheet" href="/styles/styles.css" /> -->
+    <link type="text/css" rel="stylesheet" href="/styles/normalize.css" />
+    <link type="text/css" rel="stylesheet" href="/styles/styles.css" />
   </head>
     <body>
       <table>
         <tr>
+          {%- if fpBatterData -%}
           <td>
             <form action="/fpbatter">
               <button>Fantasy Pros Batter Projections</button>
             </form>
           </td>
+          {% endif %}
+          {%- if fpPitcherData -%}
           <td>
             <form action="/fppitcher">
               <button>Fantasy Pros Pitcher Projections</button>
             </form>
           </td>
+          {% endif %}
         </tr>
         <tr>
           <td>
@@ -35,7 +39,7 @@
     {%- endblock -%}
   </body>
   <footer>
-    <hr>
+    <!-- <hr> -->
     <!-- <table width=100%>
       <tr>
         <td><h3><a href="/archive">archive</a></h3></td>

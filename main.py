@@ -9,6 +9,11 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates') #set templat
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                autoescape = True) #set jinja2's working directory to template_dir
 
+#only shows display data button if there is data to display
+#not a good way of doing this, clean it up
+fpBatterData = False
+fpPitcherData = False
+
 #define some functions that will be used by all pages
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw): #simplifies self.response.out.write to self.write
@@ -40,20 +45,10 @@ class Handler(webapp2.RequestHandler):
 
 class MainHandler(Handler):
     def render_spreadsheet(self):
-        self.render("home.html")
+        self.render("home.html", fpBatterData=fpBatterData, fpPitcherData=fpPitcherData)
 
     def get(self):
         self.render_spreadsheet()
-
-# class MainHandler(Handler):
-#     def render_spreadsheet(self):
-#         URL = "http://www.fantasypros.com/mlb/projections/hitters.php" #currently does not work with https
-#         htmlParsing.fpDataPull(URL)
-#         players = gqlqueries.get_fpp()
-#         self.render("spreadsheet.html", players=players)
-#
-#     def get(self):
-#         self.render_spreadsheet()
 
 class FPBatter(Handler):
     def render_spreadsheet(self):
@@ -64,7 +59,9 @@ class FPBatter(Handler):
             if p.last_modified > dataDate:
                 dataDate = p.last_modified
 
-        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate)
+        fpBatterData = True
+
+        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate, fpBatterData=fpBatterData, fpPitcherData=fpPitcherData)
 
     def get(self):
         self.render_spreadsheet()
@@ -78,7 +75,9 @@ class FPPitcher(Handler):
             if p.last_modified > dataDate:
                 dataDate = p.last_modified
 
-        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate)
+        fpPitcherData = True
+
+        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate, fpBatterData=fpBatterData, fpPitcherData=fpPitcherData)
 
     def get(self):
         self.render_spreadsheet()
