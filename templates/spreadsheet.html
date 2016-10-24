@@ -1,5 +1,6 @@
 {% extends "main.html" %}
 {%- block content -%}
+<p>Date of data: {{dataDate.strftime('%m.%d.%Y')}}</p>
 <table>
   <thead>
     <tr>
@@ -7,12 +8,21 @@
       <th>Team</th>
       <th>POS</th>
       <th>SGP</th>
-      <th>AB</th>
-      <th>R</th>
-      <th>HR</th>
-      <th>RBI</th>
-      <th>SB</th>
-      <th>OPS</th>
+      {%- if cat == "b" -%}
+        <th>AB</th>
+        <th>R</th>
+        <th>HR</th>
+        <th>RBI</th>
+        <th>SB</th>
+        <th>OPS</th>
+      {%- elif cat == "p" -%}
+        <th>IP</th>
+        <th>W</th>
+        <th>SV</th>
+        <th>K</th>
+        <th>ERA</th>
+        <th>WHIP</th>
+      {% endif %}
     </tr>
   </thead>
   {%- for player in players -%}
@@ -21,12 +31,21 @@
     <td>{{player.team}}</td>
     <td>{{player.pos}}</td>
     <td>{{player.sgp}}</td>
-    <td>{{player.ab}}</td>
-    <td>{{player.r}}</td>
-    <td>{{player.hr}}</td>
-    <td>{{player.rbi}}</td>
-    <td>{{player.sb}}</td>
-    <td>{{player.ops}}</td>
+    {%- if cat == "b" -%}
+      <td>{{player.ab}}</td>
+      <td>{{player.r}}</td>
+      <td>{{player.hr}}</td>
+      <td>{{player.rbi}}</td>
+      <td>{{player.sb}}</td>
+      <td>{{player.ops}}</td>
+    {%- elif cat == "p" -%}
+      <td>{{player.ip}}</td>
+      <td>{{player.w}}</td>
+      <td>{{player.sv}}</td>
+      <td>{{player.k}}</td>
+      <td>{{player.era}}</td>
+      <td>{{player.whip}}</td>
+    {% endif %}
   </tr>
 {% endfor %}
 </table>

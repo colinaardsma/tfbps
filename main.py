@@ -1,7 +1,8 @@
-import os, webapp2, math, re, json #import stock python methods (re is regular expersions)
+import os, webapp2, math, re, json, datetime #import stock python methods
 import jinja2 #need to install jinja2 (not stock)
-import htmlParsing, dbmodels, gqlqueries, caching # hashing, validuser, coordinateRetrieval, caching #import python files I've made
+import htmlParsing, dbmodels, gqlqueries, caching, jsonData #import python files I've made
 # import time
+# from jsonData import jsonData
 
 #setup jinja2
 template_dir = os.path.join(os.path.dirname(__file__), 'templates') #set template_dir to main.py dir(current dir)/templates
@@ -56,18 +57,28 @@ class MainHandler(Handler):
 
 class FPBatter(Handler):
     def render_spreadsheet(self):
+        cat = "b"
         players = caching.cached_get_fpb()
+        dataDate = datetime.datetime(1980, 1, 1)
+        for p in players:
+            if p.last_modified > dataDate:
+                dataDate = p.last_modified
 
-        self.render("spreadsheet.html", players=players)
+        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate)
 
     def get(self):
         self.render_spreadsheet()
 
 class FPPitcher(Handler):
-    def render_spreadsheet(self):
+    def render_spreadsheet(self, cat=""):
+        cat = "p"
         players = caching.cached_get_fpp()
+        dataDate = datetime.datetime(1980, 1, 1)
+        for p in players:
+            if p.last_modified > dataDate:
+                dataDate = p.last_modified
 
-        self.render("spreadsheet.html", players=players)
+        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate)
 
     def get(self):
         self.render_spreadsheet()
@@ -92,11 +103,35 @@ class FPPDataPull(Handler):
     def get(self):
         self.render_pull()
 
+class jsonHandler(Handler):
+    def render_json(self, data=""):
+        # jData = []
+        data = data
+        jData = jsonData.jsonData(data)
+
+        self.response.headers['Content-Type'] = 'application/json; charset=UTF-8' #set content-type to json and charset to UTF-8
+        self.write(jData) #write json data to page
+
+    def get(self, data=""):
+        self.render_json(data)
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
+
+    #data viewing
     ('/fpbatter', FPBatter),
     ('/fppitcher', FPPitcher),
+    # ('/fp', FP),
+
+    #data retrieval
     ('/fpbdatapull', FPBDataPull),
-    ('/fppdatapull', FPPDataPull)
+    ('/fppdatapull', FPPDataPull),
+
+    #admin page
+    #to be added
+
+    #json export
+    webapp2.Route('/<data:[a-z0-9-_]+batter>.json', jsonHandler),
+    webapp2.Route('/<data:[a-z0-9-_]+pitcher>.json', jsonHandler)
+
 ], debug=True)

@@ -29,6 +29,8 @@ class fantProProjB(db.Model):
     slg = db.FloatProperty(required = True)
     ops = db.FloatProperty(required = True)
     sgp = db.FloatProperty(required = False) #change to true later
+    last_modified = db.DateTimeProperty(auto_now = True) #sets last_modified to equal current date/time (this can be modified)
+
 
 #define columns of database objects
 class fantProProjP(db.Model):
@@ -51,3 +53,4 @@ class fantProProjP(db.Model):
     l = db.IntegerProperty(required = True)
     cg = db.IntegerProperty(required = True)
     sgp = db.FloatProperty(required = False) #change to true later
+    last_modified = db.DateTimeProperty(auto_now = True) #sets last_modified to equal current date/time (this can be modified)
