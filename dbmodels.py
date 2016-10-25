@@ -7,6 +7,7 @@ class Users(db.Model):
     email = db.StringProperty(required = False) #sets email to a string and makes it optional
     created = db.DateTimeProperty(auto_now_add = True) #sets created to equal date/time of creation (this cannot be modified)
     last_modified = db.DateTimeProperty(auto_now = True) #sets last_modified to equal current date/time (this can be modified)
+    authorization = db.StringProperty(required = False)
 
 #define columns of database objects
 class fantProProjB(db.Model):

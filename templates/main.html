@@ -4,34 +4,34 @@
     <title>tFBPs</title>
     <link type="text/css" rel="stylesheet" href="/styles/normalize.css" />
     <link type="text/css" rel="stylesheet" href="/styles/styles.css" />
+    <table>
+      <tr>
+        <td>
+          <form action="/">
+            <button>home</button>
+          </form>
+        </td>
+        <td>
+          <form action="/fpbatter">
+            <button>Fantasy Pros Batter Projections</button>
+          </form>
+        </td>
+        <td>
+          <form action="/fppitcher">
+            <button>Fantasy Pros Pitcher Projections</button>
+          </form>
+        </td>
+        <td>
+          <form action="/admin">
+            <button>admin</button>
+          </form>
+        </td>
+      </tr>
+    </table>
   </head>
-    <body>
-      <table>
-        <tr>
-          <td>
-            <form action="/">
-              <button>home</button>
-            </form>
-          </td>
-          <td>
-            <form action="/fpbatter">
-              <button>Fantasy Pros Batter Projections</button>
-            </form>
-          </td>
-          <td>
-            <form action="/fppitcher">
-              <button>Fantasy Pros Pitcher Projections</button>
-            </form>
-          </td>
-          <td>
-            <form action="/admin">
-              <button>admin</button>
-            </form>
-          </td>
-        </tr>
-      </table>
-    {%- block content -%}
-    {%- endblock -%}
+  <body>
+    {%- block content %}
+    {%- endblock %}
   </body>
   <footer>
     <!-- <hr> -->

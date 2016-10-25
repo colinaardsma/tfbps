@@ -1,29 +1,31 @@
-{%- extends "main.html" -%}
-{%- block content -%}
-<br>
-<table>
-  <tr>
-    <td>
-      <form action="/fpbatter">
-        <button>Fantasy Pros Batter Projections</button>
-      </form>
-    </td>
-    <td>
-      <form action="/fppitcher">
-        <button>Fantasy Pros Pitcher Projections</button>
-      </form>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <form action="/fpbdatapull">
-        <button>batter pull data</button>
-      </form>
-    </td>
-    <td>
-      <form action="/fppdatapull">
-        <button>pitcher pull data</button>
-      </form>
-    </td></tr>
-</table>
-{%- endblock -%}
+{% extends "main.html" %}
+
+{%- block content %}
+    <br>
+    <table>
+      <tr>
+        <td>
+          <form action="/fpbatter">
+            <button>Fantasy Pros Batter Projections</button>
+          </form>
+        </td>
+        <td>
+          <form action="/fppitcher">
+            <button>Fantasy Pros Pitcher Projections</button>
+          </form>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <form action="/fpbdatapull">
+            <button>batter pull data</button>
+          </form>
+        </td>
+        <td>
+          <form action="/fppdatapull">
+            <button>pitcher pull data</button>
+          </form>
+        </td>
+      </tr>
+    </table>
+{%- endblock %}

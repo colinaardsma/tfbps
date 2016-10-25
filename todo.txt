@@ -1,5 +1,5 @@
 HTML Parsing:
--Fantasy Pros Pitcher
+X-Fantasy Pros Pitcher
 
 Hopefully Non-HTML Parsing:
 -Custom Batter Projections (parse 3 years of past data, to include minors)
@@ -15,22 +15,23 @@ Data Manipulation:
 -delete spreadsheet and replace on pull
 -custom modify individual player?
 
--Json export
--memcached
+x-Json export (added to fantasy pros b/p)
+x-memcached (added to fantasy pros b/p)
 
 Users:
 -admins
 -power-users
 -commissioners?
--basic users
+x-basic users (started, need to finish)
 -viewers only
 -ability to save some data manipulation/mocks (how would this work?)
+-fix password hashing
 
 Blog/Message Board:
 -reuse code from blog (limit post character length?)
 
 CSS:
--add normalize.css
+X-add normalize.css
 -what sites to model after?
 
 Javascript:
