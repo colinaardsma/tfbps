@@ -8,32 +8,27 @@
     <body>
       <table>
         <tr>
-          {%- if fpBatterData -%}
+          <td>
+            <form action="/">
+              <button>home</button>
+            </form>
+          </td>
           <td>
             <form action="/fpbatter">
               <button>Fantasy Pros Batter Projections</button>
             </form>
           </td>
-          {% endif %}
-          {%- if fpPitcherData -%}
           <td>
             <form action="/fppitcher">
               <button>Fantasy Pros Pitcher Projections</button>
             </form>
           </td>
-          {% endif %}
-        </tr>
-        <tr>
           <td>
-            <form action="/fpbdatapull">
-              <button>batter pull data</button>
+            <form action="/admin">
+              <button>admin</button>
             </form>
           </td>
-          <td>
-            <form action="/fppdatapull">
-              <button>pitcher pull data</button>
-            </form>
-          </td></tr>
+        </tr>
       </table>
     {%- block content -%}
     {%- endblock -%}

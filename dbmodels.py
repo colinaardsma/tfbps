@@ -30,6 +30,7 @@ class fantProProjB(db.Model):
     ops = db.FloatProperty(required = True)
     sgp = db.FloatProperty(required = False) #change to true later
     last_modified = db.DateTimeProperty(auto_now = True) #sets last_modified to equal current date/time (this can be modified)
+    category = db.StringProperty(required = True) #sets title to a string and makes it required
 
 
 #define columns of database objects
@@ -54,3 +55,4 @@ class fantProProjP(db.Model):
     cg = db.IntegerProperty(required = True)
     sgp = db.FloatProperty(required = False) #change to true later
     last_modified = db.DateTimeProperty(auto_now = True) #sets last_modified to equal current date/time (this can be modified)
+    category = db.StringProperty(required = True) #sets title to a string and makes it required

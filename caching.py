@@ -13,7 +13,7 @@ from google.appengine.api import memcache
 
 #data retrieval methods
 def cached_get_fpb(update=False):
-    key = "fullfpb" #create key
+    key = "fantProProjB" #create key
     sheet = memcache.get(key) #search memcache for data at key, set data to sheet
     if sheet is None or update: #if nothing in memcache (or if update is called) run gql query and set memcache
         sheet = gqlqueries.get_fpb()
@@ -21,7 +21,7 @@ def cached_get_fpb(update=False):
     return sheet
 
 def cached_get_fpp(update=False):
-    key = "fullfpp" #create key
+    key = "fantProProjP" #create key
     sheet = memcache.get(key) #search memcache for data at key, set data to sheet
     if sheet is None or update: #if nothing in memcache (or if update is called) run gql query and set memcache
         sheet = gqlqueries.get_fpp()

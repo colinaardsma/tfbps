@@ -9,11 +9,6 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates') #set templat
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
                                autoescape = True) #set jinja2's working directory to template_dir
 
-#only shows display data button if there is data to display
-#not a good way of doing this, clean it up
-fpBatterData = False
-fpPitcherData = False
-
 #define some functions that will be used by all pages
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw): #simplifies self.response.out.write to self.write
@@ -45,39 +40,35 @@ class Handler(webapp2.RequestHandler):
 
 class MainHandler(Handler):
     def render_spreadsheet(self):
-        self.render("home.html", fpBatterData=fpBatterData, fpPitcherData=fpPitcherData)
+        self.render("home.html")
 
     def get(self):
         self.render_spreadsheet()
 
 class FPBatter(Handler):
     def render_spreadsheet(self):
-        cat = "b"
+        cat = "batter"
         players = caching.cached_get_fpb()
         dataDate = datetime.datetime(1980, 1, 1)
         for p in players:
             if p.last_modified > dataDate:
                 dataDate = p.last_modified
 
-        fpBatterData = True
-
-        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate, fpBatterData=fpBatterData, fpPitcherData=fpPitcherData)
+        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate)
 
     def get(self):
         self.render_spreadsheet()
 
 class FPPitcher(Handler):
     def render_spreadsheet(self, cat=""):
-        cat = "p"
+        cat = "pitcher"
         players = caching.cached_get_fpp()
         dataDate = datetime.datetime(1980, 1, 1)
         for p in players:
             if p.last_modified > dataDate:
                 dataDate = p.last_modified
 
-        fpPitcherData = True
-
-        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate, fpBatterData=fpBatterData, fpPitcherData=fpPitcherData)
+        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate)
 
     def get(self):
         self.render_spreadsheet()
@@ -101,6 +92,13 @@ class FPPDataPull(Handler):
 
     def get(self):
         self.render_pull()
+
+class admin(Handler):
+    def render_admin(self):
+        self.render("admin.html")
+
+    def get(self):
+        self.render_admin()
 
 class jsonHandler(Handler):
     def render_json(self, data=""):
@@ -127,7 +125,7 @@ app = webapp2.WSGIApplication([
     ('/fppdatapull', FPPDataPull),
 
     #admin page
-    #to be added
+    ('/admin', admin),
 
     #json export
     webapp2.Route('/<data:[a-z0-9-_]+batter>.json', jsonHandler),

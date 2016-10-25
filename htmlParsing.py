@@ -2,6 +2,8 @@ import webapp2, urllib2, re, sys, itertools #built in python classes
 import dbmodels #custom python classes
 import string
 from google.appengine.ext import db
+from google.appengine.api import memcache
+
 
 sys.path.insert(0, 'libs')
 from BeautifulSoup import BeautifulSoup, Tag
@@ -36,6 +38,17 @@ def fpbDataPull(url):
     sgpMultSB = 9.4
     sgpMultOPS = 0.0024
 
+    #delete all records from database before rebuidling
+    if dbmodels.fantProProjB:
+        remove = dbmodels.fantProProjB.all() # .all() = "SELECT *"
+        db.delete(remove)
+
+    #flush memcache
+    key = "fantProProjB" #create key
+    memcache.delete(key)
+
+    #need to erase duplicates, are there any?
+
     for i in range(0, len(playerSoap), 20): #assign each piece of data to a variable (17 pieces of usable data, 18-20 are ownership %s)
         name = playerList[i]
         team = playerList[i + 1]
@@ -54,16 +67,10 @@ def fpbDataPull(url):
         k = int(playerList[i + 14])
         slg = float(playerList[i + 15])
         ops = float(playerList[i + 16])
-
-        #delete all records from database before rebuidling
-        if dbmodels.fantProProjB:
-            remove = dbmodels.fantProProjB.all() # .all() = "SELECT *"
-            db.delete(remove)
-
-        #need to flush memcache
+        category = "fantProProjB"
 
         #rebuild database
-        player = dbmodels.fantProProjB(name=name, team=team, pos=pos, ab=ab, r=r, hr=hr, rbi=rbi, sb=sb, avg=avg, obp=obp, h=h, double=double, triple=triple, bb=bb, k=k, slg=slg, ops=ops) #convert data into db object
+        player = dbmodels.fantProProjB(name=name, team=team, pos=pos, ab=ab, r=r, hr=hr, rbi=rbi, sb=sb, avg=avg, obp=obp, h=h, double=double, triple=triple, bb=bb, k=k, slg=slg, ops=ops, category=category) #convert data into db object
         #calculate sgp value and add to db object
         player.sgp = (player.r/sgpMultR)+(player.hr/sgpMultHR)+(player.rbi/sgpMultRBI)+(player.sb/sgpMultSB)+((((((player.obp*(player.ab*1.15))+2178.8)/((player.ab*1.15)+6682))+(((player.slg*player.ab)+2528.5)/(player.ab+5993)))-0.748)/sgpMultOPS)
         player.put() #store player db object in database
@@ -98,6 +105,17 @@ def fppDataPull(url):
     sgpMultERA = -0.0706
     sgpMultWHIP = -0.015
 
+    #delete all records from database before rebuidling
+    if dbmodels.fantProProjP:
+        remove = dbmodels.fantProProjP.all() # .all() = "SELECT *"
+        db.delete(remove)
+
+    #flush memcache
+    key = "fantProProjP" #create key
+    memcache.delete(key)
+
+    #need to erase duplicates, are there any?
+
     for i in range(0, len(playerSoap), 20): #assign each piece of data to a variable (17 pieces of usable data, 18-20 are ownership %s)
         name = playerList[i]
         team = playerList[i + 1]
@@ -116,16 +134,10 @@ def fppDataPull(url):
         gs = int(playerList[i + 14])
         l = int(playerList[i + 15])
         cg = int(playerList[i + 16])
-
-        #delete all records from database before rebuidling
-        if dbmodels.fantProProjP:
-            remove = dbmodels.fantProProjP.all() # .all() = "SELECT *"
-            db.delete(remove)
-
-        #need to flush memcache
+        category = "fantProProjP"
 
         #rebuild database
-        player = dbmodels.fantProProjP(name=name, team=team, pos=pos, ip=ip, k=k, w=w, sv=sv, era=era, whip=whip, er=er, h=h, bb=bb, hr=hr, g=g, gs=gs, l=l, cg=cg) #convert data into db object
+        player = dbmodels.fantProProjP(name=name, team=team, pos=pos, ip=ip, k=k, w=w, sv=sv, era=era, whip=whip, er=er, h=h, bb=bb, hr=hr, g=g, gs=gs, l=l, cg=cg, category=category) #convert data into db object
         #calculate sgp value and add to db object
         player.sgp = (player.w/sgpMultW)+(player.sv/sgpMultSV)+(player.k/sgpMultK)+(((475+player.era)*9/(1192 + player.ip)-3.59)/sgpMultERA)+(((1466+player.h+player.bb)/(1192+player.ip)-1.23)/sgpMultWHIP)
         player.put() #store player db object in database
