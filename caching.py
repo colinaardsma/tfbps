@@ -12,7 +12,7 @@ from google.appengine.api import memcache
 #         memcache.set(key, blogs)
 #     return blogs
 
-#data retrieval methods
+#stat retrieval methods
 def cached_get_fpprojb(update=False):
     key = "fpprojb" #create key
     sheet = memcache.get(key) #search memcache for data at key, set data to sheet
@@ -29,12 +29,20 @@ def cached_get_fpprojp(update=False):
         memcache.set(key, sheet)
     return sheet
 
-#user validation methods
+#user methods
 def cached_user_by_name(usr, update=False): #get user object
-    key = str(usr) + "getUser"
+    key = str(usr) + "getUbyN"
     user = memcache.get(key)
     if user is None or update:
         user = gqlqueries.get_user_by_name(usr)
+        memcache.set(key, user)
+    return user
+
+def cached_get_user_by_id(uid, update=False): #get user object
+    key = str(uid) + "getUbyUID"
+    user = memcache.get(key)
+    if user is None or update:
+        user = gqlqueries.get_user_by_id(uid)
         memcache.set(key, user)
     return user
 
@@ -45,6 +53,22 @@ def cached_check_username(username, update=False): #check username
         name = gqlqueries.check_username(username)
         memcache.set(key, name)
     return name
+
+def cached_get_users(update=False):
+    key = "users"
+    users = memcache.get(key)
+    if users is None or update:
+        users = gqlqueries.get_users()
+        memcache.set(key, users)
+    return users
+
+def cached_get_authorization(username, update=False):
+    key = str(username) + "authorization"
+    auth = memcache.get(key)
+    if auth is None or update:
+        auth = gqlqueries.get_authorization(username)
+        memcache.set(key, auth)
+    return auth
 
 #memcache flushing
 def flush(key=None):

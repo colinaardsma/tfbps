@@ -1,6 +1,6 @@
 import os, webapp2, math, re, json, datetime #import stock python methods
 import jinja2 #need to install jinja2 (not stock)
-import htmlParsing, dbmodels, gqlqueries, caching, jsonData, validuser, hashing #import python files I've made
+import htmlParsing, dbmodels, gqlqueries, caching, jsonData, validuser, hashing, dbmodification #import python files I've made
 from dbmodels import Users
 # import time
 
@@ -33,9 +33,10 @@ class Handler(webapp2.RequestHandler):
         if c:
             uid = hashing.check_secure_val(c)
 
-        self.user = uid and Users.get_by_id(int(uid))
+        # self.user = uid and Users.get_by_id(int(uid))
+        self.user = uid and caching.cached_get_user_by_id(uid)
 
-        if not self.user and self.request.path in auth_paths:
+        if not self.user and self.request.path in basic_auth_paths:
             self.redirect('/login')
 
 class MainHandler(Handler):
@@ -119,6 +120,8 @@ class Registration(Handler):
             self.response.headers.add_header('Set-Cookie', 'user=%s' % hashing.make_secure_val(user_id)) #hash user id for use in cookie
             caching.cached_user_by_name(username, True) #direct cached_posts to update cache
             caching.cached_check_username(username, True) #direct cached_posts to update cache
+            caching.cached_get_users(True) #direct cached_get_users to update cache
+
             self.redirect('/welcome')
         else:
             self.render_reg(username, email, usernameError, passwordError, passVerifyError, emailError)
@@ -144,8 +147,7 @@ class Login(Handler):
             error = "Invalid login"
         else:
             user_id = caching.cached_check_username(username)
-            user_id = int(user_id)
-            u = Users.get_by_id(user_id)
+            u = caching.cached_get_user_by_id(user_id)
             p = u.password
             salt = p.split("|")[1]
             if username == u.username:
@@ -243,17 +245,36 @@ class Flush(Handler):
         self.redirect("/admin")
 
 class admin(Handler):
-    def render_admin(self):
+    def render_admin(self, userConfirmation=""):
         #pull username
         if self.user:
             user = self.user.username
         else:
             user = ""
 
-        self.render("admin.html", user=user)
+        #pull list of all users
+        users = caching.cached_get_users()
 
-    def get(self):
-        self.render_admin()
+        self.render("admin.html", user=user, users=users, userConfirmation=userConfirmation)
+
+    def get(self, userConfirmation=""):
+        self.render_admin(userConfirmation=userConfirmation)
+
+    def post(self):
+        username = self.request.get("username")
+        authorization = self.request.get("authorization")
+        userConfirmation = username, authorization
+
+        #set authorization
+        dbmodification.set_authorization(username, authorization)
+
+        #update cache
+        caching.cached_user_by_name(username, True)
+        caching.cached_check_username(username, True)
+        caching.cached_get_users(True)
+        caching.cached_get_authorization(username, True)
+
+        self.render_admin(userConfirmation=userConfirmation)
 
 class jsonHandler(Handler):
     def render_json(self, data=""):
@@ -274,12 +295,12 @@ app = webapp2.WSGIApplication([
     ('/logout', Logout),
     ('/welcome', Welcome),
 
-    #data viewing
+    #stat viewing
     ('/fpprojb', FPProjBatter),
     ('/fpprojp', FPProjPitcher),
     # ('/fp', FP),
 
-    #data retrieval
+    #stat retrieval
     ('/fpprojbdatapull', FPBDataPull),
     ('/fpprojpdatapull', FPPDataPull),
 
@@ -306,7 +327,22 @@ app = webapp2.WSGIApplication([
 
 ], debug=True)
 
-auth_paths = [ #must be logged in to access these links
+basic_auth_paths = [ #must be logged in as basic user to access these links
+    '/admin',
+    '/admin/',
+    '/fpprojbdatapull',
+    '/fpprojbdatapull/',
+    '/fpprojpdatapull',
+    '/fpprojpdatapull/'
+    # '/new_post',
+    # '/new_post/',
+    # '/modify_post',
+    # '/modify_post/',
+    # '/post/<post_id:\d+>/edit',
+    # '/post/<post_id:\d+>/delete'
+]
+
+admin_auth_paths = [ #must be logged in as admin to access these links
     '/admin',
     '/admin/',
     '/fpprojbdatapull',
