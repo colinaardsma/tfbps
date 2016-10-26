@@ -33,11 +33,29 @@ class Handler(webapp2.RequestHandler):
         if c:
             uid = hashing.check_secure_val(c)
 
-        # self.user = uid and Users.get_by_id(int(uid))
         self.user = uid and caching.cached_get_user_by_id(uid)
+        self.auth = self.user and caching.cached_get_authorization(self.user.username)
 
-        if not self.user and self.request.path in basic_auth_paths:
+        if not self.user and self.request.path in admin_auth_paths:
             self.redirect('/login')
+
+        #need to figure out how to restrict access based on user group, below doesnt work
+        
+        # if self.request.path in basic_auth_paths and self.auth is not "basic":
+        #     self.redirect('/login')
+        # elif self.request.path in admin_auth_paths and self.auth is not "admin":
+        #     self.redirect('/login')
+
+        # if self.auth is "basic" and self.request.path in basic_auth_paths:
+        #     self.request.path
+        # elif self.auth is "commissioner" and (self.request.path in basic_auth_paths or self.request.path in commissioner_auth_paths):
+        #     self.request.path
+        # elif self.auth is "power_user" and (self.request.path in basic_auth_paths or self.request.path in commissioner_auth_paths or self.request.path in power_user_auth_paths):
+        #     self.request.path
+        # elif self.auth is "admin" and (self.request.path in basic_auth_paths or self.request.path in commissioner_auth_paths or self.request.path in power_user_auth_paths or self.request.path in admin_auth_paths):
+        #     self.request.path
+        # else:
+        #     self.redirect('/login')
 
 class MainHandler(Handler):
     def render_spreadsheet(self):
@@ -114,7 +132,8 @@ class Registration(Handler):
         if error == False:
             username = username
             password = hashing.make_pw_hash(username, password) #hash password for storage in db
-            user = Users(username=username, password=password, email=email) #create new blog object named post
+            authorization = "basic"
+            user = Users(username=username, password=password, email=email, authorization=authorization) #create new blog object named post
             user.put() #store post in database
             user_id = user.key().id()
             self.response.headers.add_header('Set-Cookie', 'user=%s' % hashing.make_secure_val(user_id)) #hash user id for use in cookie
@@ -286,6 +305,7 @@ class jsonHandler(Handler):
     def get(self, data=""):
         self.render_json(data)
 
+#routing
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
 
@@ -327,13 +347,12 @@ app = webapp2.WSGIApplication([
 
 ], debug=True)
 
+#authorization paths
 basic_auth_paths = [ #must be logged in as basic user to access these links
-    '/admin',
-    '/admin/',
-    '/fpprojbdatapull',
-    '/fpprojbdatapull/',
-    '/fpprojpdatapull',
-    '/fpprojpdatapull/'
+    '/fpprojb',
+    '/fpprojb/',
+    '/fpprojp',
+    '/fpprojp/'
     # '/new_post',
     # '/new_post/',
     # '/modify_post',
@@ -342,17 +361,18 @@ basic_auth_paths = [ #must be logged in as basic user to access these links
     # '/post/<post_id:\d+>/delete'
 ]
 
-admin_auth_paths = [ #must be logged in as admin to access these links
-    '/admin',
-    '/admin/',
+commissioner_auth_paths = basic_auth_paths + [ #must be logged in as power_user to access these links
+
+]
+
+power_user_auth_paths = commissioner_auth_paths + [ #must be logged in as power_user to access these links
     '/fpprojbdatapull',
     '/fpprojbdatapull/',
     '/fpprojpdatapull',
     '/fpprojpdatapull/'
-    # '/new_post',
-    # '/new_post/',
-    # '/modify_post',
-    # '/modify_post/',
-    # '/post/<post_id:\d+>/edit',
-    # '/post/<post_id:\d+>/delete'
+]
+
+admin_auth_paths = power_user_auth_paths + [ #must be logged in as admin to access these links
+    '/admin',
+    '/admin/'
 ]
