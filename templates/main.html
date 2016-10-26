@@ -12,12 +12,12 @@
           </form>
         </td>
         <td>
-          <form action="/fpbatter">
+          <form action="/fpprojb">
             <button>Fantasy Pros Batter Projections</button>
           </form>
         </td>
         <td>
-          <form action="/fppitcher">
+          <form action="/fpprojp">
             <button>Fantasy Pros Pitcher Projections</button>
           </form>
         </td>
@@ -26,8 +26,20 @@
             <button>admin</button>
           </form>
         </td>
+      {%- if user %}
+        <td>
+          <p>{{user}}<a href="/logout"> (logout)</a></p>
+        </td>
+      {%- else %}
+        <td>
+          <form action="/login">
+            <button>login</button>
+          </form>
+        </td>
+      {%- endif %}
       </tr>
     </table>
+    <hr>
   </head>
   <body>
     {%- block content %}

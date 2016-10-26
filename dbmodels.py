@@ -10,7 +10,7 @@ class Users(db.Model):
     authorization = db.StringProperty(required = False)
 
 #define columns of database objects
-class fantProProjB(db.Model):
+class FPProjB(db.Model):
     name = db.StringProperty(required = True) #sets title to a string and makes it required
     team = db.StringProperty(required = True) #sets title to a string and makes it required
     pos = db.StringProperty(required = True) #sets title to a string and makes it required
@@ -35,7 +35,7 @@ class fantProProjB(db.Model):
 
 
 #define columns of database objects
-class fantProProjP(db.Model):
+class FPProjP(db.Model):
     name = db.StringProperty(required = True) #sets title to a string and makes it required
     team = db.StringProperty(required = True) #sets title to a string and makes it required
     pos = db.StringProperty(required = True) #sets title to a string and makes it required

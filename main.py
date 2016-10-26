@@ -40,14 +40,26 @@ class Handler(webapp2.RequestHandler):
 
 class MainHandler(Handler):
     def render_spreadsheet(self):
-        self.render("home.html")
+        #pull username
+        if self.user:
+            user = self.user.username
+        else:
+            user = ""
+
+        self.render("home.html", user=user)
 
     def get(self):
         self.render_spreadsheet()
 
 class Registration(Handler):
     def render_reg(self, username="", email="", usernameError="", passwordError="", passVerifyError="", emailError=""):
-        self.render("registration.html", username=username, email=email, usernameError=usernameError, passwordError=passwordError, passVerifyError=passVerifyError, emailError=emailError)
+        #pull username
+        if self.user:
+            user = self.user.username
+        else:
+            user = ""
+
+        self.render("registration.html", username=username, email=email, usernameError=usernameError, passwordError=passwordError, passVerifyError=passVerifyError, emailError=emailError, user=user)
 
     def get(self):
         self.render_reg()
@@ -113,7 +125,13 @@ class Registration(Handler):
 
 class Login(Handler):
     def render_login(self, username="", error=""):
-        self.render("login.html", username=username, error=error)
+        #pull username
+        if self.user:
+            user = self.user.username
+        else:
+            user = ""
+
+        self.render("login.html", username=username, error=error, user=user)
 
     def get(self):
         self.render_login()
@@ -158,30 +176,42 @@ class Welcome(Handler):
         self.render_welcome()
 
 
-class FPBatter(Handler):
+class FPProjBatter(Handler):
     def render_spreadsheet(self):
+        #pull username
+        if self.user:
+            user = self.user.username
+        else:
+            user = ""
+
         cat = "batter"
-        players = caching.cached_get_fpb()
+        players = caching.cached_get_fpprojb()
         dataDate = datetime.datetime(1980, 1, 1)
         for p in players:
             if p.last_modified > dataDate:
                 dataDate = p.last_modified
 
-        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate)
+        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate, user=user)
 
     def get(self):
         self.render_spreadsheet()
 
-class FPPitcher(Handler):
+class FPProjPitcher(Handler):
     def render_spreadsheet(self, cat=""):
+        #pull username
+        if self.user:
+            user = self.user.username
+        else:
+            user = ""
+
         cat = "pitcher"
-        players = caching.cached_get_fpp()
+        players = caching.cached_get_fpprojp()
         dataDate = datetime.datetime(1980, 1, 1)
         for p in players:
             if p.last_modified > dataDate:
                 dataDate = p.last_modified
 
-        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate)
+        self.render("spreadsheet.html", players=players, cat=cat, dataDate=dataDate, user=user)
 
     def get(self):
         self.render_spreadsheet()
@@ -190,8 +220,8 @@ class FPBDataPull(Handler):
     def render_pull(self):
         #this will only work for fantasypros.com
         URL = "http://www.fantasypros.com/mlb/projections/hitters.php" #currently does not work with https
-        htmlParsing.fpbDataPull(URL)
-        self.redirect("/fpbatter")
+        htmlParsing.fpprojbdatapull(URL)
+        self.redirect("/fpprojb")
 
     def get(self):
         self.render_pull()
@@ -200,23 +230,33 @@ class FPPDataPull(Handler):
     def render_pull(self):
         #this will only work for fantasypros.com
         URL = "http://www.fantasypros.com/mlb/projections/pitchers.php" #currently does not work with https
-        htmlParsing.fppDataPull(URL)
-        self.redirect("/fppitcher")
+        htmlParsing.fpprojpdatapull(URL)
+        self.redirect("/fpprojp")
 
     def get(self):
         self.render_pull()
 
+class Flush(Handler):
+    def get(self, key=""):
+        caching.flush(key)
+        # self.write(key)
+        self.redirect("/admin")
+
 class admin(Handler):
     def render_admin(self):
-        self.render("admin.html")
+        #pull username
+        if self.user:
+            user = self.user.username
+        else:
+            user = ""
+
+        self.render("admin.html", user=user)
 
     def get(self):
         self.render_admin()
 
 class jsonHandler(Handler):
     def render_json(self, data=""):
-        # jData = []
-        data = data
         jData = jsonData.jsonData(data)
 
         self.response.headers['Content-Type'] = 'application/json; charset=UTF-8' #set content-type to json and charset to UTF-8
@@ -235,30 +275,44 @@ app = webapp2.WSGIApplication([
     ('/welcome', Welcome),
 
     #data viewing
-    ('/fpbatter', FPBatter),
-    ('/fppitcher', FPPitcher),
+    ('/fpprojb', FPProjBatter),
+    ('/fpprojp', FPProjPitcher),
     # ('/fp', FP),
 
     #data retrieval
-    ('/fpbdatapull', FPBDataPull),
-    ('/fppdatapull', FPPDataPull),
+    ('/fpprojbdatapull', FPBDataPull),
+    ('/fpprojpdatapull', FPPDataPull),
+
+    #memcache flushing
+    webapp2.Route('/flush<key:[a-z0-9-_]+projb>', Flush), #batter projections
+    webapp2.Route('/flush<key:[a-z0-9-_]+projp>', Flush), #pitcher projections
+    # webapp2.Route('/flush<key:[a-z0-9-_]+rosb>', Flush), #batter rest of season
+    # webapp2.Route('/flush<key:[a-z0-9-_]+rosp>', Flush), #pitcher rest of season
+
+    #below flushes user memcache, is this necessary?
+    # webapp2.Route('/flush<key:[a-z0-9-_]+getUser>', Flush), #user objects
+    # webapp2.Route('/flush<key:[a-z0-9-_]+checkUsername>', Flush), #usernames
+    # webapp2.Route('/flush<key:users>', Flush), #all user data
+
 
     #admin page
     ('/admin', admin),
 
     #json export
-    webapp2.Route('/<data:[a-z0-9-_]+batter>.json', jsonHandler),
-    webapp2.Route('/<data:[a-z0-9-_]+pitcher>.json', jsonHandler)
+    webapp2.Route('/<data:[a-z0-9-_]+projb>.json', jsonHandler),
+    webapp2.Route('/<data:[a-z0-9-_]+projp>.json', jsonHandler)
+    # webapp2.Route('/<data:[a-z0-9-_]+rosb>.json', jsonHandler),
+    # webapp2.Route('/<data:[a-z0-9-_]+rosp>.json', jsonHandler)
 
 ], debug=True)
 
 auth_paths = [ #must be logged in to access these links
     '/admin',
     '/admin/',
-    '/fpbdatapull',
-    '/fpbdatapull/',
-    '/fppdatapull',
-    '/fppdatapull/'
+    '/fpprojbdatapull',
+    '/fpprojbdatapull/',
+    '/fpprojpdatapull',
+    '/fpprojpdatapull/'
     # '/new_post',
     # '/new_post/',
     # '/modify_post',
