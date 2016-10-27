@@ -2,7 +2,7 @@ import os, webapp2, math, re, json, datetime #import stock python methods
 import jinja2 #need to install jinja2 (not stock)
 import htmlParsing, dbmodels, gqlqueries, caching, jsonData, validuser, hashing, dbmodification, xmlparsing #import python files I've made
 from dbmodels import Users
-# import time
+import time
 
 #setup jinja2
 template_dir = os.path.join(os.path.dirname(__file__), 'templates') #set template_dir to main.py dir(current dir)/templates
@@ -38,6 +38,9 @@ class Handler(webapp2.RequestHandler):
 
         if not self.user and self.request.path in admin_auth_paths:
             self.redirect('/login')
+
+
+        # if self.user is "basic" and (self.request.path in admin_auth_paths)
 
         #need to figure out how to restrict access based on user group, below doesnt work
 
@@ -140,9 +143,13 @@ class Registration(Handler):
             user.put() #store post in database
             user_id = user.key().id()
             self.response.headers.add_header('Set-Cookie', 'user=%s' % hashing.make_secure_val(user_id)) #hash user id for use in cookie
-            caching.cached_user_by_name(username, True) #direct cached_posts to update cache
-            caching.cached_check_username(username, True) #direct cached_posts to update cache
-            caching.cached_get_users(True) #direct cached_get_users to update cache
+
+            time.sleep(.1) #ewait 1/10 of a second while post is entered into db
+
+            #update cache
+            caching.cached_user_by_name(username, True)
+            caching.cached_check_username(username, True)
+            caching.cached_get_users(True)
 
             self.redirect('/welcome')
         else:
@@ -290,6 +297,8 @@ class admin(Handler):
         #set authorization
         dbmodification.set_authorization(username, authorization)
 
+        # time.sleep(.1) #ewait 1/10 of a second while post is entered into db
+
         #update cache
         caching.cached_user_by_name(username, True)
         caching.cached_check_username(username, True)
@@ -364,18 +373,18 @@ basic_auth_paths = [ #must be logged in as basic user to access these links
     # '/post/<post_id:\d+>/delete'
 ]
 
-commissioner_auth_paths = basic_auth_paths + [ #must be logged in as power_user to access these links
+commissioner_auth_paths = [ #must be logged in as power_user to access these links
 
 ]
 
-power_user_auth_paths = commissioner_auth_paths + [ #must be logged in as power_user to access these links
+power_user_auth_paths = [ #must be logged in as power_user to access these links
     '/fpprojbdatapull',
     '/fpprojbdatapull/',
     '/fpprojpdatapull',
     '/fpprojpdatapull/'
 ]
 
-admin_auth_paths = power_user_auth_paths + [ #must be logged in as admin to access these links
+admin_auth_paths = [ #must be logged in as admin to access these links
     '/admin',
     '/admin/'
 ]
