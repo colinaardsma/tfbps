@@ -4,8 +4,7 @@ import string
 from google.appengine.ext import db
 from google.appengine.api import memcache
 
-
-sys.path.insert(0, 'libs')
+sys.path.insert(0, 'libs/BeautifulSoup')
 from BeautifulSoup import BeautifulSoup, Tag
 
 def fpprojbdatapull(url):

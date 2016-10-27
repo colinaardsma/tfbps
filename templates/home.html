@@ -1,6 +1,24 @@
 {% extends "main.html" %}
 
-{%- block content %}
+  {%- block content %}
+    <a href={{fakeBbArticle.link|safe}}><h3>{{fakeBbArticle.title}}</h3></a>
+  {%- if fakeBbArticle.pubDate %}
+    {{fakeBbArticle.pubDate}}
+  {% endif %}
+  {%- if fakeBbArticle.dcCreator %}
+    {{fakeBbArticle.dcCreator}}
+  {% endif %}
+    {{fakeBbArticle.pic|safe}}
+    <!-- <p><a href={{fakeBbArticle.comments}}>{{fakeBbArticle.comments}}</a></p> -->
+    <hr style="margin-left: 30pt; margin-right: 30pt">
+    <a href={{yahooArticle.link|safe}}><h3>{{yahooArticle.title}}</h3></a>
+  {%- if yahooArticle.pubDate %}
+    {{yahooArticle.pubDate}}
+  {% endif %}
+  {%- if yahooArticle.dcCreator %}
+    {{yahooArticle.dcCreator}}
+  {% endif %}
+    {{yahooArticle.pic|safe}}
     <hr>
     <p>blog</p>
 {%- endblock %}

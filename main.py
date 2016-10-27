@@ -1,6 +1,6 @@
 import os, webapp2, math, re, json, datetime #import stock python methods
 import jinja2 #need to install jinja2 (not stock)
-import htmlParsing, dbmodels, gqlqueries, caching, jsonData, validuser, hashing, dbmodification #import python files I've made
+import htmlParsing, dbmodels, gqlqueries, caching, jsonData, validuser, hashing, dbmodification, xmlparsing #import python files I've made
 from dbmodels import Users
 # import time
 
@@ -40,7 +40,7 @@ class Handler(webapp2.RequestHandler):
             self.redirect('/login')
 
         #need to figure out how to restrict access based on user group, below doesnt work
-        
+
         # if self.request.path in basic_auth_paths and self.auth is not "basic":
         #     self.redirect('/login')
         # elif self.request.path in admin_auth_paths and self.auth is not "admin":
@@ -65,7 +65,10 @@ class MainHandler(Handler):
         else:
             user = ""
 
-        self.render("home.html", user=user)
+        fakeBbArticle = xmlparsing.get_fakebb_rss_content(0)
+        yahooArticle = xmlparsing.get_yahoo_rss_content(0)
+
+        self.render("home.html", user=user, fakeBbArticle=fakeBbArticle, yahooArticle=yahooArticle)
 
     def get(self):
         self.render_spreadsheet()
