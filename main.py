@@ -21,7 +21,7 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw): #writes the html string created in render_str to the page
         self.write(self.render_str(template, **kw))
 
-    def initialize(self, *a, **kw):
+    def __init__(self, *a, **kw):
         """
             A filter to restrict access to certain pages when not logged in.
             If the request path is in the global auth_paths list, then the user
@@ -34,13 +34,34 @@ class Handler(webapp2.RequestHandler):
             uid = hashing.check_secure_val(c)
 
         self.user = uid and caching.cached_get_user_by_id(uid)
-        self.auth = self.user and caching.cached_get_authorization(self.user.username)
 
-        if not self.user and self.request.path in admin_auth_paths:
+        if not self.user and self.request.path in admin_auth_paths: # if user not logged in keep out of good parts of site
             self.redirect('/login')
 
+        # if self.auth == "basic" and (self.request.path in commissioner_auth_paths or self.request.path in power_user_auth_paths or self.request.path in admin_auth_paths):
+        #     self.redirect('/login')
+        # elif self.auth == "commissioner" and (self.request.path in power_user_auth_paths or self.request.path in admin_auth_paths):
+        #     self.redirect('/login')
+        # elif self.auth == "power_user" and (self.request.path in admin_auth_paths):
+        #     self.redirect('/login')
+        # elif self.auth == "admin":
+        #     self.request.path
+        # else:
+        #     self.request.path
 
-        # if self.user is "basic" and (self.request.path in admin_auth_paths)
+        if self.user:
+            self.auth = self.user and caching.cached_get_authorization(self.user.username)
+            # if self.auth == "basic" and self.request.path in basic_auth_paths:
+            #     self.request.path
+            # elif self.auth == "commissioner" and self.request.path in commissioner_auth_paths:
+            #     self.request.path
+            # elif self.auth == "power_user" and self.request.path in power_user_auth_paths:
+            #     self.request.path
+            # elif self.auth == "admin" and self.request.path in admin_auth_paths:
+            #     self.request.path
+            # else:
+            #     self.redirect('/login')
+
 
         #need to figure out how to restrict access based on user group, below doesnt work
 
@@ -59,19 +80,33 @@ class Handler(webapp2.RequestHandler):
         #     self.request.path
         # else:
         #     self.redirect('/login')
+    def check_auth(self):
+        if self.auth == "basic" and self.request.path in basic_auth_paths:
+            self.request.path
+        elif self.auth == "commissioner" and self.request.path in commissioner_auth_paths:
+            self.request.path
+        elif self.auth == "power_user" and self.request.path in power_user_auth_paths:
+            self.request.path
+        elif self.auth == "admin" and self.request.path in admin_auth_paths:
+            self.request.path
+        else:
+            self.redirect('/login')
 
 class MainHandler(Handler):
     def render_spreadsheet(self):
         #pull username
         if self.user:
             user = self.user.username
+            self.check_auth()
         else:
             user = ""
+
 
         fakeBbArticle = xmlparsing.get_fakebb_rss_content(0)
         yahooArticle = xmlparsing.get_yahoo_rss_content(0)
 
         self.render("home.html", user=user, fakeBbArticle=fakeBbArticle, yahooArticle=yahooArticle)
+        # self.write(self.user.username + " " + self.auth)
 
     def get(self):
         self.render_spreadsheet()
@@ -81,6 +116,7 @@ class Registration(Handler):
         #pull username
         if self.user:
             user = self.user.username
+            self.check_auth()
         else:
             user = ""
 
@@ -144,7 +180,7 @@ class Registration(Handler):
             user_id = user.key().id()
             self.response.headers.add_header('Set-Cookie', 'user=%s' % hashing.make_secure_val(user_id)) #hash user id for use in cookie
 
-            time.sleep(.1) #ewait 1/10 of a second while post is entered into db
+            time.sleep(.2) #ewait 2/10 of a second while post is entered into db
 
             #update cache
             caching.cached_user_by_name(username, True)
@@ -160,6 +196,7 @@ class Login(Handler):
         #pull username
         if self.user:
             user = self.user.username
+            self.check_auth()
         else:
             user = ""
 
@@ -212,6 +249,7 @@ class FPProjBatter(Handler):
         #pull username
         if self.user:
             user = self.user.username
+            self.check_auth()
         else:
             user = ""
 
@@ -232,6 +270,7 @@ class FPProjPitcher(Handler):
         #pull username
         if self.user:
             user = self.user.username
+            self.check_auth()
         else:
             user = ""
 
@@ -278,6 +317,7 @@ class admin(Handler):
         #pull username
         if self.user:
             user = self.user.username
+            self.check_auth()
         else:
             user = ""
 
@@ -373,18 +413,18 @@ basic_auth_paths = [ #must be logged in as basic user to access these links
     # '/post/<post_id:\d+>/delete'
 ]
 
-commissioner_auth_paths = [ #must be logged in as power_user to access these links
+commissioner_auth_paths = basic_auth_paths + [ #must be logged in as power_user to access these links
 
 ]
 
-power_user_auth_paths = [ #must be logged in as power_user to access these links
+power_user_auth_paths = commissioner_auth_paths + [ #must be logged in as power_user to access these links
     '/fpprojbdatapull',
     '/fpprojbdatapull/',
     '/fpprojpdatapull',
     '/fpprojpdatapull/'
 ]
 
-admin_auth_paths = [ #must be logged in as admin to access these links
+admin_auth_paths = power_user_auth_paths + [ #must be logged in as admin to access these links
     '/admin',
     '/admin/'
 ]

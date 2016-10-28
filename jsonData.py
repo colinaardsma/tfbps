@@ -4,8 +4,8 @@ import caching #import python files I've made
 
 def jsonData(data=""):
     jsonData = [] #establish jsonData list
-    if data == "fpbatter":
-        players = caching.cached_get_fpb() #call cached_get_fpb to either display cached data or run GQL query
+    if data == "fpprojb":
+        players = caching.cached_get_fpprojb() #call cached_get_fpb to either display cached data or run GQL query
         for p in players:
             playerData = {} #establish reusable playerData dictionary
             playerData["name"] = p.name #add name to dictionary
@@ -28,8 +28,8 @@ def jsonData(data=""):
             playerData["sgp"] = p.sgp #add sgp to dictionary
             playerData["last_modified"] = p.last_modified.strftime('%m.%d.%Y') #add modified date to dictionary and format
             jsonData.append(playerData) #add dictionary to list
-    elif data == "fppitcher":
-        players = caching.cached_get_fpp() #call cached_get_fpb to either display cached data or run GQL query
+    elif data == "fpprojp":
+        players = caching.cached_get_fpprojp() #call cached_get_fpb to either display cached data or run GQL query
         for p in players:
             playerData = {} #establish reusable playerData dictionary
             playerData["name"] = p.name #add name to dictionary
