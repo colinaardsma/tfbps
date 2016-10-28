@@ -34,83 +34,34 @@ class Handler(webapp2.RequestHandler):
             uid = hashing.check_secure_val(c)
 
         self.user = uid and caching.cached_get_user_by_id(uid)
+        self.auth = self.user and caching.cached_get_authorization(self.user.username)
 
-        if not self.user and self.request.path in admin_auth_paths: # if user not logged in keep out of good parts of site
+    # check user authorization vs authorization lists
+    def get_auth(self, auth):
+        if auth != "admin" and self.request.path in admin_auth_paths:
             self.redirect('/login')
-
-        # if self.auth == "basic" and (self.request.path in commissioner_auth_paths or self.request.path in power_user_auth_paths or self.request.path in admin_auth_paths):
-        #     self.redirect('/login')
-        # elif self.auth == "commissioner" and (self.request.path in power_user_auth_paths or self.request.path in admin_auth_paths):
-        #     self.redirect('/login')
-        # elif self.auth == "power_user" and (self.request.path in admin_auth_paths):
-        #     self.redirect('/login')
-        # elif self.auth == "admin":
-        #     self.request.path
-        # else:
-        #     self.request.path
-
-        if self.user:
-            self.auth = self.user and caching.cached_get_authorization(self.user.username)
-            # if self.auth == "basic" and self.request.path in basic_auth_paths:
-            #     self.request.path
-            # elif self.auth == "commissioner" and self.request.path in commissioner_auth_paths:
-            #     self.request.path
-            # elif self.auth == "power_user" and self.request.path in power_user_auth_paths:
-            #     self.request.path
-            # elif self.auth == "admin" and self.request.path in admin_auth_paths:
-            #     self.request.path
-            # else:
-            #     self.redirect('/login')
-
-        #3 features to hit
-            #CRUD (db integration)
-            #users
-            #repoting
-
-        #need to figure out how to restrict access based on user group, below doesnt work
-
-        # if self.request.path in basic_auth_paths and self.auth is not "basic":
-        #     self.redirect('/login')
-        # elif self.request.path in admin_auth_paths and self.auth is not "admin":
-        #     self.redirect('/login')
-
-        # if self.auth is "basic" and self.request.path in basic_auth_paths:
-        #     self.request.path
-        # elif self.auth is "commissioner" and (self.request.path in basic_auth_paths or self.request.path in commissioner_auth_paths):
-        #     self.request.path
-        # elif self.auth is "power_user" and (self.request.path in basic_auth_paths or self.request.path in commissioner_auth_paths or self.request.path in power_user_auth_paths):
-        #     self.request.path
-        # elif self.auth is "admin" and (self.request.path in basic_auth_paths or self.request.path in commissioner_auth_paths or self.request.path in power_user_auth_paths or self.request.path in admin_auth_paths):
-        #     self.request.path
-        # else:
-        #     self.redirect('/login')
-    def check_auth(self):
-        if self.auth == "basic" and self.request.path in basic_auth_paths:
-            self.request.path
-        elif self.auth == "commissioner" and self.request.path in commissioner_auth_paths:
-            self.request.path
-        elif self.auth == "power_user" and self.request.path in power_user_auth_paths:
-            self.request.path
-        elif self.auth == "admin" and self.request.path in admin_auth_paths:
-            self.request.path
+        elif (auth != "admin" and auth != "power_user") and self.request.path in power_user_auth_paths:
+            self.redirect('/login')
+        elif (auth != "admin" and auth != "power_user" and auth != "commissioner") and self.request.path in commissioner_auth_paths:
+            self.redirect('/login')
+        elif (auth != "admin" and auth != "power_user" and auth != "commissioner" and auth != "basic") and self.request.path in basic_auth_paths:
+            self.redirect('/login')
         else:
-            self.redirect('/login')
+            self.request.path
 
 class MainHandler(Handler):
     def render_spreadsheet(self):
         #pull username
         if self.user:
-            user = self.user.username
-            self.check_auth()
+            user = self.user.username # get username from user object
+            self.get_auth(self.auth) # check to see if authorized to view page
         else:
             user = ""
-
 
         fakeBbArticle = xmlparsing.get_fakebb_rss_content(0)
         yahooArticle = xmlparsing.get_yahoo_rss_content(0)
 
         self.render("home.html", user=user, fakeBbArticle=fakeBbArticle, yahooArticle=yahooArticle)
-        # self.write(self.user.username + " " + self.auth)
 
     def get(self):
         self.render_spreadsheet()
@@ -119,8 +70,8 @@ class Registration(Handler):
     def render_reg(self, username="", email="", usernameError="", passwordError="", passVerifyError="", emailError=""):
         #pull username
         if self.user:
-            user = self.user.username
-            self.check_auth()
+            user = self.user.username # get username from user object
+            self.get_auth(self.auth) # check to see if authorized to view page
         else:
             user = ""
 
@@ -199,8 +150,8 @@ class Login(Handler):
     def render_login(self, username="", error=""):
         #pull username
         if self.user:
-            user = self.user.username
-            self.check_auth()
+            user = self.user.username # get username from user object
+            self.get_auth(self.auth) # check to see if authorized to view page
         else:
             user = ""
 
@@ -247,13 +198,12 @@ class Welcome(Handler):
     def get(self):
         self.render_welcome()
 
-
 class FPProjBatter(Handler):
     def render_spreadsheet(self):
         #pull username
         if self.user:
-            user = self.user.username
-            self.check_auth()
+            user = self.user.username # get username from user object
+            self.get_auth(self.auth) # check to see if authorized to view page
         else:
             user = ""
 
@@ -273,8 +223,8 @@ class FPProjPitcher(Handler):
     def render_spreadsheet(self, cat=""):
         #pull username
         if self.user:
-            user = self.user.username
-            self.check_auth()
+            user = self.user.username # get username from user object
+            self.get_auth(self.auth) # check to see if authorized to view page
         else:
             user = ""
 
@@ -292,20 +242,26 @@ class FPProjPitcher(Handler):
 
 class FPBDataPull(Handler):
     def render_pull(self):
-        #this will only work for fantasypros.com
-        URL = "http://www.fantasypros.com/mlb/projections/hitters.php" #currently does not work with https
-        htmlParsing.fpprojbdatapull(URL)
-        self.redirect("/fpprojb")
+        if self.auth == "admin": #restrict access to admins only
+            #this will only work for fantasypros.com
+            URL = "http://www.fantasypros.com/mlb/projections/hitters.php" #currently does not work with https
+            htmlParsing.fpprojbdatapull(URL)
+            self.redirect("/fpprojb")
+        else:
+            self.redirect("/login")
 
     def get(self):
         self.render_pull()
 
 class FPPDataPull(Handler):
     def render_pull(self):
-        #this will only work for fantasypros.com
-        URL = "http://www.fantasypros.com/mlb/projections/pitchers.php" #currently does not work with https
-        htmlParsing.fpprojpdatapull(URL)
-        self.redirect("/fpprojp")
+        if self.auth == "admin": #restrict access to admins only
+            #this will only work for fantasypros.com
+            URL = "http://www.fantasypros.com/mlb/projections/pitchers.php" #currently does not work with https
+            htmlParsing.fpprojpdatapull(URL)
+            self.redirect("/fpprojp")
+        else:
+            self.redirect("/login")
 
     def get(self):
         self.render_pull()
@@ -320,8 +276,8 @@ class admin(Handler):
     def render_admin(self, userConfirmation=""):
         #pull username
         if self.user:
-            user = self.user.username
-            self.check_auth()
+            user = self.user.username # get username from user object
+            self.get_auth(self.auth) # check to see if authorized to view page
         else:
             user = ""
 
@@ -417,18 +373,18 @@ basic_auth_paths = [ #must be logged in as basic user to access these links
     # '/post/<post_id:\d+>/delete'
 ]
 
-commissioner_auth_paths = basic_auth_paths + [ #must be logged in as power_user to access these links
-
+commissioner_auth_paths = [ #must be logged in as power_user to access these links
+    '/test'
 ]
 
-power_user_auth_paths = commissioner_auth_paths + [ #must be logged in as power_user to access these links
+power_user_auth_paths = [ #must be logged in as power_user to access these links
     '/fpprojbdatapull',
     '/fpprojbdatapull/',
     '/fpprojpdatapull',
     '/fpprojpdatapull/'
 ]
 
-admin_auth_paths = power_user_auth_paths + [ #must be logged in as admin to access these links
+admin_auth_paths = [ #must be logged in as admin to access these links
     '/admin',
     '/admin/'
 ]
