@@ -62,6 +62,10 @@ class Handler(webapp2.RequestHandler):
             # else:
             #     self.redirect('/login')
 
+        #3 features to hit
+            #CRUD (db integration)
+            #users
+            #repoting
 
         #need to figure out how to restrict access based on user group, below doesnt work
 
