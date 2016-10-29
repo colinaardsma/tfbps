@@ -70,8 +70,13 @@ def fpprojbdatapull(url):
 
         #rebuild database
         player = dbmodels.FPProjB(name=name, team=team, pos=pos, ab=ab, r=r, hr=hr, rbi=rbi, sb=sb, avg=avg, obp=obp, h=h, double=double, triple=triple, bb=bb, k=k, slg=slg, ops=ops, category=category) #convert data into db object
+
         #calculate sgp value and add to db object
         player.sgp = (player.r/sgpMultR)+(player.hr/sgpMultHR)+(player.rbi/sgpMultRBI)+(player.sb/sgpMultSB)+((((((player.obp*(player.ab*1.15))+2178.8)/((player.ab*1.15)+6682))+(((player.slg*player.ab)+2528.5)/(player.ab+5993)))-0.748)/sgpMultOPS)
+
+        #calculate z-score
+        # player.z-score = 
+
         player.put() #store player db object in database
 
 def fpprojpdatapull(url):

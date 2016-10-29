@@ -19,11 +19,11 @@ x-Json export (added to fantasy pros b/p)
 x-memcached (added to fantasy pros b/p)
 
 Users:
--admins
--power-users
--commissioners?
-x-basic users (started, need to finish)
--viewers only
+X-admins
+X-power-users
+X-commissioners?
+X-basic users
+X-viewers only
 -ability to save some data manipulation/mocks (how would this work?)
 -fix password hashing
 

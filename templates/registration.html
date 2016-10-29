@@ -24,7 +24,16 @@
           <td><input class="regform" type="text" name="email" value="{{email}}" /></td>
           <td><div style="color: red">{{emailError}}</div></td>
         </tr>
+        <tr>
+          <td>
+            <input type = "submit" />
+          </td>
+          <td>
+            <form action="/login">
+              <button>login</button>
+            </form>
+          </td>
+        </tr>
       </table>
-      <input type = "submit" />
     </form>
 {%- endblock %}

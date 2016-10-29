@@ -1,6 +1,6 @@
 import os, webapp2, math, re, json, datetime #import stock python methods
 import jinja2 #need to install jinja2 (not stock)
-import htmlParsing, dbmodels, gqlqueries, caching, jsonData, validuser, hashing, dbmodification, xmlparsing #import python files I've made
+import htmlParsing, dbmodels, gqlqueries, caching, jsonData, validuser, hashing, dbmodification, rssparsing #import python files I've made
 from dbmodels import Users
 import time
 
@@ -22,11 +22,6 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
     def __init__(self, *a, **kw):
-        """
-            A filter to restrict access to certain pages when not logged in.
-            If the request path is in the global auth_paths list, then the user
-            must be signed in to access the path/resource.
-        """
         webapp2.RequestHandler.initialize(self, *a, **kw)
         c = self.request.cookies.get('user') #pull cookie value
         uid = ""
@@ -35,6 +30,9 @@ class Handler(webapp2.RequestHandler):
 
         self.user = uid and caching.cached_get_user_by_id(uid)
         self.auth = self.user and caching.cached_get_authorization(self.user.username)
+
+        if not self.user and self.request.path in auth_paths:
+            self.redirect('/login')
 
     # check user authorization vs authorization lists
     def get_auth(self, auth):
@@ -58,8 +56,8 @@ class MainHandler(Handler):
         else:
             user = ""
 
-        fakeBbArticle = xmlparsing.get_fakebb_rss_content(0)
-        yahooArticle = xmlparsing.get_yahoo_rss_content(0)
+        fakeBbArticle = rssparsing.get_fakebb_rss_content(0)
+        yahooArticle = rssparsing.get_yahoo_rss_content(0)
 
         self.render("home.html", user=user, fakeBbArticle=fakeBbArticle, yahooArticle=yahooArticle)
 
@@ -388,3 +386,5 @@ admin_auth_paths = [ #must be logged in as admin to access these links
     '/admin',
     '/admin/'
 ]
+
+auth_paths = basic_auth_paths + commissioner_auth_paths + power_user_auth_paths + admin_auth_paths
