@@ -1,6 +1,6 @@
 import os, webapp2, math, re, json, datetime #import stock python methods
 import jinja2 #need to install jinja2 (not stock)
-import htmlParsing, dbmodels, gqlqueries, caching, jsonData, validuser, hashing, dbmodification, rssparsing #import python files I've made
+import htmlParsing, dbmodels, gqlqueries, caching, jsonData, validuser, hashing, dbmodification, rssparsing, zscore #import python files I've made
 from dbmodels import Users
 import time
 
@@ -48,7 +48,7 @@ class Handler(webapp2.RequestHandler):
             self.request.path
 
 class MainHandler(Handler):
-    def render_spreadsheet(self):
+    def render_main(self):
         #pull username
         if self.user:
             user = self.user.username # get username from user object
@@ -59,10 +59,11 @@ class MainHandler(Handler):
         fakeBbArticle = rssparsing.get_fakebb_rss_content(0)
         yahooArticle = rssparsing.get_yahoo_rss_content(0)
 
-        self.render("home.html", user=user, fakeBbArticle=fakeBbArticle, yahooArticle=yahooArticle)
+        # self.render("home.html", user=user, fakeBbArticle=fakeBbArticle, yahooArticle=yahooArticle)
+        self.write(zscore.get_batter_z_score(caching.cached_get_fpprojb()))
 
     def get(self):
-        self.render_spreadsheet()
+        self.render_main()
 
 class Registration(Handler):
     def render_reg(self, username="", email="", usernameError="", passwordError="", passVerifyError="", emailError=""):
