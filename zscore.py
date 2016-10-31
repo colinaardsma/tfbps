@@ -1,25 +1,35 @@
 import math
 import caching
 
-def get_r_z_score(stats):
-    players = len(stats)
 
+def get_z_score(stats):
+    numPlayers = len(stats)
+    get_r_z_score(stats, numPlayers)
+
+
+def get_r_z_score(stats, numPlayers):
     #calculate mean
     rTotal = 0
     for s in stats:
-        rTotal += float(s.r)
-    rMean = rTotal / players
+        if s.ab >= 400:
+            rTotal += float(s.r)
+    rMean = rTotal / numPlayers
 
     #calculate variance
     rVar = 0
     for s in stats:
-        rVar += math.pow(s.r - rMean, 2)
-    rTotalVar = rVar / (players - 1)
+        if s.ab >= 400:
+            rVar += math.pow(s.r - rMean, 2)
+    rTotalVar = rVar / (numPlayers - 1)
 
     #calculate standard deviation
     rStdDev = math.sqrt(rTotalVar)
 
-    return rMean, rStdDev
+    # calculate z-scores
+    for s in stats: # doesn't enter data for all players, times out?
+        if s.ab >= 200:
+            s.zr = (s.r - rMean) / rStdDev # calculate z-score
+            s.put()
 
 
 #####################

@@ -244,7 +244,13 @@ class FPBDataPull(Handler):
         if self.auth == "admin": #restrict access to admins only
             #this will only work for fantasypros.com
             URL = "http://www.fantasypros.com/mlb/projections/hitters.php" #currently does not work with https
-            htmlParsing.fpprojbdatapull(URL)
+            htmlParsing.fpprojbdatapull(URL) # parse html data
+
+            # calculate z-scores
+            players = caching.cached_get_fpprojb() # pull data set (does update need to be True?)
+            zscore.get_z_score(players)
+
+
             self.redirect("/fpprojb")
         else:
             self.redirect("/login")
