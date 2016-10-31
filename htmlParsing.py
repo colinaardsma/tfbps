@@ -1,5 +1,5 @@
 import webapp2, urllib2, re, sys, itertools #built in python classes
-import dbmodels #custom python classes
+import dbmodels, caching, zscore #custom python classes
 import string
 from google.appengine.ext import db
 from google.appengine.api import memcache
@@ -75,9 +75,16 @@ def fpprojbdatapull(url):
         player.sgp = (player.r/sgpMultR)+(player.hr/sgpMultHR)+(player.rbi/sgpMultRBI)+(player.sb/sgpMultSB)+((((((player.obp*(player.ab*1.15))+2178.8)/((player.ab*1.15)+6682))+(((player.slg*player.ab)+2528.5)/(player.ab+5993)))-0.748)/sgpMultOPS)
 
         #calculate z-score
-        # player.z-score = 
+        # player.zr =
 
         player.put() #store player db object in database
+
+    # calculate z-scores
+    players = caching.cached_get_fpprojb(True) #pull full data set
+    zr = zscore.get_r_z_score(players)
+    for p in players: #doesn't enter data for all players, times out?
+        p.zr = (p.r - zr[0]) / zr[1] # calculate z-score (zr[0] is mean, zr[1] is standard deviation)
+        p.put()
 
 def fpprojpdatapull(url):
     content = urllib2.urlopen(url).read() #convert url to readable html content

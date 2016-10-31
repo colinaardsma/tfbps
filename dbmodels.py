@@ -30,10 +30,13 @@ class FPProjB(db.Model):
     slg = db.FloatProperty(required = True)
     ops = db.FloatProperty(required = True)
     sgp = db.FloatProperty(required = False) #change to true later
-    z_score = db.FloatProperty(required = False) #change to true later
+    zr = db.FloatProperty(required = False)
+    zhr = db.FloatProperty(required = False)
+    zrbi = db.FloatProperty(required = False)
+    zsb = db.FloatProperty(required = False)
+    zops = db.FloatProperty(required = False)
     last_modified = db.DateTimeProperty(auto_now = True) #sets last_modified to equal current date/time (this can be modified)
     category = db.StringProperty(required = True) #sets title to a string and makes it required
-
 
 #define columns of database objects
 class FPProjP(db.Model):
