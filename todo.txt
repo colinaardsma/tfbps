@@ -30,8 +30,9 @@ X-viewers only
 Blog/Message Board:
 X-reuse code from blog
 -shortened preview of 5 most recent entires on main page
--update memcache upon delete/edit post
+X-update memcache upon delete/edit post
 -add "blogger" user group (with permissions)
+-memcache pagination instead of db pagination (will save multiple db hits)
 
 CSS:
 X-add normalize.css

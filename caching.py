@@ -62,8 +62,8 @@ def cached_get_authorization(username, update=False):
     return auth
 
 # post methods
-def cached_posts(limit=None, offset=0, user="", u ="", update=False):
-    key = "%s,%d,%s" % (limit, offset, u)
+def cached_posts(limit=None, offset=0, user="", author ="", update=False):
+    key = "%s,%d,%s" % (limit, offset, author)
     blogs = memcache.get(key)
     if blogs is None or update:
         blogs = gqlqueries.get_posts(limit, offset, user)

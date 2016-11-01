@@ -1,6 +1,6 @@
 import os, webapp2, math, re, json, datetime # import stock python methods
 import jinja2 # need to install jinja2 (not stock)
-import htmlParsing, dbmodels, gqlqueries, caching, jsonData, validuser, hashing, dbmodification, rssparsing, zscore, coordinateRetrieval # import python files I've made
+import htmlParsing, dbmodels, gqlqueries, caching, jsonData, validuser, hashing, dbmodification, rssparsing, zscore, coordinateRetrieval, cacheupdate # import python files I've made
 from dbmodels import Users, Blog
 import time
 
@@ -281,6 +281,7 @@ class PostList(Handler): # if u has value then posts will be displayed by user, 
         if u:
             poster = caching.cached_user_by_name(u) #pulls the user from the db by name passed through the url
         else:
+            u = ""
             poster = ""
 
         page = self.request.get("page") #pull url query string
@@ -323,43 +324,21 @@ class NewPost(Handler):
         self.render_post()
 
     def post(self):
-        c = self.request.cookies.get('user') #pull cookie value
+        c = self.request.cookies.get('user') # pull cookie value
         usr = hashing.get_user_from_cookie(c)
 
         title = self.request.get("title")
         body = self.request.get("body")
 
         if title and body:
-            post = Blog(title = title, body = body, author = self.user) #create new blog object named post
-            coords = coordinateRetrieval.get_coords(self.request.remote_addr) #pull coordinates based on IP of poster
+            post = Blog(title = title, body = body, author = self.user) # create new blog object named post
+            coords = coordinateRetrieval.get_coords(self.request.remote_addr) # pull coordinates based on IP of poster
             if coords:
-                post.coords = coords #if we have coordinates, add them to the db entry
-            post.put() #store post in database
+                post.coords = coords # if we have coordinates, add them to the db entry
+            post.put() # store post in database
 
             """cache updating"""
-            #update cache
-            time.sleep(.1) #ewait 1/10 of a second while post is entered into db
-            poster = caching.cached_user_by_name(post.author.username) #pulls the user from the db by name passed through the url
-            caching.cached_posts(None, 0, poster, usr, True) #direct cached_posts to update cache
-            caching.cached_posts(None, 0, "", "", True) #direct cached_posts to update cache
-
-            limit = PostList.limit #number of entries displayed per page
-
-            #update cache of pagination by user
-            allPostsByPoster = caching.cached_posts(None, 0, poster, usr)
-            lastPageByPoster = math.ceil(len(allPostsByPoster) / float(limit)) #calculate the last page required based on the number of entries and entries displayed per page
-
-            for i in range(int(lastPageByPoster), 0, -1):
-                offset = (i - 1) * 5
-                caching.cached_posts(limit, offset, poster, usr, True) #direct cached_posts to update cache
-
-            #update cache of pagination for all posts
-            allPosts = caching.cached_posts(None, 0, "", "")
-            lastPage = math.ceil(len(allPosts) / float(limit)) #calculate the last page required based on the number of entries and entries displayed per page
-
-            for i in range(int(lastPage), 0, -1):
-                offset = (i - 1) * 5
-                caching.cached_posts(limit, offset, "", "", True) #direct cached_posts to update cache
+            cacheupdate.blog_cache_update(post, usr, True)
             """end of cache updating"""
 
             blogID = "/post/%s" % str(post.key().id())
@@ -373,7 +352,7 @@ class ModifyPost(Handler):
         c = self.request.cookies.get('user') #pull cookie value
         usr = hashing.get_user_from_cookie(c)
         poster = caching.cached_user_by_name(usr) #pulls the user from the db by name passed through the url
-        blogs = caching.cached_posts(None, 0, poster, usr) #call get_posts to run GQL query
+        blogs = caching.cached_posts(None, 0, poster, usr, True) #call get_posts to run GQL query
         self.render("modify_post.html", blogs=blogs, usr=usr)
 
     def get(self):
@@ -414,7 +393,11 @@ class EditPost(Handler):
             post.title = title #update post title
             post.body = body #update post body
             post.put() #uopdate post in database (will update modified datetime but not created datetime)
-            # does this update the memcache? need to confirm
+
+            #update memcache
+            author = post.author.username
+            cacheupdate.blog_cache_update(post, author, True)
+
             blogID = "/post/%s" % str(post_id)
             self.redirect(blogID) #sends you to view post page
         else:
@@ -425,8 +408,22 @@ class DeletePost(Handler):
     def render_view(self, post_id):
         post_id = int(post_id) #post_id is stored as a string initially and will need to be tested against an int in view.html
         post = Blog.get_by_id(post_id) #retrieve row entry from Blog database based on id# in post_id and name it post
+
+        # # flush from memcache
+        # # this doesn't work well with pagination
+        # author = post.author.username
+        # key = "%s,%d,%s" % (None, 0, author)
+        # caching.flush(key) # need to flush deleted entry from memcahce (currently only deleting from db)
+        # key = "%s,%d,%s" % (None, 0, "")
+        # caching.flush(key) # need to flush deleted entry from memcahce (currently only deleting from db)
+
+        #delete from db
         post.delete() #remove row entry post from Blog database
-        # caching.flush() # need to flush deleted entry from memcahce (currently only deleting from db)
+        #update memcache
+        # figure out how to run memcache using pagination instead of all these db updates
+        author = post.author.username
+        cacheupdate.blog_cache_update(post, author, True)
+
         self.redirect("/")
 
     def get(self, post_id):
@@ -513,6 +510,7 @@ app = webapp2.WSGIApplication([
     webapp2.Route('/post/<post_id:\d+>/delete', DeletePost),
 
     # memcache flushing
+    ('/flush/?', Flush), # entire memcache
     webapp2.Route('/flush<key:[a-z0-9-_]+projb>', Flush), # batter projections
     webapp2.Route('/flush<key:[a-z0-9-_]+projp>', Flush), # pitcher projections
     # webapp2.Route('/flush<key:[a-z0-9-_]+rosb>', Flush), # batter rest of season

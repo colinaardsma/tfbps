@@ -53,7 +53,7 @@ def get_fpprojp():
 
 # blog
 def get_posts(limit=None, offset=0, user=""):
-    logging.error("get_posts QUERY")
+    logging.error("get_posts limit=%s, offset=%d, user=%s QUERY" % (limit, offset, user))
     if user:
         query = Blog.all().filter("author", user).order("-created") # .all() = "SELECT *"; .filter("author", user) = "author = user"; .order("-created") = "ORDER BY created DESC"
     else:
