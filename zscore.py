@@ -1,7 +1,6 @@
 import math
 import caching
 
-
 def get_z_score(stats):
     numPlayers = len(stats)
     get_r_z_score(stats, numPlayers)
@@ -19,7 +18,7 @@ def get_r_z_score(stats, numPlayers):
     rVar = 0
     for s in stats:
         if s.ab >= 400:
-            rVar += math.pow(s.r - rMean, 2)
+            rVar += math.pow(float(s.r) - rMean, 2)
     rTotalVar = rVar / (numPlayers - 1)
 
     #calculate standard deviation
@@ -27,9 +26,8 @@ def get_r_z_score(stats, numPlayers):
 
     # calculate z-scores
     for s in stats: # doesn't enter data for all players, times out?
-        if s.ab >= 200:
-            s.zr = (s.r - rMean) / rStdDev # calculate z-score
-            s.put()
+        s.zr = (float(s.r) - rMean) / rStdDev # calculate z-score
+        s.put() # this is where the trouble lies, end up with mulitple entries (current count should be 319, but ends up 319-324)
 
 
 #####################

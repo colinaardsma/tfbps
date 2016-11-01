@@ -49,32 +49,33 @@ def fpprojbdatapull(url):
     #need to erase duplicates, are there any?
 
     for i in range(0, len(playerSoap), 20): #assign each piece of data to a variable (17 pieces of usable data, 18-20 are ownership %s)
-        name = playerList[i]
-        team = playerList[i + 1]
-        pos = playerList[i + 2]
         ab = int(playerList[i + 3])
-        r = int(playerList[i + 4])
-        hr = int(playerList[i + 5])
-        rbi = int(playerList[i + 6])
-        sb = int(playerList[i + 7])
-        avg = float(playerList[i + 8])
-        obp = float(playerList[i + 9])
-        h = int(playerList[i + 10])
-        double = int(playerList[i + 11])
-        triple = int(playerList[i + 12])
-        bb = int(playerList[i + 13])
-        k = int(playerList[i + 14])
-        slg = float(playerList[i + 15])
-        ops = float(playerList[i + 16])
-        category = "fpprojb"
+        if ab >= 250: # limit players in db to 250 ab or more
+            name = playerList[i]
+            team = playerList[i + 1]
+            pos = playerList[i + 2]
+            r = int(playerList[i + 4])
+            hr = int(playerList[i + 5])
+            rbi = int(playerList[i + 6])
+            sb = int(playerList[i + 7])
+            avg = float(playerList[i + 8])
+            obp = float(playerList[i + 9])
+            h = int(playerList[i + 10])
+            double = int(playerList[i + 11])
+            triple = int(playerList[i + 12])
+            bb = int(playerList[i + 13])
+            k = int(playerList[i + 14])
+            slg = float(playerList[i + 15])
+            ops = float(playerList[i + 16])
+            category = "fpprojb"
 
-        #rebuild database
-        player = dbmodels.FPProjB(name=name, team=team, pos=pos, ab=ab, r=r, hr=hr, rbi=rbi, sb=sb, avg=avg, obp=obp, h=h, double=double, triple=triple, bb=bb, k=k, slg=slg, ops=ops, category=category) #convert data into db object
+            #rebuild database
+            player = dbmodels.FPProjB(name=name, team=team, pos=pos, ab=ab, r=r, hr=hr, rbi=rbi, sb=sb, avg=avg, obp=obp, h=h, double=double, triple=triple, bb=bb, k=k, slg=slg, ops=ops, category=category) #convert data into db object
 
-        #calculate sgp value and add to db object
-        player.sgp = (player.r/sgpMultR)+(player.hr/sgpMultHR)+(player.rbi/sgpMultRBI)+(player.sb/sgpMultSB)+((((((player.obp*(player.ab*1.15))+2178.8)/((player.ab*1.15)+6682))+(((player.slg*player.ab)+2528.5)/(player.ab+5993)))-0.748)/sgpMultOPS)
+            #calculate sgp value and add to db object
+            player.sgp = (player.r/sgpMultR)+(player.hr/sgpMultHR)+(player.rbi/sgpMultRBI)+(player.sb/sgpMultSB)+((((((player.obp*(player.ab*1.15))+2178.8)/((player.ab*1.15)+6682))+(((player.slg*player.ab)+2528.5)/(player.ab+5993)))-0.748)/sgpMultOPS)
 
-        player.put() #store player db object in database
+            player.put() #store player db object in database
 
 def fpprojpdatapull(url):
     content = urllib2.urlopen(url).read() #convert url to readable html content
@@ -118,27 +119,28 @@ def fpprojpdatapull(url):
     #need to erase duplicates, are there any?
 
     for i in range(0, len(playerSoap), 20): #assign each piece of data to a variable (17 pieces of usable data, 18-20 are ownership %s)
-        name = playerList[i]
-        team = playerList[i + 1]
         pos = playerList[i + 2]
         ip = float(playerList[i + 3])
-        k = int(playerList[i + 4])
-        w = int(playerList[i + 5])
-        sv = int(playerList[i + 6])
-        era = float(playerList[i + 7])
-        whip = float(playerList[i + 8])
-        er = int(playerList[i + 9])
-        h = int(playerList[i + 10])
-        bb = int(playerList[i + 11])
-        hr = int(playerList[i + 12])
-        g = int(playerList[i + 13])
-        gs = int(playerList[i + 14])
-        l = int(playerList[i + 15])
-        cg = int(playerList[i + 16])
-        category = "fpprojp"
+        if ("SP" in pos and ip >= 100) or ("RP" in pos and ip >= 30): # limit players in db to sp with 100 ip and rp with 30 ip or more
+            name = playerList[i]
+            team = playerList[i + 1]
+            k = int(playerList[i + 4])
+            w = int(playerList[i + 5])
+            sv = int(playerList[i + 6])
+            era = float(playerList[i + 7])
+            whip = float(playerList[i + 8])
+            er = int(playerList[i + 9])
+            h = int(playerList[i + 10])
+            bb = int(playerList[i + 11])
+            hr = int(playerList[i + 12])
+            g = int(playerList[i + 13])
+            gs = int(playerList[i + 14])
+            l = int(playerList[i + 15])
+            cg = int(playerList[i + 16])
+            category = "fpprojp"
 
-        #rebuild database
-        player = dbmodels.FPProjP(name=name, team=team, pos=pos, ip=ip, k=k, w=w, sv=sv, era=era, whip=whip, er=er, h=h, bb=bb, hr=hr, g=g, gs=gs, l=l, cg=cg, category=category) #convert data into db object
-        #calculate sgp value and add to db object
-        player.sgp = (player.w/sgpMultW)+(player.sv/sgpMultSV)+(player.k/sgpMultK)+(((475+player.era)*9/(1192 + player.ip)-3.59)/sgpMultERA)+(((1466+player.h+player.bb)/(1192+player.ip)-1.23)/sgpMultWHIP)
-        player.put() #store player db object in database
+            #rebuild database
+            player = dbmodels.FPProjP(name=name, team=team, pos=pos, ip=ip, k=k, w=w, sv=sv, era=era, whip=whip, er=er, h=h, bb=bb, hr=hr, g=g, gs=gs, l=l, cg=cg, category=category) #convert data into db object
+            #calculate sgp value and add to db object
+            player.sgp = (player.w/sgpMultW)+(player.sv/sgpMultSV)+(player.k/sgpMultK)+(((475+player.era)*9/(1192 + player.ip)-3.59)/sgpMultERA)+(((1466+player.h+player.bb)/(1192+player.ip)-1.23)/sgpMultWHIP)
+            player.put() #store player db object in database

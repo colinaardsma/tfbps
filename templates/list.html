@@ -1,0 +1,10 @@
+{%- extends "main.html" -%}
+{%- block content -%}
+{%- for blog in blogs -%}
+<hr>
+{%- include "entry.html" -%}
+{%- endfor -%}
+{%- if page %}
+{%- include "navigation.html" -%}
+{%- endif -%}
+{%- endblock -%}

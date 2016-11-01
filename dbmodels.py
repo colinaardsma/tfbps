@@ -62,3 +62,12 @@ class FPProjP(db.Model):
     z_score = db.FloatProperty(required = False) #change to true later
     last_modified = db.DateTimeProperty(auto_now = True) #sets last_modified to equal current date/time (this can be modified)
     category = db.StringProperty(required = True) #sets title to a string and makes it required
+
+#define columns of database objects
+class Blog(db.Model):
+    title = db.StringProperty(required = True) #sets title to a string and makes it required
+    body = db.TextProperty(required = True) #sets title to a text and makes it required (text is same as string but can be more than 500 characters and cannot be indexed)
+    created = db.DateTimeProperty(auto_now_add = True) #sets created to equal date/time of creation (this cannot be modified)
+    last_modified = db.DateTimeProperty(auto_now = True) #sets last_modified to equal current date/time (this can be modified)
+    author = db.ReferenceProperty(Users, required = True) #sets author to username
+    coords = db.GeoPtProperty(required = False) #store coordinates of user based on URL, not required as it may not always be available

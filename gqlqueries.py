@@ -1,21 +1,8 @@
-from dbmodels import Users, FPProjB, FPProjP #import Users and Blog classes from python file named dbmodels
+from dbmodels import Users, FPProjB, FPProjP, Blog #import Users and Blog classes from python file named dbmodels
 from google.appengine.ext import db
 import logging
 
-
-# def get_posts(limit=None, offset=0, user=""):
-#     logging.error("get_posts QUERY")
-#     if user:
-#         query = Blog.all().filter("author", user).order("-created") # .all() = "SELECT *"; .filter("author", user) = "author = user"; .order("-created") = "ORDER BY created DESC"
-#     else:
-#         query = Blog.all().order("-created") # .all() = "SELECT *"; .order("-created") = "ORDER BY created DESC"
-#     posts = query.fetch(limit=limit, offset=offset) # .fetch(limit=limt, offset=offset) = "LIMIT limit OFFSET offset"
-#     posts = list(posts)
-#     return posts
-#     # return db.GqlQuery("SELECT * FROM Blog ORDER BY created DESC") #table is named Blog because class is named Blog (the class creates the table)
-#
-
-#User Queries
+# User Queries
 def get_user_by_name(usr):
     logging.error("get_user_by_name QUERY")
     """ Get a user object from the db, based on their username """
@@ -49,7 +36,7 @@ def get_authorization(username):
         u = user.get()
         return u.authorization
 
-#Statistic Queries
+# Statistic Queries
 def get_fpprojb():
     logging.error("get_fpb QUERY")
     sheet = FPProjB.all().order("-sgp") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
@@ -63,3 +50,15 @@ def get_fpprojp():
     # players = query.fetch()
     players = list(sheet)
     return players
+
+# blog
+def get_posts(limit=None, offset=0, user=""):
+    logging.error("get_posts QUERY")
+    if user:
+        query = Blog.all().filter("author", user).order("-created") # .all() = "SELECT *"; .filter("author", user) = "author = user"; .order("-created") = "ORDER BY created DESC"
+    else:
+        query = Blog.all().order("-created") # .all() = "SELECT *"; .order("-created") = "ORDER BY created DESC"
+    posts = query.fetch(limit=limit, offset=offset) # .fetch(limit=limt, offset=offset) = "LIMIT limit OFFSET offset"
+    posts = list(posts)
+    return posts
+    # return db.GqlQuery("SELECT * FROM Blog ORDER BY created DESC") #table is named Blog because class is named Blog (the class creates the table)
