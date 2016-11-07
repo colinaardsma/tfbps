@@ -33,6 +33,8 @@ X-reuse code from blog
 X-update memcache upon delete/edit post
 -add "blogger" user group (with permissions)
 -memcache pagination instead of db pagination (will save multiple db hits)
+-change from blog to link/reddit style short post submission?
+-add voting?
 
 CSS:
 X-add normalize.css
