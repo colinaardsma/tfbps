@@ -10,6 +10,8 @@
   {% endif %}
     {{fakeBbArticle.pic|safe}}
     <!-- <p><a href={{fakeBbArticle.comments}}>{{fakeBbArticle.comments}}</a></p> -->
+    <br>
+    <br>
     <h6 style="text-align:right; margin:0pt">article courtesy of <a href="http://thefakebaseball.com/">The Fake Baseball</a></h6>
     <hr style="margin-left: 30pt; margin-right: 30pt">
     <a href={{yahooArticle.link|safe}} target="_blank"><h3>{{yahooArticle.title}}</h3></a>
@@ -19,7 +21,9 @@
   {%- if yahooArticle.dcCreator %}
     {{yahooArticle.dcCreator}}
   {% endif %}
-    {{yahooArticle.pic|safe}}
+    <div class=yahooPic>{{yahooArticle.pic|safe}}</div>
+    <!-- <script>cleanYahoo();</script> -->
+    <script>document.querySelector("div.yahooPic > p > a > img").removeAttribute("align");</script>
     <h6 style="text-align:right; margin:0pt">article courtesy of <a href="http://sports.yahoo.com/mlb/">Yahoo! Sports</a></h6>
     <hr>
     <p>blog</p>

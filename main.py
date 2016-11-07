@@ -60,7 +60,7 @@ class MainHandler(Handler):
         yahooArticle = rssparsing.get_yahoo_rss_content(0)
 
         self.render("home.html", user=user, fakeBbArticle=fakeBbArticle, yahooArticle=yahooArticle)
-        # self.write(zscore.get_r_z_score(caching.cached_get_fpprojb()))
+        # self.write(rssparsing.get_fakebb_rss_content(0))
 
     def get(self):
         self.render_main()
