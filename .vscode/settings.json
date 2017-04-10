@@ -1,0 +1,10 @@
+// Place your settings in this file to overwrite default and user settings.
+{"python.autoComplete.extraPaths": [
+    "/Users/colinaardsma/google_appengine",
+    "/Users/colinaardsma/google_appengine/google",
+    "/Users/colinaardsma/google_appengine/lib",
+    "/Users/colinaardsma/google_appengine/google/appengine/ext",
+    "/Users/colinaardsma/google_appengine/lib/webapp2-2.5.2",
+    "/Users/colinaardsma/google_appengine/lib/jinja2-2.6"
+]
+}

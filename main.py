@@ -5,9 +5,10 @@ from dbmodels import Users, Blog
 import time
 
 # setup jinja2
-template_dir = os.path.join(os.path.dirname(__file__), 'templates') #s et template_dir to main.py dir(current dir)/templates
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
-                               autoescape = True) # set jinja2's working directory to template_dir
+TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
+                            'templates') # set template_dir to main.py dir(current dir)/templates
+JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
+                               autoescape=True) # set jinja2's working directory to template_dir
 
 # define some functions that will be used by all pages
 class Handler(webapp2.RequestHandler):
@@ -15,7 +16,7 @@ class Handler(webapp2.RequestHandler):
         self.response.out.write(*a, **kw)
 
     def render_str(self, template, **params): # creates the string that will render html using jinja2 with html template named template and parameters named params
-        t = jinja_env.get_template(template)
+        t = JINJA_ENV.get_template(template)
         return t.render(params)
 
     def render(self, template, **kw): # writes the html string created in render_str to the page

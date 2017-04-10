@@ -1,5 +1,14 @@
-import webapp2, urllib2, re, sys, itertools #built in python classes
-import dbmodels, caching, zscore #custom python classes
+"""Parse statistical data from html"""
+# built in classes
+import webapp2
+import urllib2
+import re
+import sys
+import itertools
+#custom classes
+import dbmodels
+import caching
+import zscore
 import string
 from google.appengine.ext import db
 from google.appengine.api import memcache
