@@ -1,10 +1,9 @@
 """TESTS"""
+import heapq
+import operator
 import player_models
 import html_parser
 import z_score_calc
-import heapq
-
-ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
 
 def create_full_batter_test(url):
     """Test creation of batters"""
@@ -22,8 +21,10 @@ def create_full_batter_test(url):
         batter_model_list.append(batter)
     return batter_model_list
 
-def calculate_batter_z_score(batter_list, top_n_values, dollar_players, dollar_per_fvaaz):
+def calculate_batter_z_score(batter_list, players_over_zero_dollars, one_dollar_players,
+                             dollar_per_fvaaz, player_pool_multiplier):
     """Calculate zScores for batters"""
+    player_pool = int(players_over_zero_dollars * player_pool_multiplier)
     # Standard Calculations
     run_list = []
     hr_list = []
@@ -37,11 +38,11 @@ def calculate_batter_z_score(batter_list, top_n_values, dollar_players, dollar_p
         rbi_list.append(batter.rbis)
         sb_list.append(batter.sbs)
         ops_list.append(batter.ops)
-    run_list_nlargest = heapq.nlargest(top_n_values, run_list)
-    hr_list_nlargest = heapq.nlargest(top_n_values, hr_list)
-    rbi_list_nlargest = heapq.nlargest(top_n_values, rbi_list)
-    sb_list_nlargest = heapq.nlargest(top_n_values, sb_list)
-    ops_list_nlargest = heapq.nlargest(top_n_values, ops_list)
+    run_list_nlargest = heapq.nlargest(player_pool, run_list)
+    hr_list_nlargest = heapq.nlargest(player_pool, hr_list)
+    rbi_list_nlargest = heapq.nlargest(player_pool, rbi_list)
+    sb_list_nlargest = heapq.nlargest(player_pool, sb_list)
+    ops_list_nlargest = heapq.nlargest(player_pool, ops_list)
     # Average Calculation
     r_avg = z_score_calc.avg_calc(run_list_nlargest)
     hr_avg = z_score_calc.avg_calc(hr_list_nlargest)
@@ -80,11 +81,11 @@ def calculate_batter_z_score(batter_list, top_n_values, dollar_players, dollar_p
         weighted_rbi_list.append(batter.weightedRbi)
         weighted_sb_list.append(batter.weightedSb)
         weighted_ops_list.append(batter.weightedOps)
-    weighted_run_list_nlargest = heapq.nlargest(top_n_values, weighted_run_list)
-    weighted_hr_list_nlargest = heapq.nlargest(top_n_values, weighted_hr_list)
-    weighted_rbi_list_nlargest = heapq.nlargest(top_n_values, weighted_rbi_list)
-    weighted_sb_list_nlargest = heapq.nlargest(top_n_values, weighted_sb_list)
-    weighted_ops_list_nlargest = heapq.nlargest(top_n_values, weighted_ops_list)
+    weighted_run_list_nlargest = heapq.nlargest(player_pool, weighted_run_list)
+    weighted_hr_list_nlargest = heapq.nlargest(player_pool, weighted_hr_list)
+    weighted_rbi_list_nlargest = heapq.nlargest(player_pool, weighted_rbi_list)
+    weighted_sb_list_nlargest = heapq.nlargest(player_pool, weighted_sb_list)
+    weighted_ops_list_nlargest = heapq.nlargest(player_pool, weighted_ops_list)
     # Weighted Average Calculation
     weighted_r_avg = z_score_calc.avg_calc(weighted_run_list_nlargest)
     weighted_hr_avg = z_score_calc.avg_calc(weighted_hr_list_nlargest)
@@ -110,21 +111,62 @@ def calculate_batter_z_score(batter_list, top_n_values, dollar_players, dollar_p
         batter.weightedZscoreOps = z_score_calc.z_score_calc(batter.weightedOps, weighted_ops_avg,
                                                              weighted_ops_std_dev)
     # Calculate Values
-    # this section isnt done
+    fvaaz_list = []
     for batter in batter_list:
         batter.fvaaz = (batter.zScoreR + batter.zScoreHr + batter.zScoreRbi + batter.zScoreSb +
                         batter.weightedZscoreOps)
+        fvaaz_list.append(batter.fvaaz)
+    players_over_one_dollar = players_over_zero_dollars - one_dollar_players
+    fvaaz_list_over_zero = heapq.nlargest(players_over_zero_dollars, fvaaz_list)
+    fvaaz_list_over_one = heapq.nlargest(players_over_one_dollar, fvaaz_list)
     for batter in batter_list:
-        fvaaz_list_nlargest = heapq.nlargest(top_n_values, (weighted_hr_list - dollar_players))
-        if batter.fvaaz >= fvaaz_list_nlargest[weighted_hr_list - dollar_players]:
+        if batter.fvaaz >= fvaaz_list_over_one[players_over_one_dollar - 1]:
             batter.dollarValue = batter.fvaaz * dollar_per_fvaaz
-    return batter_list
+        elif batter.fvaaz >= fvaaz_list_over_zero[players_over_zero_dollars - 1]:
+            batter.dollarValue = 1
+        else:
+            batter.dollarValue = 0
+    # print ("Run Avg: " + str(r_avg) + "\nRun StDev: " + str(r_std_dev) + "\nHr Avg: " +
+    #        str(hr_avg) + "\nHr StDev: " + str(hr_std_dev) + "\nRBI Avg: " + str(rbi_avg) +
+    #        "\nRBI StDev: " + str(rbi_std_dev) + "\nsb Avg: " + str(sb_avg) + "\nsb StDev: " +
+    #        str(sb_std_dev) + "\nops Avg: " + str(ops_avg) + "\nops StDev: " + str(ops_std_dev) +
+    #        "\nweighted_Run Avg: " + str(weighted_r_avg) + "\nweighted_Run StDev: " +
+    #        str(weighted_r_std_dev) + "\nweighted_Hr Avg: " + str(weighted_hr_avg) +
+    #        "\nweighted_Hr StDev: " + str(weighted_hr_std_dev) + "\nweighted_RBI Avg: " +
+    #        str(weighted_rbi_avg) + "\nweighted_RBI StDev: " + str(weighted_rbi_std_dev) +
+    #        "\nweighted_sb Avg: " + str(weighted_sb_avg) + "\nweighted_sb StDev: " +
+    #        str(weighted_sb_std_dev) + "\nweighted_ops Avg: " + str(weighted_ops_avg) +
+    #        "\nweighted_ops StDev: " + str(weighted_ops_std_dev))
+    # return batter_list.sort(key=player_models.Batter.get_dollar_value)
+    return sorted(batter_list, key=operator.attrgetter('dollarValue'), reverse=True)
+        # sorts by dollar Value (largest to smallest)
 
-# print len(create_full_batter_test(ROS_BATTER_URL))
-# print create_full_batter_test(ROS_BATTER_URL)[1447].__dict__
-# print create_full_batter_test(ROS_BATTER_URL)[0].__dict__
-# print calculate_batter_z_score(create_full_batter_test(ROS_BATTER_URL), 175, 30, 3.0)
-print calculate_batter_z_score(create_full_batter_test(ROS_BATTER_URL), 175, 30, 3.0)[0].__dict__
+ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
+BATTER_LIST = create_full_batter_test(ROS_BATTER_URL)
+PLAYERS_OVER_ZERO_DOLLARS = 176
+ONE_DOLLAR_PLAYERS = 30
+DOLLAR_PER_FVAAZ = 3.0
+PLAYER_POOL_MULTIPLIER = 2.375
+LEAGUE_NO = 5091
+FA_LIST = html_parser.yahoo_batter_fa(LEAGUE_NO)
+ROS_PROJECTION_LIST = calculate_batter_z_score(BATTER_LIST, PLAYERS_OVER_ZERO_DOLLARS,
+                                               ONE_DOLLAR_PLAYERS, DOLLAR_PER_FVAAZ,
+                                               PLAYER_POOL_MULTIPLIER)
+
+def rate_fa(fa_list, ros_projection_list):
+    """Compare available FAs with Projections"""
+    fa_player_list = []
+    for player in ros_projection_list:
+        if any(d['NAME'] == player.name for d in fa_list):
+            player.isFA = True
+            fa_player_list.append(player)
+    for N in range(0, 10):
+        print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
+               " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
+               " - {player.ops:^5}").format(player=fa_player_list[N])
+
+
+rate_fa(FA_LIST, ROS_PROJECTION_LIST)
 
 """  
 0 VBR

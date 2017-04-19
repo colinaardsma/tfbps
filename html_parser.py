@@ -1,7 +1,6 @@
 """HTML Parsing"""
 import urllib2
 from lxml import html
-import webbrowser
 
 ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
 

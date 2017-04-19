@@ -40,8 +40,11 @@ class Batter(object):
     # Values
     fvaaz = 0.00
     dollarValue = 0.00
+    # FA Status
+    isFA = False
 
-    def __init__(self, name, team, pos, category, atbats=0, runs=0, hrs=0, rbis=0, sbs=0, avg=0.000, ops=0.000):
+    def __init__(self, name, team, pos, category, atbats=0, runs=0, hrs=0, rbis=0,
+                 sbs=0, avg=0.000, ops=0.000):
         # Descriptive Properties
         self.name = str(name)
         self.team = str(team)
@@ -56,6 +59,10 @@ class Batter(object):
         self.sbs = int(sbs if sbs != None else 0)
         self.avg = float(avg if avg != None else 0)
         self.ops = float(ops if ops != None else 0)
+
+    def get_dollar_value(self):
+        """Return dollar value of player"""
+        return self.dollarValue
 
     # def make_batter(name, age, major):
     #     batter = Batter(name, age, major)
