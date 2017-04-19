@@ -88,9 +88,33 @@ def yahoo_player_dict_creator(single_player_html):
         counter += 1
     return single_player
 
+def yahoo_teams(league_no):
+    """Parse teams from yahoo league"""
+    team_list = []
+    url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
+           "/startingrosters")
+    content = urllib2.urlopen(url).read()
+    document = html.document_fromstring(content)
+    team_divs = document.xpath(".//div[@class='Bd']/div")
+    for team in team_divs:
+        team_dict = yahoo_team_creator(team)
+        team_list.append(team_dict)
+    return team_list
 
-        # tostring = html.tostring(body_html[0], pretty_print=True, method="html")
+def yahoo_team_creator(single_team_html):
+    """Create team. Includes name, number, and roster (list)"""
+    team = {}
+    dict_key_list = ["TEAM_NAME", "TEAM_NUMBER", "ROSTER"]
+    team[dict_key_list[0]] = str(single_team_html.xpath(".//p/a[@href]/text()")[0])
+    team_number_a = single_team_html.xpath(".//p/a")[0]
+    team[dict_key_list[1]] = team_number_a.attrib['href']
+    team[dict_key_list[2]] = []
+    table_body = single_team_html.xpath(".//table/tbody")
+    for row in table_body:
+        player = row.xpath(".//tr/td[@class='player'/div[1]/a/text()")
+        team[dict_key_list[2]].append(player)
+    return team
 
 
 
-# print yahoo_batter_fa(5091)
+print yahoo_teams(5091)
