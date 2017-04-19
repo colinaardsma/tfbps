@@ -138,8 +138,8 @@ def calculate_batter_z_score(batter_list, players_over_zero_dollars, one_dollar_
     #        str(weighted_sb_std_dev) + "\nweighted_ops Avg: " + str(weighted_ops_avg) +
     #        "\nweighted_ops StDev: " + str(weighted_ops_std_dev))
     # return batter_list.sort(key=player_models.Batter.get_dollar_value)
-    return sorted(batter_list, key=operator.attrgetter('dollarValue'), reverse=True)
-        # sorts by dollar Value (largest to smallest)
+    return sorted(batter_list, key=operator.attrgetter('fvaaz'), reverse=True)
+        # sorts by fvaaz (largest to smallest)
 
 ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
 BATTER_LIST = create_full_batter_test(ROS_BATTER_URL)
@@ -160,10 +160,15 @@ def rate_fa(fa_list, ros_projection_list):
         if any(d['NAME'] == player.name for d in fa_list):
             player.isFA = True
             fa_player_list.append(player)
-    for N in range(0, 10):
+    dollar_value = 100.00
+    player_number = 0
+    while dollar_value != 1.0:
+    # for N in range(0, 10):
         print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
                " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
-               " - {player.ops:^5}").format(player=fa_player_list[N])
+               " - {player.ops:^5}").format(player=fa_player_list[player_number])
+        dollar_value = fa_player_list[player_number].dollarValue
+        player_number += 1
 
 
 rate_fa(FA_LIST, ROS_PROJECTION_LIST)
