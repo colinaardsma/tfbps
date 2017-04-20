@@ -111,7 +111,7 @@ def yahoo_team_creator(single_team_html):
     team[dict_key_list[2]] = []
     table_body = single_team_html.xpath(".//table/tbody")
     for row in table_body:
-        player = row.xpath(".//tr/td[@class='player'/div[1]/a/text()")
+        player = row.xpath(".//tr/td[@class='player']/div[1]/div/a/text()")
         team[dict_key_list[2]].append(player)
     return team
 
