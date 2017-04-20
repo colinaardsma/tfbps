@@ -170,8 +170,24 @@ def rate_fa(fa_list, ros_projection_list):
         dollar_value = fa_player_list[player_number].dollarValue
         player_number += 1
 
+def rate_team(team_dict, ros_projection_list):
+    """Compare team with Projections"""
+    team_roster_list = team_dict['ROSTER']
+    team_player_list = []
+    for player in ros_projection_list:
+        if player.name in team_roster_list:
+            team_player_list.append(player)
+    for player in team_player_list:
+        print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
+               " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
+               " - {player.ops:^5}").format(player=player)
 
+print "Avail FAs"
 rate_fa(FA_LIST, ROS_PROJECTION_LIST)
+print "\nTeam Value"
+rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"), ROS_PROJECTION_LIST)
+
+
 
 """  
 0 VBR

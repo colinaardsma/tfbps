@@ -1,12 +1,14 @@
 """HTML Parsing"""
 import urllib2
+import unicodedata
 from lxml import html
 
 ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
 
 def fantasy_pro_batters(url):
     """Parse batter data from url"""
-    content = urllib2.urlopen(url).read()
+    content = urllib2.urlopen(url).read().decode('utf-8')
+    content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
     document = html.document_fromstring(content)
     headings_list_html = document.xpath("//div[@class='mobile-table']" +
                                         "/table/thead/tr/descendant::*/text()")
@@ -51,7 +53,8 @@ def yahoo_batter_fa(league_no):
         url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
                "/players?status=A&pos=B&cut_type=33&stat1=S_S_2017&myteam=0&sort=AR&sdir=1&count=" +
                str(count))
-        content = urllib2.urlopen(url).read()
+        content = urllib2.urlopen(url).read().decode('utf-8')
+        content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
         document = html.document_fromstring(content)
         body_html = document.xpath(".//div[@class='players'][table]/table/tbody/tr")
         for player_html in body_html:
@@ -93,7 +96,8 @@ def yahoo_teams(league_no):
     team_list = []
     url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
            "/startingrosters")
-    content = urllib2.urlopen(url).read()
+    content = urllib2.urlopen(url).read().decode('utf-8')
+    content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
     document = html.document_fromstring(content)
     team_divs = document.xpath(".//div[@class='Bd']/div")
     for team in team_divs:
@@ -107,14 +111,18 @@ def yahoo_team_creator(single_team_html):
     dict_key_list = ["TEAM_NAME", "TEAM_NUMBER", "ROSTER"]
     team[dict_key_list[0]] = str(single_team_html.xpath(".//p/a[@href]/text()")[0])
     team_number_a = single_team_html.xpath(".//p/a")[0]
-    team[dict_key_list[1]] = team_number_a.attrib['href']
-    team[dict_key_list[2]] = []
+    team[dict_key_list[1]] = team_number_a.attrib['href'].split("/")[3]
     table_body = single_team_html.xpath(".//table/tbody")
     for row in table_body:
-        player = row.xpath(".//tr/td[@class='player']/div[1]/div/a/text()")
-        team[dict_key_list[2]].append(player)
+        team[dict_key_list[2]] = row.xpath(".//tr/td[@class='player']/div[1]/div/a/text()")
     return team
 
-
-
-print yahoo_teams(5091)
+def get_single_yahoo_team(league_no, team_name=None, team_number=None):
+    """Get single team from yahoo team list. Using either team name or team number."""
+    team_list = yahoo_teams(league_no)
+    for team in team_list:
+        if team_number is not None and team['TEAM_NUMBER'] == str(team_number):
+            return team
+        elif team_name is not None and team['TEAM_NAME'] == team_name:
+            return team
+    print "Team Name or Team Number are invalid."
