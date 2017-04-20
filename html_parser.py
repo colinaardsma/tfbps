@@ -3,9 +3,7 @@ import urllib2
 import unicodedata
 from lxml import html
 
-ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
-
-def fantasy_pro_batters(url):
+def fantasy_pro_players(url):
     """Parse batter data from url"""
     content = urllib2.urlopen(url).read().decode('utf-8')
     content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
@@ -45,14 +43,17 @@ def fant_pro_player_dict_creator(single_player_html, headings_list_html):
         counter += 1
     return single_player
 
-def yahoo_batter_fa(league_no):
-    """Parse Batter FAs from yahoo league"""
+def yahoo_fa(league_no, b_or_p):
+    """Parse FAs from yahoo league"""
     count = 0
     avail_player_list = []
     while count <= 300:
-        url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
-               "/players?status=A&pos=B&cut_type=33&stat1=S_S_2017&myteam=0&sort=AR&sdir=1&count=" +
-               str(count))
+        # url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
+        #        "/players?status=A&pos=" + b_or_p + "&cut_type=33&stat1=S_S_2017&myteam=0&sort=AR&sdir=1&count=" +
+        #        str(count))
+        url = ("http://baseball.fantasysports.yahoo.com/b1/{league_no}" +
+               "/players?status=A&pos={b_or_p}&cut_type=33&stat1=S_S_2017&myteam=0&sort=AR&" +
+               "sdir=1&count={count}").format(league_no=league_no, b_or_p=b_or_p, count=count)
         content = urllib2.urlopen(url).read().decode('utf-8')
         content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
         document = html.document_fromstring(content)
@@ -126,3 +127,5 @@ def get_single_yahoo_team(league_no, team_name=None, team_number=None):
         elif team_name is not None and team['TEAM_NAME'] == team_name:
             return team
     print "Team Name or Team Number are invalid."
+
+# print fantasy_pro_players(ROS_PITCHER_URL)

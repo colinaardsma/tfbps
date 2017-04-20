@@ -24,4 +24,8 @@ def z_score_calc(stat, stat_avg, std_dev):
     """Calculate the zScore for a list."""
     z_score = (float(stat) - stat_avg) / std_dev
     return z_score
-    
+
+def z_score_calc_era_whip(stat, stat_avg, std_dev):
+    """Calculate the zScore for a list."""
+    z_score = (float(stat) - stat_avg) / std_dev
+    return z_score

@@ -60,13 +60,65 @@ class Batter(object):
         self.avg = float(avg if avg != None else 0)
         self.ops = float(ops if ops != None else 0)
 
-    def get_dollar_value(self):
-        """Return dollar value of player"""
-        return self.dollarValue
+    # def get_dollar_value(self):
+    #     """Return dollar value of player"""
+    #     return self.dollarValue
 
-    # def make_batter(name, age, major):
-    #     batter = Batter(name, age, major)
-    #     return batter
+class Pitcher(object):
+    """The Pitcher Model"""
+    # Descriptive Properties
+    name = ""
+    team = ""
+    pos = ""
+    # last_modified =
+    category = ""
+    # Raw Stat Properties
+    ips = 0
+    wins = 0
+    svs = 0
+    sos = 0
+    era = 0
+    whip = 0.000
+    # Initial zScore Properties
+    zScoreW = 0.000
+    zScoreSv = 0.000
+    zScoreK = 0.000
+    zScoreEra = 0.000
+    zScoreWhip = 0.000
+    # Weighted (Multiplied by AB) Properties
+    weightedW = 0.000
+    weightedSv = 0.000
+    weightedK = 0.000
+    weightedEra = 0.000
+    weightedWhip = 0.000
+    # Weighted and RezScored Properties
+    weightedZscoreW = 0.000
+    weightedZscoreSv = 0.000
+    weightedZscoreK = 0.000
+    weightedZscoreEra = 0.000
+    weightedZscoreWhip = 0.000
+    # Values
+    fvaaz = 0.00
+    dollarValue = 0.00
+    # FA Status
+    isFA = False
 
+    def __init__(self, name, team, pos, category, ips=0, wins=0, svs=0, sos=0,
+                 era=0.000, whip=0.000):
+        # Descriptive Properties
+        self.name = str(name)
+        self.team = str(team)
+        self.pos = str(pos)
+        # self.last_modified = last_modified
+        self.category = str(category)
+        # Raw Stat Properties
+        self.ips = int(ips if ips != None else 0)
+        self.wins = int(wins if wins != None else 0)
+        self.svs = int(svs if svs != None else 0)
+        self.sos = int(sos if sos != None else 0)
+        self.era = float(era if era != None else 0)
+        self.whip = float(whip if whip != None else 0)
 
-
+    # def get_dollar_value(self):
+    #     """Return dollar value of player"""
+    #     return self.dollarValue
