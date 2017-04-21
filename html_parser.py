@@ -45,15 +45,17 @@ def fant_pro_player_dict_creator(single_player_html, headings_list_html):
 
 def yahoo_fa(league_no, b_or_p):
     """Parse FAs from yahoo league"""
+    # b_or_p = b_or_p.upper()
     count = 0
     avail_player_list = []
     while count <= 300:
         # url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
-        #        "/players?status=A&pos=" + b_or_p + "&cut_type=33&stat1=S_S_2017&myteam=0&sort=AR&sdir=1&count=" +
-        #        str(count))
+        #        "/players?status=A&pos=" + b_or_p + "&cut_type=33&stat1=S_S_2017&" +
+        #        "myteam=0&sort=AR&sdir=1&count=" + str(count))
         url = ("http://baseball.fantasysports.yahoo.com/b1/{league_no}" +
                "/players?status=A&pos={b_or_p}&cut_type=33&stat1=S_S_2017&myteam=0&sort=AR&" +
-               "sdir=1&count={count}").format(league_no=league_no, b_or_p=b_or_p, count=count)
+               "sdir=1&count={count}").format(league_no=league_no, b_or_p=b_or_p.upper(),
+                                              count=count)
         content = urllib2.urlopen(url).read().decode('utf-8')
         content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
         document = html.document_fromstring(content)

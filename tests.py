@@ -195,7 +195,7 @@ def calculate_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dolla
     # Standard Deviation Calculation
     w_std_dev = z_score_calc.std_dev_calc(win_list_nlargest, w_avg)
     sv_std_dev = z_score_calc.std_dev_calc(sv_list_nlargest, sv_avg)
-    k_std_dev = z_score_calc.std_dev_calc(k_list_nlargest, k_avg)
+    k_std_dev = z_score_calc.std_dev_calc(k_list_nlargest, k_avg)                                   
     era_std_dev = z_score_calc.std_dev_calc(era_list_nsmallest, era_avg)
     whip_std_dev = z_score_calc.std_dev_calc(whip_list_nsmallest, whip_avg)
     # zScore Calculation
@@ -251,12 +251,11 @@ def calculate_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dolla
                                                              weighted_sv_std_dev)
         pitcher.weightedZscoreK = z_score_calc.z_score_calc(pitcher.weightedK, weighted_k_avg,
                                                             weighted_k_std_dev)
-        pitcher.weightedZscoreEra = z_score_calc.z_score_calc_era_whip(pitcher.weightedEra,
-                                                                       weighted_era_avg,
-                                                                       weighted_era_std_dev)
-        pitcher.weightedZscoreWhip = z_score_calc.z_score_calc_era_whip(pitcher.weightedWhip,
-                                                                        weighted_whip_avg,
-                                                                        weighted_whip_std_dev)
+        pitcher.weightedZscoreEra = z_score_calc.z_score_calc(pitcher.weightedEra, weighted_era_avg,
+                                                              weighted_era_std_dev)
+        pitcher.weightedZscoreWhip = z_score_calc.z_score_calc(pitcher.weightedWhip,
+                                                               weighted_whip_avg,
+                                                               weighted_whip_std_dev)
     # Calculate Values
     fvaaz_list = []
     for pitcher in pitcher_list:
@@ -307,8 +306,8 @@ PITCHER_DOLLAR_PER_FVAAZ = 2.17
 BATTER_PLAYER_POOL_MULTIPLIER = 2.375
 PITCHER_PLAYER_POOL_MULTIPLIER = 4.45
 LEAGUE_NO = 5091
-BATTER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "b")
-PITCHER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "p")
+BATTER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "B")
+PITCHER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "P")
 ROS_PROJECTION_BATTER_LIST = calculate_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
                                                       ONE_DOLLAR_BATTERS, BATTER_DOLLAR_PER_FVAAZ,
                                                       BATTER_PLAYER_POOL_MULTIPLIER)
@@ -326,7 +325,7 @@ def rate_fa(fa_list, ros_projection_list):
             fa_player_list.append(player)
     dollar_value = 100.00
     player_number = 0
-    while dollar_value != 1.0:
+    while dollar_value > 1.0:
         # print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
         #        " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
         #        " - {player.ops:^5}").format(player=fa_player_list[player_number])
@@ -347,12 +346,12 @@ def rate_team(team_dict, ros_projection_list):
                " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
                " - {player.ops:^5}").format(player=player)
 
-print "Avail FAs"
-rate_fa(PITCHER_FA_LIST, ROS_PROJECTION_PITCHER_LIST)
+# print "Avail FAs"
+# rate_fa(PITCHER_FA_LIST, ROS_PROJECTION_PITCHER_LIST)
 # print "\nTeam Value"
 # rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"), ROS_PROJECTION_LIST)
 
-# print ROS_PROJECTION_PITCHER_LIST
+print PITCHER_FA_LIST
 
 """  
 0 VBR
