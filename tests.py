@@ -319,39 +319,56 @@ ROS_PROJECTION_PITCHER_LIST = calculate_pitcher_z_score(PITCHER_LIST, PITCHERS_O
 def rate_fa(fa_list, ros_projection_list):
     """Compare available FAs with Projections"""
     fa_player_list = []
+    fa_lower_list = [fa.lower() for fa in fa_list]
     for player in ros_projection_list:
-        if any(d['NAME'] == player.name for d in fa_list):
+        if any(d['NAME'] == player.name.lower() for d in fa_lower_list):
             player.isFA = True
             fa_player_list.append(player)
     dollar_value = 100.00
     player_number = 0
-    while dollar_value > 1.0:
-        # print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
-        #        " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
-        #        " - {player.ops:^5}").format(player=fa_player_list[player_number])
-        print ("${player.dollarValue:^5.2f} - {player.name:^25}" +
-               " - {player.pos:^20}").format(player=fa_player_list[player_number])
-        dollar_value = fa_player_list[player_number].dollarValue
-        player_number += 1
+    if "P" in ros_projection_list[0].pos:
+        while dollar_value > 1.0:
+            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
+                   " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
+                   " - {player.whip:^4}").format(player=fa_player_list[player_number])
+            dollar_value = fa_player_list[player_number].dollarValue
+            player_number += 1
+    else:
+        while dollar_value > 1.0:
+            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
+                   " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
+                   " - {player.ops:^5}").format(player=fa_player_list[player_number])
+            dollar_value = fa_player_list[player_number].dollarValue
+            player_number += 1
 
 def rate_team(team_dict, ros_projection_list):
     """Compare team with Projections"""
-    team_roster_list = team_dict['ROSTER']
+    team_roster_list = [roster.lower() for roster in team_dict['ROSTER']]
     team_player_list = []
     for player in ros_projection_list:
-        if player.name in team_roster_list:
+        if player.name.lower() in team_roster_list:
             team_player_list.append(player)
     for player in team_player_list:
-        print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
-               " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
-               " - {player.ops:^5}").format(player=player)
+        if "P" in ros_projection_list[0].pos:
+            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
+                   " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
+                   " - {player.whip:^4}").format(player=player)
+        else:
+            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
+                   " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
+                   " - {player.ops:^5}").format(player=player)
 
-# print "Avail FAs"
-# rate_fa(PITCHER_FA_LIST, ROS_PROJECTION_PITCHER_LIST)
-# print "\nTeam Value"
-# rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"), ROS_PROJECTION_LIST)
-
-print PITCHER_FA_LIST
+print "Avail FAs"
+rate_fa(PITCHER_FA_LIST, ROS_PROJECTION_PITCHER_LIST)
+print "\nTeam Value"
+rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
+          ROS_PROJECTION_PITCHER_LIST)
+print "Avail FAs"
+rate_fa(BATTER_FA_LIST, ROS_PROJECTION_BATTER_LIST)
+print "\nTeam Value"
+rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
+          ROS_PROJECTION_BATTER_LIST)
+# print PITCHER_FA_LIST
 
 """  
 0 VBR
