@@ -49,9 +49,6 @@ def yahoo_fa(league_no, b_or_p):
     count = 0
     avail_player_list = []
     while count <= 300:
-        # url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
-        #        "/players?status=A&pos=" + b_or_p + "&cut_type=33&stat1=S_S_2017&" +
-        #        "myteam=0&sort=AR&sdir=1&count=" + str(count))
         url = ("http://baseball.fantasysports.yahoo.com/b1/{league_no}" +
                "/players?status=A&pos={b_or_p}&cut_type=33&stat1=S_S_2017&myteam=0&sort=AR&" +
                "sdir=1&count={count}").format(league_no=league_no, b_or_p=b_or_p.upper(),
@@ -71,6 +68,7 @@ def yahoo_player_dict_creator(single_player_html):
     """Take in html table row for a single player and return stats in list form"""
     single_player = {}
     counter = 1
+    # TODO:// add pitcher version, see fant pro
     dict_key_list = ["STARRED", "NAME", "TEAM", "POS", "OWNER", "GP", "PRESEASON_RANK",
                      "CURRENT_RANK", "PCT_OWN", "HAB", "R", "HR", "RBI", "SB", "OPS"]
     while counter < len(single_player_html):

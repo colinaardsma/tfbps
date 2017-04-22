@@ -5,6 +5,8 @@ import player_models
 import html_parser
 import z_score_calc
 
+# https://developer.yahoo.com/fantasysports/guide/players-collection.html
+
 def create_full_batter(url):
     """Test creation of batters"""
     raw_batter_list = html_parser.fantasy_pro_players(url)
@@ -259,7 +261,7 @@ def calculate_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dolla
     # Calculate Values
     fvaaz_list = []
     for pitcher in pitcher_list:
-        if "RP" in pitcher.pos:
+        if "SP" not in pitcher.pos or ("RP" in pitcher.pos and pitcher.wins < 8):
             pitcher.fvaaz = (pitcher.weightedZscoreSv + pitcher.weightedZscoreK +
                              pitcher.weightedZscoreEra + pitcher.weightedZscoreWhip)
         else:
@@ -319,9 +321,8 @@ ROS_PROJECTION_PITCHER_LIST = calculate_pitcher_z_score(PITCHER_LIST, PITCHERS_O
 def rate_fa(fa_list, ros_projection_list):
     """Compare available FAs with Projections"""
     fa_player_list = []
-    fa_lower_list = [fa.lower() for fa in fa_list]
     for player in ros_projection_list:
-        if any(d['NAME'] == player.name.lower() for d in fa_lower_list):
+        if any(fa['NAME'].lower().replace('.', '') == player.name.lower().replace('.', '') for fa in fa_list):
             player.isFA = True
             fa_player_list.append(player)
     dollar_value = 100.00
@@ -343,10 +344,10 @@ def rate_fa(fa_list, ros_projection_list):
 
 def rate_team(team_dict, ros_projection_list):
     """Compare team with Projections"""
-    team_roster_list = [roster.lower() for roster in team_dict['ROSTER']]
+    team_roster_list = [roster.lower().replace('.', '') for roster in team_dict['ROSTER']]
     team_player_list = []
     for player in ros_projection_list:
-        if player.name.lower() in team_roster_list:
+        if player.name.lower().replace('.', '') in team_roster_list:
             team_player_list.append(player)
     for player in team_player_list:
         if "P" in ros_projection_list[0].pos:
@@ -358,14 +359,14 @@ def rate_team(team_dict, ros_projection_list):
                    " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
                    " - {player.ops:^5}").format(player=player)
 
-print "Avail FAs"
+print "Avail Pitching FAs"
 rate_fa(PITCHER_FA_LIST, ROS_PROJECTION_PITCHER_LIST)
-print "\nTeam Value"
+print "\nTeam Pitching Values"
 rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
           ROS_PROJECTION_PITCHER_LIST)
-print "Avail FAs"
+print "\nAvail Batting FAs"
 rate_fa(BATTER_FA_LIST, ROS_PROJECTION_BATTER_LIST)
-print "\nTeam Value"
+print "\nTeam Batting Values"
 rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
           ROS_PROJECTION_BATTER_LIST)
 # print PITCHER_FA_LIST
