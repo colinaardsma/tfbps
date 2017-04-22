@@ -197,7 +197,7 @@ def calculate_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dolla
     # Standard Deviation Calculation
     w_std_dev = z_score_calc.std_dev_calc(win_list_nlargest, w_avg)
     sv_std_dev = z_score_calc.std_dev_calc(sv_list_nlargest, sv_avg)
-    k_std_dev = z_score_calc.std_dev_calc(k_list_nlargest, k_avg)                                   
+    k_std_dev = z_score_calc.std_dev_calc(k_list_nlargest, k_avg)
     era_std_dev = z_score_calc.std_dev_calc(era_list_nsmallest, era_avg)
     whip_std_dev = z_score_calc.std_dev_calc(whip_list_nsmallest, whip_avg)
     # zScore Calculation
@@ -322,7 +322,8 @@ def rate_fa(fa_list, ros_projection_list):
     """Compare available FAs with Projections"""
     fa_player_list = []
     for player in ros_projection_list:
-        if any(fa['NAME'].lower().replace('.', '') == player.name.lower().replace('.', '') for fa in fa_list):
+        if any(fa['NAME'].lower().replace('.', '') ==
+               player.name.lower().replace('.', '') for fa in fa_list):
             player.isFA = True
             fa_player_list.append(player)
     dollar_value = 100.00

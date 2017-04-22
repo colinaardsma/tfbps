@@ -59,18 +59,21 @@ def yahoo_fa(league_no, b_or_p):
         body_html = document.xpath(".//div[@class='players'][table]/table/tbody/tr")
         for player_html in body_html:
             single_player_html = player_html.xpath("descendant::td")
-            player_stats = yahoo_player_dict_creator(single_player_html)
+            player_stats = yahoo_player_dict_creator(single_player_html, b_or_p.upper())
             avail_player_list.append(player_stats)
         count += 25
     return avail_player_list
 
-def yahoo_player_dict_creator(single_player_html):
+def yahoo_player_dict_creator(single_player_html, b_or_p):
     """Take in html table row for a single player and return stats in list form"""
     single_player = {}
     counter = 1
-    # TODO:// add pitcher version, see fant pro
-    dict_key_list = ["STARRED", "NAME", "TEAM", "POS", "OWNER", "GP", "PRESEASON_RANK",
-                     "CURRENT_RANK", "PCT_OWN", "HAB", "R", "HR", "RBI", "SB", "OPS"]
+    if b_or_p == "B":
+        dict_key_list = ["STARRED", "NAME", "TEAM", "POS", "OWNER", "GP", "PRESEASON_RANK",
+                         "CURRENT_RANK", "PCT_OWN", "HAB", "R", "HR", "RBI", "SB", "OPS"]
+    else:
+        dict_key_list = ["STARRED", "NAME", "TEAM", "POS", "OWNER", "GP", "PRESEASON_RANK",
+                         "CURRENT_RANK", "PCT_OWN", "IP", "W", "SV", "K", "ERA", "WHIP"]
     while counter < len(single_player_html):
         if counter == 1:
             name = single_player_html[1].xpath("descendant::a[@class='Nowrap name F-link']" +
