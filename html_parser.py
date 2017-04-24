@@ -208,7 +208,8 @@ def get_standings(league_no):
     document = html_to_document(url)
     # points_html = document.xpath(".//div[@id='redzone']/div/div/div/div/div/table")
 # not working
-    points_html = document.xpath(".//div[//h2/span='Overall Points']/table")
+    # points_html = document.xpath(".//div[//h2/span='Overall Points']/table")
+    points_html = document.xpath(".//div[.//span='Overall Points']")
     return points_html
 # //div[contains(@class, "theclass") and .//span="this"]
 print get_standings(5091)
