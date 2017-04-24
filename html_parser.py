@@ -206,21 +206,23 @@ def get_standings(league_no):
     url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
            "/standings?opt_out=1")
     document = html_to_document(url)
-
-
-    # points_html = document.xpath(".//div[@id='redzone']/div/div/div/div/div/table")
-# not working
-    # points_html = document.xpath(".//div[//h2/span='Overall Points']/table")
-    # points_html = document.xpath(".//div[.//span[ends-with(text(),'Points')]]")
-    # h2_html = document.xpath(".//h2")
     points_html = document.xpath(".//section[@id='standings-table']/table")[0]
     points_headers = points_html.xpath(".//thead/tr[@class='Alt Last']//text()")
     points_header_list = []
     for header_html in points_headers:
-        header = "Points" + points_headers
+        if header_html == u"\ue004":
+            continue
+        header = "Points" + header_html.replace(" ", "")
         points_header_list.append(header)
-    # points_html2 = html.tostring(points_html)
-    return points_header_list
+    stats_html = document.xpath(".//section[@id='standings-table']/table")[1]
+    stats_headers = stats_html.xpath(".//thead/tr[@class='Alt Last']//text()")
+    stats_header_list = []
+    for header_html in stats_headers:
+        if header_html == u"\ue004":
+            continue
+        header = "Stats" + header_html.replace(" ", "")
+        stats_header_list.append(header)
+    return stats_header_list
 # //div[contains(@class, "theclass") and .//span="this"]
 print get_standings(5091)
 
