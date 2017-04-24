@@ -3,11 +3,30 @@ import urllib2
 import unicodedata
 from lxml import html
 
-def fantasy_pro_players(url):
-    """Parse batter data from url"""
+def html_to_document(url):
+    """Get league standings\n
+    Args:\n
+        url: the url.\n
+    Returns:\n
+        html in document form.\n
+    Raises:\n
+        None.
+    """
     content = urllib2.urlopen(url).read().decode('utf-8')
     content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
     document = html.document_fromstring(content)
+    return document
+
+def fantasy_pro_players(url):
+    """Parse batter data from url\n
+    Args:\n
+        url: the fantasypros.com url.\n
+    Returns:\n
+        list of dict of player projections.\n
+    Raises:\n
+        None.
+    """
+    document = html_to_document(url)
     headings_list_html = document.xpath("//div[@class='mobile-table']" +
                                         "/table/thead/tr/descendant::*/text()")
     headings_list_html[len(headings_list_html) - 1] = "AVG_OWN_PCT"
@@ -22,7 +41,16 @@ def fantasy_pro_players(url):
     return player_list
 
 def fant_pro_player_dict_creator(single_player_html, headings_list_html):
-    """Take in html table row for a single player and return stats in list form"""
+    """Take in html table row for a single player and return player data and
+    stats in dictionary form.\n
+    Args:\n
+        single_player_html: html for a single player.\n
+        headings_list_html: html for the table heading row.\n
+    Returns:\n
+        dict of projections for a single player.\n
+    Raises:\n
+        None.
+    """
     single_player = {}
     counter = 0
     while counter < len(single_player_html):
@@ -44,8 +72,15 @@ def fant_pro_player_dict_creator(single_player_html, headings_list_html):
     return single_player
 
 def yahoo_fa(league_no, b_or_p):
-    """Parse FAs from yahoo league"""
-    # b_or_p = b_or_p.upper()
+    """Parse FAs from yahoo league\n
+    Args:\n
+        league_no: Yahoo! fantasy baseball league number.\n
+        b_or_p: "B" for batters or "P" for pitchers.\n
+    Returns:\n
+        list of available FAs for league specified.\n
+    Raises:\n
+        None.
+    """
     count = 0
     avail_player_list = []
     while count <= 300:
@@ -53,9 +88,7 @@ def yahoo_fa(league_no, b_or_p):
                "/players?status=A&pos={b_or_p}&cut_type=33&stat1=S_S_2017&myteam=0&sort=AR&" +
                "sdir=1&count={count}").format(league_no=league_no, b_or_p=b_or_p.upper(),
                                               count=count)
-        content = urllib2.urlopen(url).read().decode('utf-8')
-        content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
-        document = html.document_fromstring(content)
+        document = html_to_document(url)
         body_html = document.xpath(".//div[@class='players'][table]/table/tbody/tr")
         for player_html in body_html:
             single_player_html = player_html.xpath("descendant::td")
@@ -65,7 +98,15 @@ def yahoo_fa(league_no, b_or_p):
     return avail_player_list
 
 def yahoo_player_dict_creator(single_player_html, b_or_p):
-    """Take in html table row for a single player and return stats in list form"""
+    """Take in html table row for a single player and return stats in list form\n
+    Args:\n
+        single_player_html: html for a single player.\n
+        b_or_p: "B" for batters or "P" for pitchers.\n
+    Returns:\n
+        dict of projections for a single player.\n
+    Raises:\n
+        None.
+    """
     single_player = {}
     counter = 1
     if b_or_p == "B":
@@ -96,13 +137,18 @@ def yahoo_player_dict_creator(single_player_html, b_or_p):
     return single_player
 
 def yahoo_teams(league_no):
-    """Parse teams from yahoo league"""
+    """Parse teams from yahoo league\n
+    Args:\n
+        league_no: Yahoo! fantasy baseball league number.\n
+    Returns:\n
+        list of teams based on league number.\n
+    Raises:\n
+        None.
+    """
     team_list = []
     url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
            "/startingrosters")
-    content = urllib2.urlopen(url).read().decode('utf-8')
-    content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
-    document = html.document_fromstring(content)
+    document = html_to_document(url)
     team_divs = document.xpath(".//div[@class='Bd']/div")
     for team in team_divs:
         team_dict = yahoo_team_creator(team)
@@ -110,7 +156,14 @@ def yahoo_teams(league_no):
     return team_list
 
 def yahoo_team_creator(single_team_html):
-    """Create team. Includes name, number, and roster (list)"""
+    """Create team. Includes name, number, and roster (list)\n
+    Args:\n
+        single_team_html: html for a single team.\n
+    Returns:\n
+        dict of team including name, number, and roster as a list.\n
+    Raises:\n
+        None.
+    """
     team = {}
     dict_key_list = ["TEAM_NAME", "TEAM_NUMBER", "ROSTER"]
     team[dict_key_list[0]] = str(single_team_html.xpath(".//p/a[@href]/text()")[0])
@@ -122,7 +175,16 @@ def yahoo_team_creator(single_team_html):
     return team
 
 def get_single_yahoo_team(league_no, team_name=None, team_number=None):
-    """Get single team from yahoo team list. Using either team name or team number."""
+    """Get single team from yahoo team list. Using either team name or team number.\n
+    Args:\n
+        league_no: Yahoo! fantasy baseball league number.\n
+        team_name: name of the team to retreive (default = None).
+        team_number: number of the team to retreive (default = None).
+    Returns:\n
+        dict of single team.\n
+    Raises:\n
+        None.
+    """
     team_list = yahoo_teams(league_no)
     for team in team_list:
         if team_number is not None and team['TEAM_NUMBER'] == str(team_number):
@@ -131,4 +193,23 @@ def get_single_yahoo_team(league_no, team_name=None, team_number=None):
             return team
     print "Team Name or Team Number are invalid."
 
-# print fantasy_pro_players(ROS_PITCHER_URL)
+def get_standings(league_no):
+    """Get league standings\n
+    Args:\n
+        league_no: Yahoo! fantasy baseball league number.\n
+    Returns:\n
+        list of dict of team standings.\n
+    Raises:\n
+        None.
+    """
+    team_list = yahoo_teams(league_no)
+    url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
+           "/standings")
+    document = html_to_document(url)
+    # points_html = document.xpath(".//div[@id='redzone']/div/div/div/div/div/table")
+# not working
+    points_html = document.xpath(".//div[//h2/span='Overall Points']/table")
+    return points_html
+# //div[contains(@class, "theclass") and .//span="this"]
+print get_standings(5091)
+
