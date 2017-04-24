@@ -204,13 +204,23 @@ def get_standings(league_no):
     """
     team_list = yahoo_teams(league_no)
     url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
-           "/standings")
+           "/standings?opt_out=1")
     document = html_to_document(url)
+
+
     # points_html = document.xpath(".//div[@id='redzone']/div/div/div/div/div/table")
 # not working
     # points_html = document.xpath(".//div[//h2/span='Overall Points']/table")
-    points_html = document.xpath(".//div[.//span='Overall Points']")
-    return points_html
+    # points_html = document.xpath(".//div[.//span[ends-with(text(),'Points')]]")
+    # h2_html = document.xpath(".//h2")
+    points_html = document.xpath(".//section[@id='standings-table']/table")[0]
+    points_headers = points_html.xpath(".//thead/tr[@class='Alt Last']//text()")
+    points_header_list = []
+    for header_html in points_headers:
+        header = "Points" + points_headers
+        points_header_list.append(header)
+    # points_html2 = html.tostring(points_html)
+    return points_header_list
 # //div[contains(@class, "theclass") and .//span="this"]
 print get_standings(5091)
 
