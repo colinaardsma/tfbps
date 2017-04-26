@@ -214,6 +214,13 @@ def get_standings(league_no):
             continue
         header = "Points" + header_html.replace(" ", "")
         points_header_list.append(header)
+    points_teams = points_html.xpath(".//tbody/tr")
+    team_dict = {}
+    for team_html in points_teams:
+        team_row = team_html.xpath(".//descendant::text()")
+
+
+
     stats_html = document.xpath(".//section[@id='standings-table']/table")[1]
     stats_headers = stats_html.xpath(".//thead/tr[@class='Alt Last']//text()")
     stats_header_list = []
@@ -222,7 +229,8 @@ def get_standings(league_no):
             continue
         header = "Stats" + header_html.replace(" ", "")
         stats_header_list.append(header)
+
     return stats_header_list
-# //div[contains(@class, "theclass") and .//span="this"]
+
 print get_standings(5091)
 
