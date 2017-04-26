@@ -193,16 +193,17 @@ def get_single_yahoo_team(league_no, team_name=None, team_number=None):
             return team
     print "Team Name or Team Number are invalid."
 
-def get_standings(league_no):
+def get_standings(league_no, team_count):
     """Get league standings\n
     Args:\n
         league_no: Yahoo! fantasy baseball league number.\n
+        team_count: number of teams in league.\n
     Returns:\n
         list of dict of team standings.\n
     Raises:\n
         None.
     """
-    team_list = yahoo_teams(league_no)
+    # team_list = yahoo_teams(league_no)
     url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
            "/standings?opt_out=1")
     document = html_to_document(url)
@@ -215,12 +216,6 @@ def get_standings(league_no):
         header = "Points" + header_html.replace(" ", "")
         points_header_list.append(header)
     points_teams = points_html.xpath(".//tbody/tr")
-    team_dict = {}
-    for team_html in points_teams:
-        team_row = team_html.xpath(".//descendant::text()")
-
-
-
     stats_html = document.xpath(".//section[@id='standings-table']/table")[1]
     stats_headers = stats_html.xpath(".//thead/tr[@class='Alt Last']//text()")
     stats_header_list = []
@@ -229,8 +224,29 @@ def get_standings(league_no):
             continue
         header = "Stats" + header_html.replace(" ", "")
         stats_header_list.append(header)
+    stats_teams = stats_html.xpath(".//tbody/tr")
+    team_standings = []
+    html_counter = 0
+    while html_counter < team_count:
+        team_dict = {}
+        team_points_row = points_teams[html_counter].xpath(".//descendant::text()")
+        team_stats_row = stats_teams[html_counter].xpath(".//descendant::text()")
+        team_points_row[0] = team_points_row[0].replace(".", "")
+        team_stats_row[0] = team_stats_row[0].replace(".", "")
+        points_counter = 0
+        while points_counter < len(points_header_list):
+            team_dict[points_header_list[points_counter]] = team_points_row[points_counter]
+            points_counter += 1
+        stats_counter = 0
+        while stats_counter < len(stats_header_list):
+            team_dict[stats_header_list[stats_counter]] = team_stats_row[stats_counter]
+            stats_counter += 1
+        team_standings.append(team_dict)
+        html_counter += 1
+    return team_standings
 
-    return stats_header_list
+def single_team_standing_dict(html, points_or_stats):
+    this = "this"
 
-print get_standings(5091)
+print get_standings(5091, 12)
 
