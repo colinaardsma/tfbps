@@ -115,7 +115,7 @@ def yahoo_player_dict_creator(single_player_html, b_or_p):
     else:
         dict_key_list = ["STARRED", "NAME", "TEAM", "POS", "OWNER", "GP", "PRESEASON_RANK",
                          "CURRENT_RANK", "PCT_OWN", "IP", "W", "SV", "K", "ERA", "WHIP"]
-    while counter < len(single_player_html):
+    while counter < len(single_player_html) and counter < 15:
         if counter == 1:
             name = single_player_html[1].xpath("descendant::a[@class='Nowrap name F-link']" +
                                                "/text()")[0]
@@ -248,5 +248,4 @@ def get_standings(league_no, team_count):
 def single_team_standing_dict(html, points_or_stats):
     this = "this"
 
-print get_standings(5091, 12)
-
+# print get_standings(5091, 12)
