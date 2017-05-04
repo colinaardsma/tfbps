@@ -199,11 +199,10 @@ def get_standings(league_no, team_count):
         league_no: Yahoo! fantasy baseball league number.\n
         team_count: number of teams in league.\n
     Returns:\n
-        list of dict of team standings.\n
+        list of dict of current team standings.\n
     Raises:\n
         None.
     """
-    # team_list = yahoo_teams(league_no)
     url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
            "/standings?opt_out=1")
     document = html_to_document(url)
@@ -225,7 +224,7 @@ def get_standings(league_no, team_count):
         header = "Stats" + header_html.replace(" ", "")
         stats_header_list.append(header)
     stats_teams = stats_html.xpath(".//tbody/tr")
-    team_standings = []
+    current_standings = []
     html_counter = 0
     while html_counter < team_count:
         team_dict = {}
@@ -241,11 +240,29 @@ def get_standings(league_no, team_count):
         while stats_counter < len(stats_header_list):
             team_dict[stats_header_list[stats_counter]] = team_stats_row[stats_counter]
             stats_counter += 1
-        team_standings.append(team_dict)
+        current_standings.append(team_dict)
         html_counter += 1
-    return team_standings
+    return current_standings
 
-def single_team_standing_dict(html, points_or_stats):
-    this = "this"
+def single_team_standing_dict(league_no, current_standings):
+    """Get league standings\n
+    Args:\n
+        league_no: Yahoo! fantasy baseball league number.\n
+        current_standings: dict of the current league standings.\n
+    Returns:\n
+        list of dict of projected final team standings.\n
+    Raises:\n
+        None.
+    """
+    projected_final_standings = []
+    team_list = yahoo_teams(league_no)
+    return projected_final_standings
 
-# print get_standings(5091, 12)
+# def roster_optimizer(team_dict)
+
+
+# LEAGUE_NO = 5091
+# TEAM_COUNT = 12
+# CURRENT_STANDINGS = get_standings(LEAGUE_NO, TEAM_COUNT)
+
+# print single_team_standing_dict(LEAGUE_NO, CURRENT_STANDINGS)
