@@ -258,7 +258,7 @@ def single_team_standing_dict(league_no, current_standings):
     team_list = yahoo_teams(league_no)
     return projected_final_standings
 
-def roster_optimizer(team_dict)
+def roster_optimizer(team_dict):
     starting_c = {}
 
 
