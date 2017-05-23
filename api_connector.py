@@ -6,6 +6,7 @@ import json
 import urllib2
 import urllib
 import webbrowser
+import base64
 
 # https://developer.yahoo.com/oauth2/guide/flows_authcode/
 
@@ -15,6 +16,7 @@ CLIENT_ID = "dj0yJmk9NWtiV1dqTXlQdU1hJmQ9WVdrOVpIQTNjV1ZCTjJrbWNHbzlNQS0tJnM9Y29
 CLIENT_SECRET = "1e6283bc8ce110e5337aba544561a9d195f526fc"
 # REDIRECT_URI = "localhost:8080/redirect/"
 REDIRECT_URI = "oob"
+AUTHORIZATION_CODE = "wtcdk3w"
 
 def request_auth():
     """Requst Authorication from Yahoo!\n
@@ -39,22 +41,31 @@ def request_auth():
     return content.url
 # 'qguvnhp'
 
-def get_token():
-    url = 'https://api.login.yahoo.com/oauth2/request_auth?'
+def get_token(authorization_code):
+    url = 'https://api.login.yahoo.com/oauth2/get_token'
+    auth_string = "{}:{}".format(CLIENT_ID, CLIENT_SECRET)
+    auth_header = base64.b64encode(auth_string)
+    # auth_header = 'ZGoweUptazlOV3RpVjFkcVRYbFFkVTFoSm1ROVdWZHJPVnBJUVROalYxWkNUakpyYldOSGJ6bE5RUzB0Sm5NOVkyOXVjM1Z0WlhKelpXTnlaWFFtZUQwNVpRLS06MWU2MjgzYmM4Y2UxMTBlNTMzN2FiYTU0NDU2MWE5ZDE5NWY1MjZmYw=='
     # body = "grant_type=authorization_code&redirect_uri=oob&code=************"
-    body = {
-        'grant_type': 'authorization_code',
-        'redirect_uri': 'oob',
-        'code': '************',
-        }
     headers = {
-        'Authorization': 'Basic **************',
-        'Content-Type': 'application/json'
+        'Authorization': 'Basic ' + auth_header,
+        'Content-Type': 'application/x-www-form-urlencoded'
         }
+    body = urllib.urlencode({
+        'grant_type': 'authorization_code',
+        'redirect_uri': REDIRECT_URI,
+        'code': authorization_code
+        })
+    # url += '?' + body
+    request = urllib2.Request(url, data=body, headers=headers)
+    # request.headers = headers
+    # request.body = body
+    content = urllib2.urlopen(request)
+    # return content.url
+    return content.read()
 
-    r = requests.post(url, data=body, headers=headers)
-
-webbrowser.open(request_auth())
+# webbrowser.open(request_auth())
+print get_token(AUTHORIZATION_CODE)
 
 # def test():
 #     flow = oath2client.OAuth2WebServerFlow(client_id=CONSUMER_KEY,
