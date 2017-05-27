@@ -326,8 +326,8 @@ def split_league_pos_types(league_roster_pos):
 # print split_leauge_pos_types(get_league_settings(5091)["Roster Positions:"])
 
 
-LEAGUE_NO = 5091
-TEAM_COUNT = 12
-CURRENT_STANDINGS = get_standings(LEAGUE_NO, TEAM_COUNT)
+# LEAGUE_NO = 5091
+# TEAM_COUNT = 12
+# CURRENT_STANDINGS = get_standings(LEAGUE_NO, TEAM_COUNT)
 
 # print single_team_standing_dict(LEAGUE_NO, CURRENT_STANDINGS)
