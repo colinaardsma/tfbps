@@ -258,12 +258,39 @@ def single_team_standing_dict(league_no, current_standings):
     team_list = yahoo_teams(league_no)
     return projected_final_standings
 
-def roster_optimizer(team_dict):
-    starting_c = {}
+def get_league_settings(league_no):
+    """Get league settings\n
+    Args:\n
+        league_no: Yahoo! fantasy baseball league number.\n
+    Returns:\n
+        dict of league settings.\n
+    Raises:\n
+        None.
+    """
+    url = ("http://baseball.fantasysports.yahoo.com/b1/" + str(league_no) +
+           "/settings")
+    document = html_to_document(url)
+    settings_table = document.xpath(".//table[@id='settings-table']/tbody")[0]
+    league_settings = {}
+    settings_rows = settings_table.xpath(".//tr")
+    for setting in settings_rows:
+        key = setting.xpath(".//td/text()")[0].encode('utf-8').strip().replace('\xc2\xa0', ' ')
+        if key == "League Logo:":
+            continue
+        value = setting.xpath(".//td/b/text()")[0].encode('utf-8').strip().replace('\xc2\xa0', ' ')
+        league_settings[key] = value
+    return league_settings
+
+print get_league_settings(5091)
 
 
-# LEAGUE_NO = 5091
-# TEAM_COUNT = 12
-# CURRENT_STANDINGS = get_standings(LEAGUE_NO, TEAM_COUNT)
+
+
+
+
+
+LEAGUE_NO = 5091
+TEAM_COUNT = 12
+CURRENT_STANDINGS = get_standings(LEAGUE_NO, TEAM_COUNT)
 
 # print single_team_standing_dict(LEAGUE_NO, CURRENT_STANDINGS)
