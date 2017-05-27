@@ -1,7 +1,16 @@
 """Rate players"""
+import html_parser
 
 def rate_fa(fa_list, ros_projection_list):
-    """Compare available FAs with Projections"""
+    """Compare available FAs with Projections\n
+    Args:\n
+        fa_list: list of available FA on Yahoo!.\n
+        ros_projection_list: Rest of Season projection list.\n
+    Returns:\n
+        None.\n
+    Raises:\n
+        None.
+    """
     fa_player_list = []
     for player in ros_projection_list:
         if any(fa['NAME'].lower().replace('.', '') ==
@@ -26,7 +35,15 @@ def rate_fa(fa_list, ros_projection_list):
             player_number += 1
 
 def rate_team(team_dict, ros_projection_list):
-    """Compare team with Projections"""
+    """Compare team with Projections\n
+    Args:\n
+        team_dict: dict of players on team.\n
+        ros_projection_list: Rest of Season projection list.\n
+    Returns:\n
+        None.\n
+    Raises:\n
+        None.
+    """
     team_roster_list = [roster.lower().replace('.', '') for roster in team_dict['ROSTER']]
     team_player_list = []
     for player in ros_projection_list:
@@ -46,10 +63,10 @@ def full_season_standings_projection(team_dict, current_stangings, ros_projectio
     """Full Season Standings Projection"""
     roster_optimizer(team_dict)
 
-def roster_optimizer(team_dict):
+def roster_optimizer(team_dict, league_settings):
     starting_c = {}
 
-def order_batting_pos_by_scarcity(league_roster_pos):
+def order_batting_pos_by_scarcity(league_batting_roster_pos):
     """Order league specific roster batting positions based on position scarcity\n
     Args:\n
         league_roster_pos: Yahoo! league roster batting positions.\n
@@ -62,13 +79,19 @@ def order_batting_pos_by_scarcity(league_roster_pos):
                       "IF", "CF", "LF", "RF", "OF", "Util"]
     ordered_roster_pos_list = []
     for pos in scarcity_order:
-        while pos in league_roster_pos:
+        while pos in league_batting_roster_pos:
             ordered_roster_pos_list.append(pos)
-            league_roster_pos.remove(pos)
+            league_batting_roster_pos.remove(pos)
     return ordered_roster_pos_list
 
 
-LEAGUE_ROSTER_POS = ["C", "Util", "OF", "2B", "OF", "3B", "OF", "OF",
-                      "Util", "OF", "SS"]
+LEAGUE_BATTING_ROSTER_POS = ["C", "Util", "OF", "2B", "OF", "3B", "OF", "OF",
+                             "Util", "OF", "SS"]
 
-print order_batting_pos_by_scarcity(LEAGUE_ROSTER_POS)
+LEAGUE_ROSTER_POS = html_parser.get_league_settings(5901)["Roster Positions:"]
+ROSTER_POS_BY_TYPE = html_parser.split_league_pos_types(LEAGUE_ROSTER_POS)
+LEAGUE_BENCH_POS = ROSTER_POS_BY_TYPE["Bench POS"]
+LEAGUE_BATTING_ROSTER_POS = ROSTER_POS_BY_TYPE["Batting POS"]
+LEAGUE_PITCHING_ROSTER_POS = ROSTER_POS_BY_TYPE["Pitching POS"]
+
+print order_batting_pos_by_scarcity(LEAGUE_BATTING_ROSTER_POS)

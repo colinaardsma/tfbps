@@ -244,19 +244,19 @@ def get_standings(league_no, team_count):
         html_counter += 1
     return current_standings
 
-def single_team_standing_dict(league_no, current_standings):
-    """Get league standings\n
-    Args:\n
-        league_no: Yahoo! fantasy baseball league number.\n
-        current_standings: dict of the current league standings.\n
-    Returns:\n
-        list of dict of projected final team standings.\n
-    Raises:\n
-        None.
-    """
-    projected_final_standings = []
-    team_list = yahoo_teams(league_no)
-    return projected_final_standings
+# def single_team_standing_dict(league_no, current_standings, team_name=None, team_number=None):
+#     """Get league standings\n
+#     Args:\n
+#         league_no: Yahoo! fantasy baseball league number.\n
+#         current_standings: dict of the current league standings.\n
+#     Returns:\n
+#         list of dict of projected final team standings.\n
+#     Raises:\n
+#         None.
+#     """
+#     projected_final_standings = []
+#     team_list = yahoo_teams(league_no)
+#     return projected_final_standings
 
 def get_league_settings(league_no):
     """Get league settings\n
@@ -281,12 +281,49 @@ def get_league_settings(league_no):
         league_settings[key] = value
     return league_settings
 
-print get_league_settings(5091)
+def split_league_pos_types(league_roster_pos):
+    """Turn full list of league roster spots into list split into batting, pitching, bench, dl, na\n
+    Args:\n
+        league_roster_pos: list of roster spots\n
+    Returns:\n
+        dict of roster spots by type (batting, pitching, bench, dl, na.\n
+    Raises:\n
+        None.
+    """
+    batting_pos = []
+    pitching_pos = []
+    bench_pos = []
+    dl_pos = []
+    na_pos = []
+    all_pos = league_roster_pos.split(", ")
+    while "SP" in all_pos:
+        pitching_pos.append("SP")
+        all_pos.remove("SP")
+    while "RP" in all_pos:
+        pitching_pos.append("RP")
+        all_pos.remove("RP")
+    while "P" in all_pos:
+        pitching_pos.append("P")
+        all_pos.remove("P")
+    while "BN" in all_pos:
+        bench_pos.append("BN")
+        all_pos.remove("BN")
+    while "DL" in all_pos:
+        dl_pos.append("DL")
+        all_pos.remove("DL")
+    while "NA" in all_pos:
+        na_pos.append("NA")
+        all_pos.remove("NA")
+        batting_pos = all_pos
+    league_roster_pos_dict = {}
+    league_roster_pos_dict["Batting POS"] = batting_pos
+    league_roster_pos_dict["Pitching POS"] = pitching_pos
+    league_roster_pos_dict["Bench POS"] = bench_pos
+    league_roster_pos_dict["DL POS"] = dl_pos
+    league_roster_pos_dict["NA POS"] = na_pos
+    return league_roster_pos_dict
 
-
-
-
-
+# print split_leauge_pos_types(get_league_settings(5091)["Roster Positions:"])
 
 
 LEAGUE_NO = 5091
