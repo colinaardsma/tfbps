@@ -1,5 +1,6 @@
 """Rate players"""
 import html_parser
+import operator
 
 def rate_fa(fa_list, ros_projection_list):
     """Compare available FAs with Projections\n
@@ -59,12 +60,12 @@ def rate_team(team_dict, ros_projection_list):
                    " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
                    " - {player.ops:^5}").format(player=player)
 
-def full_season_standings_projection(team_dict, current_stangings, ros_projection_list):
-    """Full Season Standings Projection"""
+# def full_season_standings_projection(team_dict, current_stangings, ros_projection_list):
+#     """Full Season Standings Projection"""
 
-    roster_optimizer(team_dict)
+#     roster_optimizer(team_dict)
 
-def roster_optimizer(team_dict, league_settings, ros_projection_list):
+def roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
     """Optimizes Roster for remainder of year\n
     Args:\n
         team_dict: dict of players on team.\n
@@ -79,9 +80,37 @@ def roster_optimizer(team_dict, league_settings, ros_projection_list):
     for player in ros_projection_list:
         if player.name.lower().replace('.', '') in team_roster_list:
             team_player_list.append(player)
-    for player in team_player_list:
+    sorted(team_player_list, key=operator.attrgetter('dollarValue'))
+    # league_roster_pos = league_settings["Roster Positions:"]
+    # league_pos_dict = html_parser.split_league_pos_types(league_roster_pos)
+    starting_batters = {}
+    batting_pos = order_batting_pos_by_scarcity(league_pos_dict['Batting POS'])
+    multi_pos = False
+    for pos in batting_pos:
+        for player in team_player_list:
+            if pos == "C" and "CF" in player.pos:
+                continue
+            if pos in player.pos or (pos == "OF" and ("RF" in player.pos
+                                                      or "LF" in player.pos
+                                                      or "CF" in player.pos)):
+                if multi_pos is True or batting_pos.count(pos) > 1:
+                    multi_pos = True
+                    if pos in starting_batters:
+                        starting_batters[pos].append(player)
+                    while pos not in starting_batters or len(starting_batters[pos]) < batting_pos.count(pos):
+                        starting_batters[pos] = [player]
+                        team_player_list.remove(player)
+                else:
+                    starting_batters[pos] = player
+                    team_player_list.remove(player)
+        multi_pos = False
+            # iterate through batting_pos and team_player_list to insert highest rated player for each pos
+
+
+    return starting_batters
+    # for player in team_player_list:
         
-    starting_c = {}
+    # starting_c = {}
 
 def order_batting_pos_by_scarcity(league_batting_roster_pos):
     """Order league specific roster batting positions based on position scarcity\n
