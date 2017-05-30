@@ -71,7 +71,7 @@ def batting_roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
         team_dict: dict of players on team.\n
         ros_projection_list: Rest of Season projection list.\n
     Returns:\n
-        None.\n
+        dict of recommended starting batters.\n
     Raises:\n
         None.
     """
