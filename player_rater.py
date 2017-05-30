@@ -85,25 +85,39 @@ def roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
     # league_pos_dict = html_parser.split_league_pos_types(league_roster_pos)
     starting_batters = {}
     batting_pos = order_batting_pos_by_scarcity(league_pos_dict['Batting POS'])
-    multi_pos = False
     for pos in batting_pos:
-        for player in team_player_list:
+        i = 0
+        multi_pos = False
+        while i < len(team_player_list):
+            player = team_player_list[i]
+        # for player in list(team_player_list):
             if pos == "C" and "CF" in player.pos:
-                continue
-            if pos in player.pos or (pos == "OF" and ("RF" in player.pos
-                                                      or "LF" in player.pos
-                                                      or "CF" in player.pos)):
+                i += 1
+                # continue
+            elif pos in player.pos or (pos == "OF" and ("RF" in player.pos
+                                                        or "LF" in player.pos
+                                                        or "CF" in player.pos)):
                 if multi_pos is True or batting_pos.count(pos) > 1:
                     multi_pos = True
-                    if pos in starting_batters:
+                    if pos in starting_batters and len(starting_batters[pos]) < batting_pos.count(pos):
                         starting_batters[pos].append(player)
-                    while pos not in starting_batters or len(starting_batters[pos]) < batting_pos.count(pos):
+                        del team_player_list[i]
+                        # team_player_list.remove(player)
+                        # continue
+                    elif pos not in starting_batters:
                         starting_batters[pos] = [player]
-                        team_player_list.remove(player)
+                        del team_player_list[i]
+                        # team_player_list.remove(player)
+                        # continue
+                    else:
+                        i += 1
                 else:
+                    multi_pos = False
                     starting_batters[pos] = player
-                    team_player_list.remove(player)
-        multi_pos = False
+                    del team_player_list[i]
+                    # team_player_list.remove(player)
+            else:
+                i += 1
             # iterate through batting_pos and team_player_list to insert highest rated player for each pos
 
 
