@@ -65,8 +65,8 @@ def rate_team(team_dict, ros_projection_list):
 
 #     roster_optimizer(team_dict)
 
-def roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
-    """Optimizes Roster for remainder of year\n
+def batting_roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
+    """Optimizes Batting Roster for remainder of year\n
     Args:\n
         team_dict: dict of players on team.\n
         ros_projection_list: Rest of Season projection list.\n
@@ -81,50 +81,60 @@ def roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
         if player.name.lower().replace('.', '') in team_roster_list:
             team_player_list.append(player)
     sorted(team_player_list, key=operator.attrgetter('dollarValue'))
-    # league_roster_pos = league_settings["Roster Positions:"]
-    # league_pos_dict = html_parser.split_league_pos_types(league_roster_pos)
     starting_batters = {}
-    batting_pos = order_batting_pos_by_scarcity(league_pos_dict['Batting POS'])
-    for pos in batting_pos:
+    batting_pos_scarc = order_batting_pos_by_scarcity(league_pos_dict['Batting POS'])
+    batting_pos_scarc_elig = []
+    pos_elig_dict = {}
+    for pos in batting_pos_scarc:
+        for player in team_player_list:
+            if pos == "C" and "CF" in player.pos:
+                continue
+            elif pos in player.pos or (pos == "OF" and ("RF" in player.pos
+                                                        or "LF" in player.pos
+                                                        or "CF" in player.pos)):
+                if pos not in pos_elig_dict:
+                    pos_elig_dict[pos] = 1
+                else:
+                    pos_elig_dict[pos] += 1
+            elif pos == "Util":
+                pos_elig_dict[pos] = len(team_player_list)
+    for pos in batting_pos_scarc:
+        if pos_elig_dict[pos] == 1:
+            batting_pos_scarc_elig.append(pos)
+    for pos in batting_pos_scarc:
+        if pos_elig_dict[pos] != 1:
+            batting_pos_scarc_elig.append(pos)
+    for pos in batting_pos_scarc_elig:
         i = 0
         multi_pos = False
         while i < len(team_player_list):
             player = team_player_list[i]
-        # for player in list(team_player_list):
             if pos == "C" and "CF" in player.pos:
                 i += 1
-                # continue
-            elif pos in player.pos or (pos == "OF" and ("RF" in player.pos
-                                                        or "LF" in player.pos
-                                                        or "CF" in player.pos)):
-                if multi_pos is True or batting_pos.count(pos) > 1:
+            elif pos in player.pos or pos == "Util" or (pos == "OF" and ("RF" in player.pos
+                                                                         or "LF" in player.pos
+                                                                         or "CF" in player.pos)):
+                if multi_pos is True or batting_pos_scarc_elig.count(pos) > 1:
                     multi_pos = True
-                    if pos in starting_batters and len(starting_batters[pos]) < batting_pos.count(pos):
+                    if (pos in starting_batters and len(starting_batters[pos]) <
+                            batting_pos_scarc_elig.count(pos)):
                         starting_batters[pos].append(player)
                         del team_player_list[i]
-                        # team_player_list.remove(player)
-                        # continue
                     elif pos not in starting_batters:
                         starting_batters[pos] = [player]
                         del team_player_list[i]
-                        # team_player_list.remove(player)
-                        # continue
                     else:
                         i += 1
                 else:
                     multi_pos = False
-                    starting_batters[pos] = player
-                    del team_player_list[i]
-                    # team_player_list.remove(player)
+                    if pos in starting_batters:
+                        i += 1
+                    else:
+                        starting_batters[pos] = player
+                        del team_player_list[i]
             else:
                 i += 1
-            # iterate through batting_pos and team_player_list to insert highest rated player for each pos
-
-
     return starting_batters
-    # for player in team_player_list:
-        
-    # starting_c = {}
 
 def order_batting_pos_by_scarcity(league_batting_roster_pos):
     """Order league specific roster batting positions based on position scarcity\n
