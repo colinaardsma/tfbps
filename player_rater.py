@@ -1,6 +1,8 @@
 """Rate players"""
-import html_parser
 import operator
+import math
+import html_parser
+import player_models
 
 def rate_fa(fa_list, ros_projection_list):
     """Compare available FAs with Projections\n
@@ -155,13 +157,77 @@ def order_batting_pos_by_scarcity(league_batting_roster_pos):
     return ordered_roster_pos_list
 
 
-# LEAGUE_BATTING_ROSTER_POS = ["C", "Util", "OF", "2B", "OF", "3B", "OF", "OF",
-#                              "Util", "OF", "SS"]
+def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, current_stangings,
+                              league_settings):
+    """Optimizes Pitching Roster for remainder of year\n
+    Args:\n
+        team_dict: dict of players on team.\n
+        ros_projection_list: Rest of Season projection list.\n
+    Returns:\n
+        dict of recommended starting pitchers.\n
+    Raises:\n
+        None.
+    """
+    team_roster_list = [roster.lower().replace('.', '') for roster in team_dict['ROSTER']]
+    team_player_list = []
+    current_ip = 0
+    max_ip = int(league_settings['Max Innings Pitched:'])
+    for standing in current_stangings:
+        if standing['PointsTeam'] == team_dict['TEAM_NAME']:
+            current_ip += int(math.ceil(float(standing['StatsIP'])))
+    for player in ros_projection_list:
+        if player.name.lower().replace('.', '') in team_roster_list:
+            team_player_list.append(player)
+    sorted(team_player_list, key=operator.attrgetter('dollarValue'))
+    starting_pitchers = {}
+    pitching_pos = league_pos_dict['Pitching POS']
+    for pos in pitching_pos:
+        i = 0
+        multi_pos = False
+        if current_ip >= max_ip:
+            break
+        else:
+            while i < len(team_player_list):
+                player = team_player_list[i]
+            # for player in team_player_list:
+                if player.ips + current_ip > max_ip:
+                    stat_pct = (max_ip - current_ip) / player.ips
+                    partial_player = player_models.Pitcher(name=player.name, team=player.team,
+                                                           pos=player.pos, category=player.category,
+                                                           ips=player.ips * stat_pct,
+                                                           wins=player.wins * stat_pct,
+                                                           svs=player.svs * stat_pct,
+                                                           sos=player.sos * stat_pct,
+                                                           era=player.era, whip=player.whip)
+                    starting_pitchers[pos] = partial_player
+                    current_ip += partial_player.ips
+                    del team_player_list[i]
+                    #this logic isnt right, needs to be applicable to any pitching pos
+                elif pos in player.pos:
+                    if multi_pos is True or pitching_pos.count(pos) > 1:
+                        multi_pos = True
+                        if (pos in starting_pitchers and len(starting_pitchers[pos]) <
+                                pitching_pos.count(pos)):
+                            starting_pitchers[pos].append(player)
+                            current_ip += player.ips
+                            del team_player_list[i]
+                        elif pos not in starting_pitchers:
+                            starting_pitchers[pos] = [player]
+                            current_ip += player.ips
+                            del team_player_list[i]
+                        else:
+                            i += 1
+                    else:
+                        multi_pos = False
+                        if pos in starting_pitchers:
+                            i += 1
+                        else:
+                            starting_pitchers[pos] = player
+                            current_ip += player.ips
+                            del team_player_list[i]
+                else:
+                    i += 1
+        starting_pitchers['Team IP'] = current_ip
+        return starting_pitchers
 
-# LEAGUE_ROSTER_POS = html_parser.get_league_settings(5901)["Roster Positions:"]
-# ROSTER_POS_BY_TYPE = html_parser.split_league_pos_types(LEAGUE_ROSTER_POS)
-# LEAGUE_BENCH_POS = ROSTER_POS_BY_TYPE["Bench POS"]
-# LEAGUE_BATTING_ROSTER_POS = ROSTER_POS_BY_TYPE["Batting POS"]
-# LEAGUE_PITCHING_ROSTER_POS = ROSTER_POS_BY_TYPE["Pitching POS"]
-
-# print order_batting_pos_by_scarcity(LEAGUE_BATTING_ROSTER_POS)
+                        
