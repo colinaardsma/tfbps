@@ -1,0 +1,4 @@
+window.pfsport='mlb';
+var b=new Date;
+pffile='//cdn.fantasypros.com/playercards/source.js?'+b.getFullYear()+b.getMonth()+b.getDate();function install_pf(){var a=document;if(a.getElementById('greaseballjs'))greaseball&&pfsport&&(greaseball.setDefaultSport(pfsport),greaseball.refreshData());else{var c=a.createElement('script');c.setAttribute('id','greaseballjs');0<a.body.childNodes.length?a.body.insertBefore(c,a.body.childNodes[0]):a.body.appendChild(c);c.setAttribute('src',pffile)}}
+document.addEventListener?document.addEventListener('DOMContentLoaded',function(){document.removeEventListener('DOMContentLoaded',arguments.callee,!1);install_pf()},!1):document.attachEvent&&document.attachEvent('onreadystatechange',function(){'complete'===document.readyState&&(document.detachEvent('onreadystatechange',arguments.callee),install_pf())});

@@ -1,6 +1,7 @@
 """Rate players"""
 import operator
 import math
+import re
 import html_parser
 import player_models
 
@@ -183,12 +184,14 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
     pitching_pos = league_pos_dict['Pitching POS']
     for pos in pitching_pos:
         i = 0
+        regex_pos = re.compile(pos)
         multi_pos = False
         if current_ip >= max_ip:
             break
         else:
             while i < len(team_player_list):
                 player = team_player_list[i]
+                is_rp = True if 'SP' in player.pos and (player.svs > 0 or player.wins/player.ips < 0.05) #make sure this works
             # for player in team_player_list:
                 if player.ips + current_ip > max_ip:
                     stat_pct = (max_ip - current_ip) / player.ips
@@ -203,15 +206,15 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
                     current_ip += partial_player.ips
                     del team_player_list[i]
                     #this logic isnt right, needs to be applicable to any pitching pos
-                elif pos in player.pos:
+                elif filter(regex_pos.match, player.pos.split(",")) or pos == "P":
                     if multi_pos is True or pitching_pos.count(pos) > 1:
                         multi_pos = True
-                        if (pos in starting_pitchers and len(starting_pitchers[pos]) <
-                                pitching_pos.count(pos)):
+                        if (filter(regex_pos.match, starting_pitchers.keys()) and
+                                len(starting_pitchers[pos]) < pitching_pos.count(pos)):
                             starting_pitchers[pos].append(player)
                             current_ip += player.ips
                             del team_player_list[i]
-                        elif pos not in starting_pitchers:
+                        elif not filter(regex_pos.match, starting_pitchers.keys()):
                             starting_pitchers[pos] = [player]
                             current_ip += player.ips
                             del team_player_list[i]
@@ -219,7 +222,7 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
                             i += 1
                     else:
                         multi_pos = False
-                        if pos in starting_pitchers:
+                        if filter(regex_pos.match, starting_pitchers.keys()):
                             i += 1
                         else:
                             starting_pitchers[pos] = player
@@ -227,7 +230,7 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
                             del team_player_list[i]
                 else:
                     i += 1
-        starting_pitchers['Team IP'] = current_ip
-        return starting_pitchers
+    starting_pitchers['Team IP'] = current_ip
+    return starting_pitchers
 
                         

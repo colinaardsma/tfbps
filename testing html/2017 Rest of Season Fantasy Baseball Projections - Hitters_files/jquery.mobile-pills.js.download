@@ -1,0 +1,112 @@
+/*! based on http://tinynav.viljamis.com v1.2 by @viljamis */
+(function ($, window, i) {
+  $.fn.mobilePills = function (options) {
+
+    // Default settings
+    var settings = $.extend({
+      'active' : 'active', // String: Set the "active" class
+      'header' : '', // String: Specify text for "header" and show header instead of the active item
+      'indent' : '- ', // String: Specify text for indenting sub-items
+      'label'  : 'Positions ' // String: sets the <label> text for the <select> (if not set, no label will be added)
+    }, options);
+
+    return this.each(function () {
+
+      // Used for namespacing
+      i++;
+
+      var $nav = $(this),
+        // Namespacing
+        namespace = 'mobilepills',
+        namespace_i = namespace + i,
+        l_namespace_i = '.l_' + namespace_i,
+        $parent = $('<div/>').attr("id", namespace_i).addClass(namespace + ' ' + namespace_i).addClass('mobile-pills clearfix'),
+        $select_wrap = $('<div/>').addClass('select-wrap pull-left'),
+        $select = $('<select/>');
+    
+      if ($nav.is('ul,ol')) {
+
+        if (settings.header !== '') {
+          $select.append(
+            $('<option/>').text(settings.header)
+          );
+        }
+
+        // Build options
+        var options = '';
+
+        $nav
+          .addClass('l_' + namespace_i)
+          .find('a')
+          .each(function () {
+            options += '<option value="' + $(this).attr('href') + '">';
+            var j;
+            for (j = 0; j < $(this).parents('ul, ol').length - 1; j++) {
+              options += settings.indent;
+            }
+            options += $(this).text() + '</option>';
+          });
+
+        // Append options into a select
+        $select.append(options);
+
+        // Select the active item
+        if (!settings.header) {
+            if ($(l_namespace_i + ' li')
+            .index($(l_namespace_i + ' li.ui-active-tab, '+l_namespace_i + ' li.active, '+l_namespace_i + ' li.ui-tabs-active')) < 0) {
+                var blank_label = "Select";
+                if (settings.label) {
+                    if ($nav.data('mobile-label')) {
+                        blank_label += ' ' + $nav.data('mobile-label');
+                    } else {
+                        blank_label += ' ' + settings.label;
+                    }
+                }
+                if (blank_label.substring(blank_label.length - 1, blank_label.length) == 's') {
+                    blank_label = blank_label.substring(0, blank_label.length - 1)
+                }
+                var blank_option = '<option value="" selected="selected">' +blank_label+ '</option>';
+                $select.prepend(blank_option);
+            } else {
+                $select
+                  .find(':eq(' + $(l_namespace_i + ' li')
+                  .index($(l_namespace_i + ' li.ui-active-tab, '+l_namespace_i + ' li.active, '+l_namespace_i + ' li.ui-tabs-active')) + ')')
+                  .attr('selected', true);
+            }
+        }
+
+        // Change window location
+        $select.change(function () {
+            if ($(this).val().charAt(0) == '#') {
+                $nav.find('a[href="'+$(this).val()+'"]').trigger('click');
+            } else {
+                window.location.href = $(this).val();
+            }
+        });
+
+        $select_wrap.append($select);
+        $parent.append($select_wrap);
+
+        // Inject label
+        if (settings.label) {
+            if ($nav.data('mobile-label')) {
+                settings.label = $nav.data('mobile-label');
+            }
+            if (settings.label != '' && settings.label != ' ') {
+              $parent.prepend(
+                $("<div/>")
+                  .addClass(namespace + '_label ' + namespace_i + '_label pull-left pills-label')
+                  .append(settings.label)
+              );
+            }
+        }
+
+        // Inject select
+        $(l_namespace_i).after($parent);
+
+      }
+
+    });
+
+  };
+})(jQuery, this, 0);

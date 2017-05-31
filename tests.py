@@ -1,12 +1,21 @@
 # """TESTS"""
+import platform
 import html_parser
 import player_rater
 import player_creator
 import tests_long_variables
 
 #VARIABLES
-ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
-ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/ros-pitchers.php"
+# ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
+# ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/ros-pitchers.php"
+WIN_ROS_BATTER_URL = r"file:///C:\dev\git\tfbps\testing html\2017 Rest of Season Fantasy Baseball Projections - Hitters.html"
+WIN_ROS_PITCHER_URL = r"file:///C:\dev\git\tfbps\testing html\2017 Rest of Season Fantasy Baseball Projections - Pitchers.html"
+MAC_ROS_BATTER_URL = r"ERROR"
+MAC_ROS_PITCHER_URL = r"ERROR"
+tht = platform.sys.platform
+ROS_BATTER_URL = WIN_ROS_BATTER_URL if platform.sys.platform == 'win32' else MAC_ROS_BATTER_URL
+ROS_PITCHER_URL = WIN_ROS_PITCHER_URL if platform.sys.platform == 'win32' else MAC_ROS_PITCHER_URL
+
 BATTER_LIST = player_creator.create_full_batter(ROS_BATTER_URL)
 PITCHER_LIST = player_creator.create_full_pitcher(ROS_PITCHER_URL)
 BATTERS_OVER_ZERO_DOLLARS = 176

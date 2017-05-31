@@ -1,0 +1,251 @@
+$(document).ready(function() {
+    $(document).ajaxStart(function() {
+        $('#player-search').hide();
+        $('#playerid, #playervs, #index-search, .wsi-search').attr('placeholder', 'Loading Players...').prop('disabled', true);
+    });
+
+    $(document).ajaxStop(function() {
+        $('#player-search').show();
+        $('#playerid, #playervs, #index-search, .wsi-search').attr('placeholder', '').prop('disabled', false);
+    });
+
+    var searchPlayers = false;
+
+    $('.search').one('click', function() {
+        searchPlayers = searchPlayers || getPlayersSource();
+    });
+
+    $('#playerid, #playervs, .wsi-search, .wsis-box').one('focus', function() {
+        searchPlayers = searchPlayers || getPlayersSource();
+    });
+
+    function getPlayersSource() {
+        $.ajax({
+            type: 'GET',
+            dataType: 'json',
+            url: '/ajax/player-search.php',
+            data: { sport: 'MLB' }
+        }).done(function(data) {
+            searchPlayers = data;
+            initializeAutocompletes(searchPlayers);
+        });
+    }
+
+    function initializeAutocompletes(players) {
+        if ($('.playername').length) {
+            $('.playername').autocomplete({
+                source: players,
+                select: function(event, ui) {
+                    $('.playersearch').attr('value', ui.item.id);
+                    $('#player-search').submit();
+                    event.preventDefault();
+                },
+                focus: function(event, ui) {
+                    this.value = ui.item.name;
+                    event.preventDefault();
+                }
+            })
+            .data('ui-autocomplete')._renderItem = function(ul, item) {
+                return $('<li>')
+                .data('item.autocomplete', item)
+                .attr('data-pid', item.id+':'+((typeof item.ecr === 'undefined') ? 'NR' : item.ecr))
+                .append('<a>'+item.name+' ('+item.position+' - '+item.team+')</a>')
+                .appendTo(ul);
+            };
+        }
+
+        $('#playername').keydown(function(e) {
+            if (e.keyCode == 13) {
+                buildSearchResults('player-search');
+                $('#player-search').submit();
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        if ($('#index-search').length) {
+            $('#index-search').autocomplete({
+                source: players,
+                select: function(event, ui) {
+                    $('.playersearch').attr('value', ui.item.id);
+                    $('#index-search-form').submit();
+                    event.preventDefault();
+                },
+                focus: function(event, ui) {
+                    this.value = ui.item.name;
+                    event.preventDefault();
+                }
+            })
+            .data('ui-autocomplete')._renderItem = function(ul, item) {
+                return $('<li>')
+                .data('item.autocomplete', item)
+                .attr('data-pid', item.id+':'+((typeof item.ecr === 'undefined') ? 'NR' : item.ecr))
+                .append('<a>'+item.name+' ('+item.position+' - '+item.team+')</a>')
+                .appendTo(ul);
+            };
+
+            $('#index-search').keydown(function(e) {
+                if (e.keyCode == 13) {
+                    buildSearchResults('index-search-form');
+                    $('#index-search-form').submit();
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            $('#index-search-submit').click(function(e) {
+                buildSearchResults('index-search-form');
+                $('#index-search-form').submit();
+                e.preventDefault();
+                return false;
+            });
+        }
+
+        if ($('#playerid').length) {
+            $('#playerid').autocomplete({
+                source: players,
+                select: function(event, ui) {
+                    $('#fastid').attr('value', ui.item.id);
+                    event.preventDefault();
+                },
+                focus: function(event, ui) {
+                    this.value = ui.item.name;
+                    event.preventDefault();
+                }
+            })
+            .data('ui-autocomplete')._renderItem = function(ul, item) {
+                return $('<li>')
+                .data('item.autocomplete', item)
+                .append('<a>'+item.name+' ('+item.position+' - '+item.team+')</a>')
+                .appendTo(ul);
+            };
+        }
+
+        if ($('#playervs').length) {
+            $('#playervs').autocomplete({
+                source: players,
+                select: function(event, ui) {
+                    $('#fastvs').attr('value', ui.item.id);
+                    event.preventDefault();
+                },
+                focus: function(event, ui) {
+                    this.value = ui.item.name;
+                    event.preventDefault();
+                }
+            })
+            .data('ui-autocomplete')._renderItem = function(ul, item) {
+                return $('<li>')
+                .data('item.autocomplete', item)
+                .append('<a>'+item.name+' ('+item.position+' - '+item.team+')</a>')
+                .appendTo(ul);
+            };
+        }
+
+        if ($('#fast1').length) {
+            $('#fast1').autocomplete({
+                source: players,
+                select: function(event, ui) {
+                    $(this).attr('value', ui.item.name)
+                    $('#idfast1').attr('value', ui.item.id);
+                    if($('#'+ui.item.id).length) {
+                        $('#'+ui.item.id).addClass('player-selected');
+                    }
+                    event.preventDefault();
+                },
+                focus: function(event, ui) {
+                    this.value = ui.item.name;
+                    event.preventDefault();
+                }
+            })
+            .data('ui-autocomplete')._renderItem = function(ul, item) {
+                return $('<li>')
+                .data('item.autocomplete', item)
+                .append('<a>'+item.name+' ('+item.position+' - '+item.team+')</a>')
+                .appendTo(ul);
+            };
+        }
+
+        if ($('#fast2').length) {
+            $('#fast2').autocomplete({
+                source: players,
+                select: function(event, ui) {
+                    $(this).attr('value', ui.item.name)
+                    $('#idfast2').attr('value', ui.item.id);
+                    if($('#'+ui.item.id).length) {
+                        $('#'+ui.item.id).addClass('player-selected');
+                    }
+                    event.preventDefault();
+                },
+                focus: function(event, ui) {
+                    this.value = ui.item.name;
+                    event.preventDefault();
+                }
+            })
+            .data('ui-autocomplete')._renderItem = function(ul, item) {
+                return $('<li>')
+                .data('item.autocomplete', item)
+                .append('<a>'+item.name+' ('+item.position+' - '+item.team+')</a>')
+                .appendTo(ul);
+            };
+        }
+
+        if ($('#fast3').length) {
+            $('#fast3').autocomplete({
+                source: players,
+                select: function(event, ui) {
+                    $(this).attr('value', ui.item.name)
+                    $('#idfast3').attr('value', ui.item.id);
+                    if($('#'+ui.item.id).length) {
+                        $('#'+ui.item.id).addClass('player-selected');
+                    }
+                    event.preventDefault();
+                },
+                focus: function(event, ui) {
+                    this.value = ui.item.name;
+                    event.preventDefault();
+                }
+            })
+            .data('ui-autocomplete')._renderItem = function(ul, item) {
+                return $('<li>')
+                .data('item.autocomplete', item)
+                .append('<a>'+item.name+' ('+item.position+' - '+item.team+')</a>')
+                .appendTo(ul);
+            };
+        }
+
+        if ($('#fast4').length) {
+            $('#fast4').autocomplete({
+                source: players,
+                select: function(event, ui) {
+                    $(this).attr('value', ui.item.name)
+                    $('#idfast4').attr('value', ui.item.id);
+                    if($('#'+ui.item.id).length) {
+                        $('#'+ui.item.id).addClass('player-selected');
+                    }
+                    event.preventDefault();
+                },
+                focus: function(event, ui) {
+                    this.value = ui.item.name;
+                    event.preventDefault();
+                }
+            })
+            .data('ui-autocomplete')._renderItem = function(ul, item) {
+                return $('<li>')
+                .data('item.autocomplete', item)
+                .append('<a>'+item.name+' ('+item.position+' - '+item.team+')</a>')
+                .appendTo(ul);
+            };
+        }
+    }
+
+    function buildSearchResults(formId) {
+        var results = [];
+        $('.ui-menu-item').each(function() { results.push($(this).data('pid')); });
+        $('<input>').attr({
+            type: 'hidden',
+            id: 'search-results',
+            name: 'search-results',
+            value: results
+        }).appendTo('#'+formId);
+    }
+});
