@@ -38,3 +38,30 @@ player_rater.rate_fa(BATTER_FA_LIST, ROS_PROJ_B_LIST)
 print "\nTeam Batting Values"
 player_rater.rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
                        ROS_PROJ_B_LIST)
+
+def fa_vs_team():
+    """Compare team player values with available FA player values\n
+    Args:\n
+        None.\n
+    Returns:\n
+        string with player data for diplay in html.\n
+    Raises:\n
+        None.
+    """
+    avail_pitching_fas = player_rater.rate_fa(PITCHER_FA_LIST, ROS_PROJ_P_LIST)
+    team_pitching_values = player_rater.rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
+                       ROS_PROJ_P_LIST)
+    avail_batting_fas = player_rater.rate_fa(BATTER_FA_LIST, ROS_PROJ_B_LIST)
+    team_batting_values = player_rater.rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
+                        ROS_PROJ_B_LIST)
+    player_comp = "Avail Pitching FAs\n"
+    player_comp += avail_pitching_fas
+    player_comp += "\nTeam Pitching Values\n"
+    player_comp += team_pitching_values
+    player_comp += "\nAvail Batting FAs\n"
+    player_comp += avail_batting_fas
+    player_comp += "\nTeam Batting Values"
+    player_comp += team_batting_values
+
+    return player_comp
+

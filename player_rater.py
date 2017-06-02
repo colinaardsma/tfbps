@@ -54,16 +54,22 @@ def rate_team(team_dict, ros_projection_list):
     for player in ros_projection_list:
         if player.name.lower().replace('.', '') in team_roster_list:
             team_player_list.append(player)
+    team = ""
     for player in team_player_list:
         if ("SP" in ros_projection_list[0].pos or "RP" in ros_projection_list[0].pos or
                 "P" in ros_projection_list[0].pos):
-            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
-                   " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
-                   " - {player.whip:^4}").format(player=player)
+            team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
+                     " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
+                     " - {player.whip:^4}").format(player=player)
         else:
             print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
                    " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
                    " - {player.ops:^5}").format(player=player)
+    return team
+
+def rater_string_creator():
+    pitcher_field_list = [player.dollarValue, name]
+
 
 # def full_season_standings_projection(team_dict, current_stangings, ros_projection_list):
 #     """Full Season Standings Projection"""
