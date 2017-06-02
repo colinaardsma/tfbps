@@ -1,4 +1,4 @@
-# """TESTS"""
+"""TESTS"""
 import platform
 import html_parser
 import player_rater

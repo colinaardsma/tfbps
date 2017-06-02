@@ -23,16 +23,17 @@ def rate_fa(fa_list, ros_projection_list):
             fa_player_list.append(player)
     dollar_value = 100.00
     player_number = 0
-    if "P" in ros_projection_list[0].pos:
+    if ("SP" in ros_projection_list[0].pos or "RP" in ros_projection_list[0].pos or
+            "P" in ros_projection_list[0].pos):
         while dollar_value > 1.0:
-            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
+            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
                    " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
                    " - {player.whip:^4}").format(player=fa_player_list[player_number])
             dollar_value = fa_player_list[player_number].dollarValue
             player_number += 1
     else:
         while dollar_value > 1.0:
-            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
+            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
                    " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
                    " - {player.ops:^5}").format(player=fa_player_list[player_number])
             dollar_value = fa_player_list[player_number].dollarValue
@@ -54,12 +55,13 @@ def rate_team(team_dict, ros_projection_list):
         if player.name.lower().replace('.', '') in team_roster_list:
             team_player_list.append(player)
     for player in team_player_list:
-        if "P" in ros_projection_list[0].pos:
-            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
+        if ("SP" in ros_projection_list[0].pos or "RP" in ros_projection_list[0].pos or
+                "P" in ros_projection_list[0].pos):
+            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
                    " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
                    " - {player.whip:^4}").format(player=player)
         else:
-            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^20}" +
+            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
                    " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
                    " - {player.ops:^5}").format(player=player)
 
@@ -171,7 +173,7 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
     """
     team_roster_list = [roster.lower().replace('.', '') for roster in team_dict['ROSTER']]
     team_player_list = []
-    current_ip = 0
+    current_ip = 600
     max_ip = int(league_settings['Max Innings Pitched:'])
     for standing in current_stangings:
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
@@ -191,23 +193,22 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
         else:
             while i < len(team_player_list):
                 player = team_player_list[i]
-                is_rp = True if 'SP' in player.pos and (player.svs > 0 or player.wins/player.ips < 0.05) #make sure this works
-            # for player in team_player_list:
                 if player.ips + current_ip > max_ip:
-                    stat_pct = (max_ip - current_ip) / player.ips
-                    partial_player = player_models.Pitcher(name=player.name, team=player.team,
-                                                           pos=player.pos, category=player.category,
-                                                           ips=player.ips * stat_pct,
-                                                           wins=player.wins * stat_pct,
-                                                           svs=player.svs * stat_pct,
-                                                           sos=player.sos * stat_pct,
-                                                           era=player.era, whip=player.whip)
-                    starting_pitchers[pos] = partial_player
+                    stat_pct = (float(max_ip) - current_ip) / player.ips
+                    partial_player = team_player_list[i]
+                    # partial_ips = float(partial_player.ips) *
+                    partial_player.ips *= stat_pct
+                    partial_player.wins *= stat_pct
+                    partial_player.svs *= stat_pct
+                    partial_player.sos *= stat_pct
+                    # starting_pitchers[pos] = partial_player
                     current_ip += partial_player.ips
-                    del team_player_list[i]
-                    #this logic isnt right, needs to be applicable to any pitching pos
-                elif filter(regex_pos.match, player.pos.split(",")) or pos == "P":
-                    if multi_pos is True or pitching_pos.count(pos) > 1:
+                    player = partial_player
+                if filter(regex_pos.match, player.pos) or pos == "P":
+                    if (pos == "SP" and not player.is_sp) or (pos == "RP" and player.is_sp):
+                        i += 1
+                        continue
+                    elif multi_pos is True or pitching_pos.count(pos) > 1:
                         multi_pos = True
                         if (filter(regex_pos.match, starting_pitchers.keys()) and
                                 len(starting_pitchers[pos]) < pitching_pos.count(pos)):

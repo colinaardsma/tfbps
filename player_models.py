@@ -48,7 +48,7 @@ class Batter(object):
         # Descriptive Properties
         self.name = str(name)
         self.team = str(team)
-        self.pos = str(pos)
+        self.pos = str(pos).split(",")
         # self.last_modified = last_modified
         self.category = str(category)
         # Raw Stat Properties
@@ -70,10 +70,11 @@ class Pitcher(object):
     name = ""
     team = ""
     pos = ""
+    is_sp = False
     # last_modified =
     category = ""
     # Raw Stat Properties
-    ips = 0
+    ips = 0.0
     wins = 0
     svs = 0
     sos = 0
@@ -108,16 +109,19 @@ class Pitcher(object):
         # Descriptive Properties
         self.name = str(name)
         self.team = str(team)
-        self.pos = str(pos)
+        self.pos = str(pos).split(",")
         # self.last_modified = last_modified
         self.category = str(category)
         # Raw Stat Properties
-        self.ips = int(ips if ips != None else 0)
+        self.ips = float(ips if ips != None else 0.0)
         self.wins = int(wins if wins != None else 0)
         self.svs = int(svs if svs != None else 0)
         self.sos = int(sos if sos != None else 0)
-        self.era = float(era if era != None else 0)
-        self.whip = float(whip if whip != None else 0)
+        self.era = float(era if era != None else 0.0)
+        self.whip = float(whip if whip != None else 0.0)
+        # SP Status
+        self.is_sp = (False if 'SP' not in str(pos) or int(svs) > 0 or
+                      float(wins)/float(ips) < 0.05 else True)
 
     # def get_dollar_value(self):
     #     """Return dollar value of player"""
