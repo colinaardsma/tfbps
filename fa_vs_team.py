@@ -28,16 +28,16 @@ ROS_PROJ_P_LIST = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVE
                                                       ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
                                                       P_PLAYER_POOL_MULT)
 
-print "Avail Pitching FAs"
-player_rater.rate_fa(PITCHER_FA_LIST, ROS_PROJ_P_LIST)
-print "\nTeam Pitching Values"
-player_rater.rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
-                       ROS_PROJ_P_LIST)
-print "\nAvail Batting FAs"
-player_rater.rate_fa(BATTER_FA_LIST, ROS_PROJ_B_LIST)
-print "\nTeam Batting Values"
-player_rater.rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
-                       ROS_PROJ_B_LIST)
+# print "Avail Pitching FAs"
+# print player_rater.rate_fa(PITCHER_FA_LIST, ROS_PROJ_P_LIST)
+# print "\nTeam Pitching Values"
+# print player_rater.rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
+#                        ROS_PROJ_P_LIST)
+# print "\nAvail Batting FAs"
+# print player_rater.rate_fa(BATTER_FA_LIST, ROS_PROJ_B_LIST)
+# print "\nTeam Batting Values"
+# print player_rater.rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
+#                        ROS_PROJ_B_LIST)
 
 def fa_vs_team():
     """Compare team player values with available FA player values\n
@@ -60,8 +60,10 @@ def fa_vs_team():
     player_comp += team_pitching_values
     player_comp += "\nAvail Batting FAs\n"
     player_comp += avail_batting_fas
-    player_comp += "\nTeam Batting Values"
+    player_comp += "\nTeam Batting Values\n"
     player_comp += team_batting_values
 
     return player_comp
+
+print fa_vs_team()
 

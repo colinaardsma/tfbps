@@ -5,6 +5,7 @@ import hashing
 import os
 import caching
 import webbrowser
+import fa_vs_team
 
 # setup jinja2
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
@@ -62,8 +63,9 @@ class MainHandler(Handler):
 
         # fakeBbArticle = rssparsing.get_fakebb_rss_content(0)
         # yahooArticle = rssparsing.get_yahoo_rss_content(0)
+        top_fa = fa_vs_team.fa_vs_team()
 
-        self.render("home.html", user=user)
+        self.render("home.html", user=user, top_fa=top_fa)
         # self.render("home.html", user=user, fakeBbArticle=fakeBbArticle, yahooArticle=yahooArticle)
         # self.write(rssparsing.get_fakebb_rss_content(0))
 

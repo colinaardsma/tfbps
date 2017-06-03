@@ -23,21 +23,23 @@ def rate_fa(fa_list, ros_projection_list):
             fa_player_list.append(player)
     dollar_value = 100.00
     player_number = 0
+    team = ""
     if ("SP" in ros_projection_list[0].pos or "RP" in ros_projection_list[0].pos or
             "P" in ros_projection_list[0].pos):
         while dollar_value > 1.0:
-            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
+            team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
                    " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
-                   " - {player.whip:^4}").format(player=fa_player_list[player_number])
+                   " - {player.whip:^4}\n").format(player=fa_player_list[player_number])
             dollar_value = fa_player_list[player_number].dollarValue
             player_number += 1
     else:
         while dollar_value > 1.0:
-            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
+            team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
                    " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
-                   " - {player.ops:^5}").format(player=fa_player_list[player_number])
+                   " - {player.ops:^5}\n").format(player=fa_player_list[player_number])
             dollar_value = fa_player_list[player_number].dollarValue
             player_number += 1
+    return team
 
 def rate_team(team_dict, ros_projection_list):
     """Compare team with Projections\n
@@ -60,15 +62,16 @@ def rate_team(team_dict, ros_projection_list):
                 "P" in ros_projection_list[0].pos):
             team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
                      " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
-                     " - {player.whip:^4}").format(player=player)
+                     " - {player.whip:^4}\n").format(player=player)
         else:
-            print ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
+            team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
                    " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
-                   " - {player.ops:^5}").format(player=player)
+                   " - {player.ops:^5}\n").format(player=player)
     return team
 
-def rater_string_creator():
-    pitcher_field_list = [player.dollarValue, name]
+# def rater_string_creator(player):
+#     if player 
+#     pitcher_field_list = [player.dollarValue, name]
 
 
 # def full_season_standings_projection(team_dict, current_stangings, ros_projection_list):
