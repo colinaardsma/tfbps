@@ -64,6 +64,3 @@ def fa_vs_team():
     player_comp += team_batting_values
 
     return player_comp
-
-print fa_vs_team()
-
