@@ -64,6 +64,7 @@ class MainHandler(Handler):
         # fakeBbArticle = rssparsing.get_fakebb_rss_content(0)
         # yahooArticle = rssparsing.get_yahoo_rss_content(0)
         top_fa = fa_vs_team.fa_vs_team()
+        top_fa = top_fa.replace("\n", "<br>")
 
         self.render("home.html", user=user, top_fa=top_fa)
         # self.render("home.html", user=user, fakeBbArticle=fakeBbArticle, yahooArticle=yahooArticle)
