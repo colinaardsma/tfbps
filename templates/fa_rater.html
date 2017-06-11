@@ -1,0 +1,29 @@
+{% extends "main.html" %}
+
+{%- block content %}
+    {%- if top_fa %}
+        <p>{{top_fa|safe}}</p>
+    {%- else %}
+      <form method="post">
+      <table>
+        <tr>
+          <td>League Number:</td>
+          <td>
+            <input class="regform" type="text" name="league_no" value="{{league_no}}" />
+          </td>
+        </tr>
+        <tr>
+          <td>Team Name:</td>
+          <td>
+            <input class="regform" type="text" name="team_name" value="{{team_name}}" />
+          </td>
+        </tr>
+      </table>
+      <!--<div style="color: red">{{error}}</div>-->
+      <table>
+        <tr>
+          <td>
+            <input type = "submit" />
+      </form>
+    {%- endif %}
+{%- endblock -%}

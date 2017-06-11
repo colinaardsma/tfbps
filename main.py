@@ -63,17 +63,32 @@ class MainHandler(Handler):
 
         # fakeBbArticle = rssparsing.get_fakebb_rss_content(0)
         # yahooArticle = rssparsing.get_yahoo_rss_content(0)
-        top_fa = fa_vs_team.fa_vs_team()
-        top_fa = top_fa.replace("\n", "<br />")
 
-        self.render("home.html", user=user, top_fa=top_fa)
+        self.render("home.html", user=user)
         # self.render("home.html", user=user, fakeBbArticle=fakeBbArticle, yahooArticle=yahooArticle)
         # self.write(rssparsing.get_fakebb_rss_content(0))
 
     def get(self):
         self.render_main()
 
-class OAuth(Handler):
+class FaRater(Handler):
+    def render_fa_rater(self, league_no="", team_name=""):
+        if league_no == "" or team_name == "":
+            top_fa = None
+        else:
+            top_fa = fa_vs_team.fa_vs_team(league_no, team_name)
+            top_fa = top_fa.replace("\n", "<br />")
+        self.render("fa_rater.html", top_fa=top_fa)
+
+    def get(self):
+        self.render_fa_rater()
+
+    def post(self):
+        league_no = self.request.get("league_no")
+        team_name = self.request.get("team_name")
+        self.render_fa_rater(league_no=league_no, team_name=team_name)
+
+class Oauth(Handler):
     def get(self):
         self.redirect(api_connector.request_auth())
 
@@ -88,7 +103,8 @@ app = webapp2.WSGIApplication([
     ('/', MainHandler),
 
     # user handling
-    ('/oauth/?', OAuth),
-    ('/redirect/?', Redirect)
+    ('/oauth/?', Oauth),
+    ('/redirect/?', Redirect),
+    ('/fa_rater/?', FaRater)
     ], debug=True)
     
