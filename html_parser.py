@@ -59,7 +59,7 @@ def fant_pro_player_dict_creator(single_player_html, headings_list_html):
             if name_team_pos[0] is None or name_team_pos[0] == " ()":
                 counter = len(single_player_html)
                 continue
-            single_player["NAME"] = name_team_pos[0]
+            single_player["NAME"] = name_team_pos[0].replace('.', '')
             single_player["TEAM"] = name_team_pos[2]
             name_team_pos[3] = name_team_pos[3].strip(" - ")
             name_team_pos[3] = name_team_pos[3].strip(")")
@@ -122,7 +122,7 @@ def yahoo_player_dict_creator(single_player_html, b_or_p):
             if name is None:
                 counter = len(single_player_html)
                 continue
-            single_player[dict_key_list[1]] = name
+            single_player[dict_key_list[1]] = name.replace('.', '')
             team_pos = single_player_html[1].xpath("descendant::span[@class='Fz-xxs']" +
                                                    "/text()")[0]
             single_player[dict_key_list[2]] = team_pos.split(" - ")[0]
@@ -171,7 +171,7 @@ def yahoo_team_creator(single_team_html):
     team[dict_key_list[1]] = team_number_a.attrib['href'].split("/")[3]
     table_body = single_team_html.xpath(".//table/tbody")
     for row in table_body:
-        team[dict_key_list[2]] = row.xpath(".//tr/td[@class='player']/div[1]/div/a/text()")
+        team[dict_key_list[2]] = row.xpath(".//tr/td[@class='player']/div[1]/div/a/text()").replace('.', '')
     return team
 
 def get_single_yahoo_team(league_no, team_name=None, team_number=None):

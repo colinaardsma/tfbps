@@ -15,7 +15,8 @@ def create_full_batter(url):
                 (raw_batter.get("AVG") is not None and float(raw_batter.get("AVG")) == .000)):
             continue
         else:
-            batter = player_models.Batter(name=raw_batter.get("NAME"), team=raw_batter.get("TEAM"),
+            batter = player_models.Batter(name=raw_batter.get("NAME").replace('.', ''),
+                                          team=raw_batter.get("TEAM"),
                                           pos=raw_batter.get("POS"), category="FantProBatter",
                                           atbats=raw_batter.get("AB"), runs=raw_batter.get("R"),
                                           hrs=raw_batter.get("HR"), rbis=raw_batter.get("RBI"),
@@ -154,7 +155,7 @@ def create_full_pitcher(url):
                 (raw_pitcher.get("WHIP") is not None and float(raw_pitcher.get("WHIP")) == 0.0)):
             continue
         else:
-            pitcher = player_models.Pitcher(name=raw_pitcher.get("NAME"),
+            pitcher = player_models.Pitcher(name=raw_pitcher.get("NAME").replace('.', ''),
                                             team=raw_pitcher.get("TEAM"),
                                             pos=raw_pitcher.get("POS"), category="FantProPitcher",
                                             ips=raw_pitcher.get("IP"), wins=raw_pitcher.get("W"),

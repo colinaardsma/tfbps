@@ -12,7 +12,7 @@ TEAM_DICT = {'TEAM_NAME': 'MachadoAboutNothing', 'TEAM_NUMBER': '1',
                         'Addison Reed', 'Kenta Maeda', 'Dallas Keuchel', 'Bryce Harper',
                         'Domingo Santana', 'Randal Grichuk', 'Andrew McCutchen', 'Amed Rosario',
                         'Victor Robles', 'Ivan Nova', 'Tanner Roark', 'Felix Hernandez',
-                        'J.A. Happ']}
+                        'JA Happ']}
 
 # LEAGUE_SETTINGS = html_parser.get_league_settings(5091)
 LEAGUE_SETTINGS = {'Draft Type:': 'Live Auction Draft',

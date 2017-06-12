@@ -243,8 +243,9 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
     starting_pitchers['Team IP'] = current_ip
     return starting_pitchers
 
-def bench_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, current_stangings,
-                              league_settings, optimized_batters, optimized_pitchers):
+def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_projection_list,
+                           league_pos_dict, current_stangings, league_settings, optimized_batters,
+                           optimized_pitchers):
     """Optimizes Pitching Roster for remainder of year\n
     Args:\n
         team_dict: dict of players on team.\n
@@ -255,9 +256,33 @@ def bench_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, curr
         None.
     """
     team_roster_list = [roster.lower().replace('.', '') for roster in team_dict['ROSTER']]
+    bench_roster_list = []
+    for player in team_roster_list:
+        if player not in optimized_batters and player not in optimized_pitchers:
+            bench_roster_list.append(player)
+    # TODO: move . replacement to player creator and html parsing then iterate through shorter list (bench_roster_list)
+    for player in ros_batter_projection_list:
+        if player.name.lower().replace('.', '') in bench_roster_list:
+            team_player_list.append(player)
+    for player in ros_pitcher_projection_list:
+        if player.name.lower().replace('.', '') in bench_roster_list:
+            team_player_list.append(player)
+    sorted(team_player_list, key=operator.attrgetter('dollarValue'))
     team_player_list = []
     current_ip = 0
     max_ip = int(league_settings['Max Innings Pitched:'])
     for standing in current_stangings:
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
             current_ip += int(math.ceil(float(standing['StatsIP'])))
+    for pitcher in optimized_pitchers.values():
+        current_ip += pitcher.ips
+
+    for roster_player in bench_roster_list:
+        if "P" in roster_player.pos:
+            while current_ip < max_ip:
+                for player in ros_pitcher_projection_list:
+                    if player.name.lower().replace('.', '') in bench_roster_list:
+                        team_player_list.append(player)
+                        current_ip += player.ips
+        # else:
+            
