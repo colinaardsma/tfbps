@@ -1,4 +1,5 @@
 """TESTS"""
+import urllib
 import platform
 import html_parser
 import player_rater
@@ -10,8 +11,8 @@ import tests_long_variables
 # ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/ros-pitchers.php"
 WIN_ROS_BATTER_URL = r"file:///C:\dev\git\tfbps\testing html\2017 Rest of Season Fantasy Baseball Projections - Hitters.html"
 WIN_ROS_PITCHER_URL = r"file:///C:\dev\git\tfbps\testing html\2017 Rest of Season Fantasy Baseball Projections - Pitchers.html"
-MAC_ROS_BATTER_URL = r"ERROR"
-MAC_ROS_PITCHER_URL = r"ERROR"
+MAC_ROS_BATTER_URL = "file:" + urllib.pathname2url(r"/Users/colinaardsma/git/tfbps/testing html/2017 Rest of Season Fantasy Baseball Projections - Hitters.html")
+MAC_ROS_PITCHER_URL = "file:" + urllib.pathname2url(r"/Users/colinaardsma/git/tfbps/testing html/2017 Rest of Season Fantasy Baseball Projections - Pitchers.html")
 tht = platform.sys.platform
 ROS_BATTER_URL = WIN_ROS_BATTER_URL if platform.sys.platform == 'win32' else MAC_ROS_BATTER_URL
 ROS_PITCHER_URL = WIN_ROS_PITCHER_URL if platform.sys.platform == 'win32' else MAC_ROS_PITCHER_URL
@@ -53,5 +54,6 @@ CURRENT_STANDINGS = tests_long_variables.CURRENT_STANDINGS
 #TESTS
 # print LEAGUE_SETTINGS
 # print player_rater.batting_roster_optimizer(TEAM_DICT, ROS_PROJ_B_LIST, LEAGUE_POS_DICT)
-print player_rater.pitching_roster_optimizer(TEAM_DICT, ROS_PROJ_P_LIST, LEAGUE_POS_DICT,
-                                             CURRENT_STANDINGS, LEAGUE_SETTINGS)
+# print player_rater.pitching_roster_optimizer(TEAM_DICT, ROS_PROJ_P_LIST, LEAGUE_POS_DICT,
+#                                              CURRENT_STANDINGS, LEAGUE_SETTINGS)
+print player_rater

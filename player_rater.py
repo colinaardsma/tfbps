@@ -182,7 +182,7 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
     """
     team_roster_list = [roster.lower().replace('.', '') for roster in team_dict['ROSTER']]
     team_player_list = []
-    current_ip = 600
+    current_ip = 0
     max_ip = int(league_settings['Max Innings Pitched:'])
     for standing in current_stangings:
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
@@ -243,4 +243,21 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
     starting_pitchers['Team IP'] = current_ip
     return starting_pitchers
 
-                        
+def bench_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, current_stangings,
+                              league_settings, optimized_batters, optimized_pitchers):
+    """Optimizes Pitching Roster for remainder of year\n
+    Args:\n
+        team_dict: dict of players on team.\n
+        ros_projection_list: Rest of Season projection list.\n
+    Returns:\n
+        dict of recommended starting pitchers.\n
+    Raises:\n
+        None.
+    """
+    team_roster_list = [roster.lower().replace('.', '') for roster in team_dict['ROSTER']]
+    team_player_list = []
+    current_ip = 0
+    max_ip = int(league_settings['Max Innings Pitched:'])
+    for standing in current_stangings:
+        if standing['PointsTeam'] == team_dict['TEAM_NAME']:
+            current_ip += int(math.ceil(float(standing['StatsIP'])))
