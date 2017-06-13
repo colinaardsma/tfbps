@@ -171,7 +171,12 @@ def yahoo_team_creator(single_team_html):
     team[dict_key_list[1]] = team_number_a.attrib['href'].split("/")[3]
     table_body = single_team_html.xpath(".//table/tbody")
     for row in table_body:
-        team[dict_key_list[2]] = row.xpath(".//tr/td[@class='player']/div[1]/div/a/text()").replace('.', '')
+        roster = []
+        html_roster = row.xpath(".//tr/td[@class='player']/div[1]/div/a/text()")
+        for html_player in html_roster:
+            player = html_player.replace('.', '')
+            roster.append(player)
+        team[dict_key_list[2]] = roster
     return team
 
 def get_single_yahoo_team(league_no, team_name=None, team_number=None):
