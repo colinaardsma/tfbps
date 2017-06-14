@@ -50,12 +50,23 @@ LEAGUE_POS_DICT = tests_long_variables.LEAGUE_POS_DICT
 # CURRENT_STANDINGS = html_parser.get_standings(LEAGUE_NO, TEAM_COUNT)
 CURRENT_STANDINGS = tests_long_variables.CURRENT_STANDINGS
 
+OPTIMIZED_BATTERS = player_rater.batting_roster_optimizer(TEAM_DICT, ROS_PROJ_B_LIST,
+                                                          LEAGUE_POS_DICT)
+OPTIMIZED_PITCHERS = player_rater.pitching_roster_optimizer(TEAM_DICT, ROS_PROJ_P_LIST,
+                                                            LEAGUE_POS_DICT, CURRENT_STANDINGS,
+                                                            LEAGUE_SETTINGS)
+OPTIMIZED_BENCH = player_rater.bench_roster_optimizer(TEAM_DICT, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST,
+                                                      LEAGUE_POS_DICT, CURRENT_STANDINGS,
+                                                      LEAGUE_SETTINGS, OPTIMIZED_BATTERS,
+                                                      OPTIMIZED_PITCHERS)
+
+print OPTIMIZED_BATTERS
+print OPTIMIZED_PITCHERS
+print OPTIMIZED_BENCH
+
 
 #TESTS
-# print LEAGUE_SETTINGS
-# print player_rater.batting_roster_optimizer(TEAM_DICT, ROS_PROJ_B_LIST, LEAGUE_POS_DICT)
-# print player_rater.pitching_roster_optimizer(TEAM_DICT, ROS_PROJ_P_LIST, LEAGUE_POS_DICT,
-#                                              CURRENT_STANDINGS, LEAGUE_SETTINGS)
+
 # print player_rater
 
-print html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing")
+# print html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing")
