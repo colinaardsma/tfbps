@@ -81,7 +81,7 @@ class FaRater(Handler):
         if player_name == "":
             single_player = None
         else:
-            single_player = fa_vs_team.single_player_rater(single_player)
+            single_player = fa_vs_team.single_player_rater(player_name)
         self.render("fa_rater.html", top_fa=top_fa, single_player=single_player)
 
     def get(self):
