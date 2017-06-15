@@ -3,6 +3,7 @@ import operator
 import math
 import re
 import collections
+import itertools
 import html_parser
 import player_models
 
@@ -146,7 +147,7 @@ def batting_roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
                     if pos in starting_batters:
                         i += 1
                     else:
-                        starting_batters[pos] = player
+                        starting_batters[pos] = [player]
                         del team_player_list[i]
             else:
                 i += 1
@@ -188,6 +189,7 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
     team_roster_list = [roster.lower() for roster in team_dict['ROSTER']]
     team_player_list = []
     current_ip = 0
+    starter_ip = 0
     max_ip = int(league_settings['Max Innings Pitched:'])
     for standing in current_stangings:
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
@@ -219,10 +221,12 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
                                 len(starting_pitchers[pos]) < pitching_pos.count(pos)):
                             starting_pitchers[pos].append(player)
                             current_ip += player.ips
+                            starter_ip += player.ips
                             del team_player_list[i]
                         elif not filter(regex_pos.match, starting_pitchers.keys()):
                             starting_pitchers[pos] = [player]
                             current_ip += player.ips
+                            starter_ip += player.ips
                             del team_player_list[i]
                         else:
                             i += 1
@@ -231,12 +235,13 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
                         if filter(regex_pos.match, starting_pitchers.keys()):
                             i += 1
                         else:
-                            starting_pitchers[pos] = player
+                            starting_pitchers[pos] = [player]
                             current_ip += player.ips
+                            starter_ip += player.ips
                             del team_player_list[i]
                 else:
                     i += 1
-    starting_pitchers['Starter IP'] = current_ip
+    starting_pitchers['Starter IP'] = starter_ip
     return starting_pitchers
 
 def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_projection_list,
@@ -261,47 +266,52 @@ def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_pr
     team_roster_list = [roster.lower() for roster in team_dict['ROSTER']]
     bench_roster_list = []
     team_player_list = []
-    opt_batters = list_flattener(optimized_batters)
-    opt_pitchers = list_flattener(optimized_pitchers)
+    starter_ip = optimized_pitchers.pop('Starter IP')
+    opt_batters = list(sum(optimized_batters.values(), []))
+    opt_pitchers = list(sum(optimized_pitchers.values(), []))
     for player in team_roster_list:
-        if player not in opt_batters and player not in opt_pitchers:
+        if (not any(batter.name.lower() == player for batter in opt_batters) and
+                not any(pitcher.name.lower() == player for pitcher in opt_pitchers)):
             bench_roster_list.append(player)
     # TODO: can i iterate through the shorter list (bench_roster_list)
-    for player in ros_batter_projection_list:
-        if player.name.lower() in bench_roster_list:
-            team_player_list.append(player)
     for player in ros_pitcher_projection_list:
         if player.name.lower() in bench_roster_list:
             team_player_list.append(player)
-    sorted(team_player_list, key=operator.attrgetter('dollarValue'))
+    for player in ros_batter_projection_list:
+        if player.name.lower() in bench_roster_list:
+            team_player_list.append(player)
     bench_players = {}
     bench_players['pitchers'] = []
     bench_players['batters'] = []
     current_ip = 0
+    bench_ip = 0
     max_ip = int(league_settings['Max Innings Pitched:'])
     for standing in current_stangings:
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
             current_ip += int(math.ceil(float(standing['StatsIP'])))
-    current_ip += optimized_pitchers['Starter IP']
+    current_ip += starter_ip
     # i = 0
     # while i < len(team_player_list):
     for player in team_player_list:
         # player = team_player_list[i]
-        if "P" in player.pos:
+        if any("P" in pos for pos in player.pos):
             if current_ip < max_ip:
                 if player.ips + current_ip > max_ip:
                     player = partial_pitcher(player, max_ip, current_ip)
                 bench_players['pitchers'].append(player)
                 current_ip += player.ips
+                bench_ip += player.ips
                 # del team_player_list[i]
-                if (sum(map(len, bench_players.values()))) == bench_pos.count:
+                # bench_list = list(itertools.chain.from_iterable(bench_players.values()))
+                # if len(bench_list) == bench_pos.count:
+                if (sum(map(len, bench_players.values()))) == len(bench_pos):
                     break
         else:
-            bench_players['batters'].append(player)
+            bench_players['batters'].append(bench_batter(player))
             # del team_player_list[i]
-            if (sum(map(len, bench_players.values()))) == bench_pos.count:
+            if (sum(map(len, bench_players.values()))) == len(bench_pos):
                 break
-    bench_players['Bench IP'] = current_ip - optimized_pitchers['Starter IP']
+    # bench_players['Bench IP'] = bench_ip
     return bench_players
 
 def partial_pitcher(player, max_ip, current_ip):
@@ -322,25 +332,19 @@ def partial_pitcher(player, max_ip, current_ip):
     player.sos *= stat_pct
     return player
 
-# def list_flattener(list_of_lists):
-#     """Calculates percentage of pitcher values based on remaining ip\n
-#     Args:\n
-#         player: player object.\n
-#         max_ip: maximum ip for the league.\n
-#         current_ip: current ip for the team.\n
-#     Returns:\n
-#         player object with stats based on remaining ip.\n
-#     Raises:\n
-#         None.
-#     """
-#     for list_item in list_of_lists:
-#         if isinstance(list_item, collections.Iterable) and not isinstance(list_item, basestring):
-#             for sub in list_flattener(list_item):
-#                 yield sub
-#         else:
-#             yield list_item
-def list_flattener(list_of_lists):
-    if isinstance(list_of_lists, collections.Iterable):
-        return [a for i in list_of_lists for a in list_flattener(i)]
-    else:
-        return [list_of_lists]
+def bench_batter(player):
+    """Reduces the stat values of a bench batter by a percentage\n
+    Args:\n
+        player: player object.\n
+    Returns:\n
+        player object with stats based percentage.\n
+    Raises:\n
+        None.
+    """
+    stat_pct = .10
+    player.atbats *= stat_pct
+    player.runs *= stat_pct
+    player.hrs *= stat_pct
+    player.rbis *= stat_pct
+    player.sbs *= stat_pct
+    return player
