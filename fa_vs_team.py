@@ -49,11 +49,13 @@ def fa_vs_team(league_no, team_name):
         None.
     """
     avail_pitching_fas = player_rater.rate_fa(PITCHER_FA_LIST, ROS_PROJ_P_LIST)
-    team_pitching_values = player_rater.rate_team(html_parser.get_single_yahoo_team(league_no, team_name),
-                       ROS_PROJ_P_LIST)
+    team_pitching_values = player_rater.rate_team(html_parser.get_single_yahoo_team(league_no,
+                                                                                    team_name),
+                                                  ROS_PROJ_P_LIST)
     avail_batting_fas = player_rater.rate_fa(BATTER_FA_LIST, ROS_PROJ_B_LIST)
-    team_batting_values = player_rater.rate_team(html_parser.get_single_yahoo_team(league_no, team_name),
-                        ROS_PROJ_B_LIST)
+    team_batting_values = player_rater.rate_team(html_parser.get_single_yahoo_team(league_no,
+                                                                                   team_name),
+                                                 ROS_PROJ_B_LIST)
     player_comp = "Avail Pitching FAs\n"
     player_comp += avail_pitching_fas
     player_comp += "\nTeam Pitching Values\n"
@@ -64,3 +66,25 @@ def fa_vs_team(league_no, team_name):
     player_comp += team_batting_values
 
     return player_comp
+
+def single_player_rater(player_name):
+    """Searches for and returns rating of and individual player\n
+    Args:\n
+        player_name: name of the player to search for.\n
+    Returns:\n
+        rated player object.\n
+    Raises:\n
+        None.
+    """
+    player = player_rater.single_player_rater(player_name, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST)
+    player_stats = ""
+    if any("P" in pos for pos in player.pos):
+        player_stats = ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
+                        " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3}" +
+                        "- {player.era:^4} - {player.whip:^4}\n").format(player=player)
+    else:
+        player_stats = ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
+                        " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3}" +
+                        " - {player.sbs:^2} - {player.ops:^5}\n").format(player=player)
+
+    return player_stats

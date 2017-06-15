@@ -348,3 +348,23 @@ def bench_batter(player):
     player.rbis *= stat_pct
     player.sbs *= stat_pct
     return player
+
+def single_player_rater(player_name, ros_batter_projection_list, ros_pitcher_projection_list):
+    """Searches for and returns rating of and individual player\n
+    Args:\n
+        player_name: name of the player to search for.\n
+        ros_batter_projection_list: Rest of Season batter projection list.\n
+        ros_pitcher_projection_list: Rest of Season pitcher projection list.\n
+    Returns:\n
+        rated player object.\n
+    Raises:\n
+        None.
+    """
+    player = None
+    for player_proj in ros_pitcher_projection_list:
+        if player_name.lower() == player_proj.name.lower():
+            player = player_proj
+    for player_proj in ros_batter_projection_list:
+        if player_name.lower() == player_proj.name.lower():
+            player = player_proj
+    return player

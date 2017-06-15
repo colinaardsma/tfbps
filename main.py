@@ -72,13 +72,17 @@ class MainHandler(Handler):
         self.render_main()
 
 class FaRater(Handler):
-    def render_fa_rater(self, league_no="", team_name=""):
+    def render_fa_rater(self, league_no="", team_name="", player_name=""):
         if league_no == "" or team_name == "":
             top_fa = None
         else:
             top_fa = fa_vs_team.fa_vs_team(league_no, team_name)
             top_fa = top_fa.replace("\n", "<br />")
-        self.render("fa_rater.html", top_fa=top_fa)
+        if player_name == "":
+            single_player = None
+        else:
+            single_player = fa_vs_team.single_player_rater(single_player)
+        self.render("fa_rater.html", top_fa=top_fa, single_player=single_player)
 
     def get(self):
         self.render_fa_rater()
@@ -86,7 +90,8 @@ class FaRater(Handler):
     def post(self):
         league_no = self.request.get("league_no")
         team_name = self.request.get("team_name")
-        self.render_fa_rater(league_no=league_no, team_name=team_name)
+        player_name = self.request.get("player_name")
+        self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name)
 
 class Oauth(Handler):
     def get(self):

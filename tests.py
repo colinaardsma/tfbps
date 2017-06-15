@@ -5,6 +5,7 @@ import html_parser
 import player_rater
 import player_creator
 import tests_long_variables
+import fa_vs_team
 
 #VARIABLES
 # ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
@@ -60,9 +61,11 @@ OPTIMIZED_BENCH = player_rater.bench_roster_optimizer(TEAM_DICT, ROS_PROJ_B_LIST
                                                       LEAGUE_SETTINGS, OPTIMIZED_BATTERS,
                                                       OPTIMIZED_PITCHERS)
 
-print OPTIMIZED_BATTERS
-print OPTIMIZED_PITCHERS
-print OPTIMIZED_BENCH
+# print OPTIMIZED_BATTERS
+# print OPTIMIZED_PITCHERS
+# print OPTIMIZED_BENCH
+
+print fa_vs_team.single_player_rater("yulieski gurriel")
 
 
 #TESTS
