@@ -81,6 +81,36 @@ def rate_team(team_dict, ros_projection_list):
 
 #     roster_optimizer(team_dict)
 
+def team_optimizer(team_dict, ros_proj_b_list, ros_proj_p_list, league_pos_dict,
+                   current_stangings, league_settings):
+    opt_batters = batting_roster_optimizer(team_dict, ros_proj_b_list, league_pos_dict)
+    opt_pitchers = pitching_roster_optimizer(team_dict, ros_proj_p_list, league_pos_dict,
+                                             current_stangings, league_settings)
+    opt_bench = bench_roster_optimizer(team_dict, ros_proj_b_list, ros_proj_p_list,
+                                       league_pos_dict, current_stangings, league_settings,
+                                       opt_batters, opt_pitchers)
+    team_stats = {}
+    for standing in current_stangings:
+        if standing['PointsTeam'] == team_dict['TEAM_NAME']:
+            batters = [val for sublist in opt_batters.values() for val in sublist]
+            for batter in batters:
+                team_stats['StatsR'] = standing['StatsR'] + batter.runs
+                team_stats['StatsHR'] = standing['StatsHR'] + batter.hrs
+                team_stats['StatsRBI'] = standing['StatsRBI'] + batter.rbis
+                team_stats['StatsSB'] = standing['StatsSB'] + batter.sbs
+                # calc ab and gp for use in ops weighting
+                avg_ab_per_team = 34.1 # per game
+                avg_ab_per_player = avg_ab_per_team / 9
+                batter_est_gp = batter.atbats / avg_ab_per_player
+                team_abs = standing['StatTotalGP'] * avg_ab_per_player
+                total_abs = team_abs + batter.atbats
+                # calc ops
+                current_weighted_ops = standing['StatsOPS'] * team_abs
+                batter_weighted_ops = batter.ops * batter.atbats
+                team_stats['StatsOSP'] = (current_weighted_ops + batter_weighted_ops) / total_abs
+                team_stats['StatsTotalGP'] = standing['StatTotalGP'] + batter_est_gp
+    return team_stats
+
 def batting_roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
     """Optimizes Batting Roster for remainder of year\n
     Args:\n
@@ -170,7 +200,6 @@ def order_batting_pos_by_scarcity(league_batting_roster_pos):
             ordered_roster_pos_list.append(pos)
             league_batting_roster_pos.remove(pos)
     return ordered_roster_pos_list
-
 
 def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, current_stangings,
                               league_settings):

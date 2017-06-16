@@ -88,3 +88,5 @@ def single_player_rater(player_name):
                         " - {player.sbs:^2} - {player.ops:^5}\n").format(player=player)
 
     return player_stats
+
+
