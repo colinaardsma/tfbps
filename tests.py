@@ -29,6 +29,7 @@ P_DOLLAR_PER_FVAAZ = 2.17
 B_PLAYER_POOL_MULT = 2.375
 P_PLAYER_POOL_MULT = 4.45
 LEAGUE_NO = 5091
+TEAM_LIST = html_parser.yahoo_teams(LEAGUE_NO)
 TEAM_COUNT = 12
 BATTER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "B")
 PITCHER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "P")
@@ -45,7 +46,7 @@ TEAM_DICT = tests_long_variables.TEAM_DICT
 # LEAGUE_SETTINGS = html_parser.get_league_settings(5091)
 LEAGUE_SETTINGS = tests_long_variables.LEAGUE_SETTINGS
 
-# LEAGUE_POS_DICT = LEAGUE_SETTINGS["Roster Positions:"]
+# LEAGUE_POS_DICT = html_parser.split_league_pos_types(LEAGUE_SETTINGS["Roster Positions:"])
 LEAGUE_POS_DICT = tests_long_variables.LEAGUE_POS_DICT
 
 # CURRENT_STANDINGS = html_parser.get_standings(LEAGUE_NO, TEAM_COUNT)
@@ -64,8 +65,10 @@ CURRENT_STANDINGS = tests_long_variables.CURRENT_STANDINGS
 # print OPTIMIZED_BATTERS
 # print OPTIMIZED_PITCHERS
 # print OPTIMIZED_BENCH
-print player_rater.team_optimizer(TEAM_DICT, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST, LEAGUE_POS_DICT,
-                                  CURRENT_STANDINGS, LEAGUE_SETTINGS)
+# print player_rater.team_optimizer(TEAM_DICT, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST, LEAGUE_POS_DICT,
+#                                   CURRENT_STANDINGS, LEAGUE_SETTINGS)
+print player_rater.final_standings_projection(LEAGUE_NO, TEAM_LIST, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST,
+                                              LEAGUE_POS_DICT, CURRENT_STANDINGS, LEAGUE_SETTINGS)
 
 
 #TESTS

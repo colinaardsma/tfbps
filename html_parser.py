@@ -243,7 +243,8 @@ def get_standings(league_no, team_count):
             points_counter += 1
         stats_counter = 0
         while stats_counter < len(stats_header_list):
-            team_dict[stats_header_list[stats_counter]] = team_stats_row[stats_counter]
+            cleaned_stat = team_stats_row[stats_counter].replace("*", "")
+            team_dict[stats_header_list[stats_counter]] = cleaned_stat
             stats_counter += 1
         current_standings.append(team_dict)
         html_counter += 1

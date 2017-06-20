@@ -93,22 +93,53 @@ def team_optimizer(team_dict, ros_proj_b_list, ros_proj_p_list, league_pos_dict,
     for standing in current_stangings:
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
             batters = [val for sublist in opt_batters.values() for val in sublist]
+            batters.extend(opt_bench['batters'])
+            team_stats['StatsR'] = int(standing['StatsR'])
+            team_stats['StatsHR'] = int(standing['StatsHR'])
+            team_stats['StatsRBI'] = int(standing['StatsRBI'])
+            team_stats['StatsSB'] = int(standing['StatsSB'])
+            team_stats['StatsOPS'] = float(standing['StatsOPS'])
+            team_stats['StatsTotalGP'] = int(standing['StatsTotalGP'])
             for batter in batters:
-                team_stats['StatsR'] = standing['StatsR'] + batter.runs
-                team_stats['StatsHR'] = standing['StatsHR'] + batter.hrs
-                team_stats['StatsRBI'] = standing['StatsRBI'] + batter.rbis
-                team_stats['StatsSB'] = standing['StatsSB'] + batter.sbs
+                team_stats['StatsR'] += int(batter.runs)
+                team_stats['StatsHR'] += int(batter.hrs)
+                team_stats['StatsRBI'] += int(batter.rbis)
+                team_stats['StatsSB'] += int(batter.sbs)
                 # calc ab and gp for use in ops weighting
                 avg_ab_per_team = 34.1 # per game
                 avg_ab_per_player = avg_ab_per_team / 9
                 batter_est_gp = batter.atbats / avg_ab_per_player
-                team_abs = standing['StatTotalGP'] * avg_ab_per_player
+                team_abs = int(team_stats['StatsTotalGP']) * avg_ab_per_player
                 total_abs = team_abs + batter.atbats
                 # calc ops
-                current_weighted_ops = standing['StatsOPS'] * team_abs
+                current_weighted_ops = float(team_stats['StatsOPS']) * team_abs
                 batter_weighted_ops = batter.ops * batter.atbats
-                team_stats['StatsOSP'] = (current_weighted_ops + batter_weighted_ops) / total_abs
-                team_stats['StatsTotalGP'] = standing['StatTotalGP'] + batter_est_gp
+                team_stats['StatsOPS'] = (current_weighted_ops + batter_weighted_ops) / total_abs
+                team_stats['StatsTotalGP'] += batter_est_gp
+            pitchers = [val for sublist in opt_pitchers.values() for val in sublist]
+            pitchers.extend(opt_bench['pitchers'])
+            team_stats['StatsW'] = int(standing['StatsW'])
+            team_stats['StatsSV'] = int(standing['StatsSV'])
+            team_stats['StatsK'] = int(standing['StatsK'])
+            team_stats['StatsERA'] = float(standing['StatsERA'])
+            team_stats['StatsWHIP'] = float(standing['StatsWHIP'])
+            team_stats['StatsIP'] = float(standing['StatsIP'])
+            for pitcher in pitchers:
+                team_stats['StatsW'] += int(pitcher.wins)
+                team_stats['StatsSV'] += int(pitcher.svs)
+                team_stats['StatsK'] += int(pitcher.sos)
+                # calc ip
+                ip_add = team_stats['StatsIP'] + pitcher.ips
+                current_ip = ip_add if (1 - ip_add % 1) < .3 else math.ceil(ip_add)
+                # calc era and whip
+                weighted_team_era = float(team_stats['StatsERA']) * float(team_stats['StatsIP'])
+                weighted_pitcher_era = pitcher.era * pitcher.ips
+                team_stats['StatsERA'] = (weighted_team_era + weighted_pitcher_era) / current_ip
+                weighted_team_whip = float(team_stats['StatsWHIP']) * float(team_stats['StatsIP'])
+                weighted_pitcher_whip = pitcher.whip * pitcher.ips
+                team_stats['StatsWHIP'] = (weighted_team_whip + weighted_pitcher_whip) / current_ip
+                team_stats['StatsIP'] = current_ip
+            team_stats['TEAM_NAME'] = standing['PointsTeam']
     return team_stats
 
 def batting_roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
@@ -397,3 +428,13 @@ def single_player_rater(player_name, ros_batter_projection_list, ros_pitcher_pro
         if player_name.lower() == player_proj.name.lower():
             player = player_proj
     return player
+
+def final_standings_projection(league_no, team_list, ros_proj_b_list, ros_proj_p_list,
+                               league_pos_dict, current_stangings, league_settings):
+    final_standings = []
+    for team in team_list:
+        # team_dict = html_parser.get_single_yahoo_team(league_no, team['TEAM_NAME'])
+        optimized_team = team_optimizer(team, ros_proj_b_list, ros_proj_p_list,
+                                        league_pos_dict, current_stangings, league_settings)
+        final_standings.append(optimized_team)
+    
