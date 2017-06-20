@@ -4,6 +4,7 @@ import math
 import re
 import collections
 import itertools
+import copy
 import html_parser
 import player_models
 
@@ -433,8 +434,16 @@ def final_standings_projection(league_no, team_list, ros_proj_b_list, ros_proj_p
                                league_pos_dict, current_stangings, league_settings):
     final_standings = []
     for team in team_list:
-        # team_dict = html_parser.get_single_yahoo_team(league_no, team['TEAM_NAME'])
+        post_dict_copy = copy.deepcopy(league_pos_dict)
         optimized_team = team_optimizer(team, ros_proj_b_list, ros_proj_p_list,
-                                        league_pos_dict, current_stangings, league_settings)
+                                        post_dict_copy, current_stangings, league_settings)
         final_standings.append(optimized_team)
+    return final_standings
+    
+
+def rank_list(list):
+    [stat[0] for stat in sorted(enumerate(list,1), key=operator.itemgetter(1))]
+    # In [138]: L = [55, 41, 45, 43, 60, 47, 33, 70, 42, 42, 44]
+    # In [139]: [operator.itemgetter(0)(t) for t in sorted(enumerate(L,1), key=operator.itemgetter(1))]
+    # Out[139]: [7, 2, 9, 10, 4, 11, 3, 6, 1, 5, 8]
     
