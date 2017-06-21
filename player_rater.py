@@ -441,9 +441,32 @@ def final_standings_projection(league_no, team_list, ros_proj_b_list, ros_proj_p
     return final_standings
     
 
-def rank_list(list):
-    [stat[0] for stat in sorted(enumerate(list,1), key=operator.itemgetter(1))]
+def rank_list(projected_final_stats_list):
+    stat_ranker(projected_final_stats_list, "R")
+    stat_ranker(projected_final_stats_list, "HR")
+    stat_ranker(projected_final_stats_list, "RBI")
+    stat_ranker(projected_final_stats_list, "SB")
+    stat_ranker(projected_final_stats_list, "OPS")
+    stat_ranker(projected_final_stats_list, "W")
+    stat_ranker(projected_final_stats_list, "SV")
+    stat_ranker(projected_final_stats_list, "K")
+    stat_ranker(projected_final_stats_list, "ERA", False)
+    stat_ranker(projected_final_stats_list, "WHIP", False)
+    for team in projected_final_stats_list:
+        # team['PointsTotal'] = 0
+        team['PointsTotal'] = sum([value for key, value in team.items() if 'Points' in key])
+    projected_final_stats_list.sort(key=operator.itemgetter('PointsTotal'), reverse=True)
+    return projected_final_stats_list
     # In [138]: L = [55, 41, 45, 43, 60, 47, 33, 70, 42, 42, 44]
     # In [139]: [operator.itemgetter(0)(t) for t in sorted(enumerate(L,1), key=operator.itemgetter(1))]
     # Out[139]: [7, 2, 9, 10, 4, 11, 3, 6, 1, 5, 8]
+
+def stat_ranker(projected_final_stats_list, stat, reverse=True):
+    stats_title = "Stats" + stat
+    points_title = "Points" + stat
+    projected_final_stats_list.sort(key=operator.itemgetter(stats_title), reverse=reverse)
+    points = 12
+    for team in projected_final_stats_list:
+        team[points_title] = points
+        points -= 1
     

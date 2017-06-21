@@ -63,14 +63,20 @@ CURRENT_STANDINGS = html_parser.get_standings(LEAGUE_NO, TEAM_COUNT)
 #                                                       LEAGUE_POS_DICT, CURRENT_STANDINGS,
 #                                                       LEAGUE_SETTINGS, OPTIMIZED_BATTERS,
 #                                                       OPTIMIZED_PITCHERS)
+FINAL_STANDINGS_PROJECTION = tests_long_variables.FINAL_STANDINGS_PROJECTION
+# FINAL_STANDINGS_PROJECTION = player_rater.final_standings_projection(LEAGUE_NO, TEAM_LIST,
+#                                                                      ROS_PROJ_B_LIST,
+#                                                                      ROS_PROJ_P_LIST,
+#                                                                      LEAGUE_POS_DICT,
+#                                                                      CURRENT_STANDINGS,
+#                                                                      LEAGUE_SETTINGS)
 
 # print OPTIMIZED_BATTERS
 # print OPTIMIZED_PITCHERS
 # print OPTIMIZED_BENCH
 # print player_rater.team_optimizer(TEAM_DICT, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST, LEAGUE_POS_DICT,
 #                                   CURRENT_STANDINGS, LEAGUE_SETTINGS)
-print player_rater.final_standings_projection(LEAGUE_NO, TEAM_LIST, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST,
-                                              LEAGUE_POS_DICT, CURRENT_STANDINGS, LEAGUE_SETTINGS)
+print player_rater.rank_list(FINAL_STANDINGS_PROJECTION)
 
 
 #TESTS
