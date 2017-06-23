@@ -27,6 +27,10 @@ ROS_PROJ_B_LIST = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_Z
 ROS_PROJ_P_LIST = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
                                                       ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
                                                       P_PLAYER_POOL_MULT)
+LEAGUE_SETTINGS = html_parser.get_league_settings(LEAGUE_NO)
+CURRENT_STANDINGS = html_parser.get_standings(LEAGUE_NO, int(LEAGUE_SETTINGS['Max Teams:']))
+TEAM_LIST = html_parser.yahoo_teams(LEAGUE_NO)
+LEAGUE_POS_DICT = html_parser.split_league_pos_types(LEAGUE_SETTINGS["Roster Positions:"])
 
 # print "Avail Pitching FAs"
 # print player_rater.rate_fa(PITCHER_FA_LIST, ROS_PROJ_P_LIST)
@@ -89,4 +93,9 @@ def single_player_rater(player_name):
 
     return player_stats
 
-
+def final_standing_projection(league_no):
+    final_stats = player_rater.final_standings_projection(league_no, TEAM_LIST, ROS_PROJ_B_LIST,
+                                                          ROS_PROJ_P_LIST, LEAGUE_POS_DICT,
+                                                          CURRENT_STANDINGS, LEAGUE_SETTINGS)
+    final_standings = player_rater.rank_list(final_stats)
+    return final_stats

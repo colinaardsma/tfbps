@@ -469,4 +469,3 @@ def stat_ranker(projected_final_stats_list, stat, reverse=True):
     for team in projected_final_stats_list:
         team[points_title] = points
         points -= 1
-    

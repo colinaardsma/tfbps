@@ -2,7 +2,7 @@
 
 {%- block content %}
   <div>
-    {%- if single_player %}
+    {%- if single_player or projected_standings%}
     {%- elif top_fa %}
       <h2>FA Rater by Team/League</h2>
       <p>{{top_fa|safe}}</p>
@@ -32,7 +32,7 @@
     {%- endif %}
   </div>
   <div>
-    {%- if top_fa %}
+    {%- if top_fa or projected_standings %}
     {%- elif single_player %}
       <h2>Single Player Search</h2>
       <p>{{single_player|safe}}</p>
@@ -45,6 +45,30 @@
           <td>Player Name:</td>
           <td>
             <input class="regform" type="text" name="player_name" value="{{player_name}}" />
+          </td>
+        </tr>
+      </table>
+      <!--<div style="color: red">{{error}}</div>-->
+      <table>
+        <tr>
+          <td>
+            <input type = "submit" />
+      </form>
+    {%- endif %}
+  </div>
+    <div>
+    {%- if single_player or if top_fa %}
+    {%- elif projected_standings %}
+      <h2>Projected Final Standings</h2>
+      <p>{{projected_standings|safe}}</p>
+    {%- else %}
+      <h2>Projected Final Standings</h2>
+      <form method="post">
+      <table>
+        <tr>
+          <td>League Number:</td>
+          <td>
+            <input class="regform" type="text" name="league_no" value="{{league_no}}" />
           </td>
         </tr>
       </table>

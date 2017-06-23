@@ -71,18 +71,26 @@ class MainHandler(Handler):
     def get(self):
         self.render_main()
 
-class FaRater(Handler):
+class TeamToolsHandler(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name=""):
+        # fa rater
         if league_no == "" or team_name == "":
             top_fa = None
         else:
             top_fa = fa_vs_team.fa_vs_team(league_no, team_name)
             top_fa = top_fa.replace("\n", "<br />")
+        # single player lookup
         if player_name == "":
             single_player = None
         else:
             single_player = fa_vs_team.single_player_rater(player_name)
-        self.render("fa_rater.html", top_fa=top_fa, single_player=single_player)
+        # final stanings projection
+        if league_no == "":
+            projected_standings = None
+        else:
+            projected_standings = fa_vs_team.final_standing_projection(league_no)
+        self.render("team_tools.html", top_fa=top_fa, single_player=single_player,
+                    projected_standings=projected_standings)
 
     def get(self):
         self.render_fa_rater()
@@ -110,6 +118,6 @@ app = webapp2.WSGIApplication([
     # user handling
     ('/oauth/?', Oauth),
     ('/redirect/?', Redirect),
-    ('/fa_rater/?', FaRater)
+    ('/team_tools/?', TeamToolsHandler)
     ], debug=True)
     
