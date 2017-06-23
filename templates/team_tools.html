@@ -60,6 +60,20 @@
     {%- if single_player or top_fa %}
     {%- elif projected_standings %}
       <h2>Projected Final Standings</h2>
+      <table>
+        <tr>
+          <th>Points</th>
+          <th>Team Name</th>
+        </tr>
+        <tbody>
+          {%- for team in projected_standings %}
+            <tr>
+              <td>{{team['PointsTotal']}}</td>
+              <td>{{team['TEAM_NAME']}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
       <p>{{projected_standings|safe}}</p>
     {%- else %}
       <h2>Projected Final Standings</h2>
