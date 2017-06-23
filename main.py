@@ -85,10 +85,11 @@ class TeamToolsHandler(Handler):
         else:
             single_player = fa_vs_team.single_player_rater(player_name)
         # final stanings projection
-        if league_no == "":
+        if league_no == "" or (league_no != "" and team_name != ""):
             projected_standings = None
-        elif league_no != "" and team_name == "":
+        else:
             projected_standings = fa_vs_team.final_standing_projection(league_no)
+            
         self.render("team_tools.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings)
 
