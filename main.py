@@ -5,7 +5,6 @@ import hashing
 import os
 import caching
 import webbrowser
-import fa_vs_team
 
 # setup jinja2
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
@@ -73,6 +72,7 @@ class MainHandler(Handler):
 
 class TeamToolsHandler(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name=""):
+        import fa_vs_team
         # fa rater
         if league_no == "" or team_name == "":
             top_fa = None

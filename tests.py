@@ -76,8 +76,8 @@ FINAL_STANDINGS_PROJECTION = tests_long_variables.FINAL_STANDINGS_PROJECTION
 # print OPTIMIZED_BENCH
 # print player_rater.team_optimizer(TEAM_DICT, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST, LEAGUE_POS_DICT,
 #                                   CURRENT_STANDINGS, LEAGUE_SETTINGS)
-print player_rater.rank_list(FINAL_STANDINGS_PROJECTION)
-
+# print player_rater.rank_list(FINAL_STANDINGS_PROJECTION)
+print html_parser.html_to_document(ROS_BATTER_URL)
 
 #TESTS
 
