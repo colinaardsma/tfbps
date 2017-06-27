@@ -2,10 +2,9 @@
 import urllib
 import platform
 import html_parser
-import player_rater
+# import player_rater
 import player_creator
 import tests_long_variables
-import fa_vs_team
 
 #VARIABLES
 WIN_ROS_BATTER_URL = r"file:///C:\dev\git\tfbps\testing html\2017 Rest of Season Fantasy Baseball Projections - Hitters.html"

@@ -2,11 +2,7 @@
 import operator
 import math
 import re
-import collections
-import itertools
 import copy
-import html_parser
-import player_models
 
 def rate_fa(fa_list, ros_projection_list):
     """Compare available FAs with Projections\n
@@ -71,16 +67,6 @@ def rate_team(team_dict, ros_projection_list):
                      " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
                      " - {player.ops:^5}\n").format(player=player)
     return team
-
-# def rater_string_creator(player):
-#     if player 
-#     pitcher_field_list = [player.dollarValue, name]
-
-
-# def full_season_standings_projection(team_dict, current_stangings, ros_projection_list):
-#     """Full Season Standings Projection"""
-
-#     roster_optimizer(team_dict)
 
 def team_optimizer(team_dict, ros_proj_b_list, ros_proj_p_list, league_pos_dict,
                    current_stangings, league_settings):
@@ -439,7 +425,6 @@ def final_standings_projection(league_no, team_list, ros_proj_b_list, ros_proj_p
                                         post_dict_copy, current_stangings, league_settings)
         final_standings.append(optimized_team)
     return final_standings
-    
 
 def rank_list(projected_final_stats_list):
     stat_ranker(projected_final_stats_list, "R")
@@ -453,13 +438,9 @@ def rank_list(projected_final_stats_list):
     stat_ranker(projected_final_stats_list, "ERA", False)
     stat_ranker(projected_final_stats_list, "WHIP", False)
     for team in projected_final_stats_list:
-        # team['PointsTotal'] = 0
         team['PointsTotal'] = sum([value for key, value in team.items() if 'Points' in key])
     projected_final_stats_list.sort(key=operator.itemgetter('PointsTotal'), reverse=True)
     return projected_final_stats_list
-    # In [138]: L = [55, 41, 45, 43, 60, 47, 33, 70, 42, 42, 44]
-    # In [139]: [operator.itemgetter(0)(t) for t in sorted(enumerate(L,1), key=operator.itemgetter(1))]
-    # Out[139]: [7, 2, 9, 10, 4, 11, 3, 6, 1, 5, 8]
 
 def stat_ranker(projected_final_stats_list, stat, reverse=True):
     stats_title = "Stats" + stat

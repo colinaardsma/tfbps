@@ -1,5 +1,6 @@
 """HTML Parsing"""
-# import urllib
+import unicodedata
+from lxml import html
 URL_FETCH = False
 try:
     from google.appengine.api import urlfetch
@@ -7,8 +8,6 @@ try:
 except ImportError:
     import urllib2
     # pass
-import unicodedata
-from lxml import html
 
 def html_to_document(url):
     """Get league standings\n

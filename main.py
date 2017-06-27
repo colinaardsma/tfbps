@@ -1,10 +1,9 @@
+import os
 import webapp2
 import api_connector
 import jinja2
 import hashing
-import os
 import caching
-import webbrowser
 
 # setup jinja2
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),

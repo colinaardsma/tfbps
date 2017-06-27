@@ -5,10 +5,9 @@ import player_creator
 
 # https://developer.yahoo.com/fantasysports/guide/players-collection.html
 
+# static variables
 ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
 ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/ros-pitchers.php"
-BATTER_LIST = player_creator.create_full_batter(ROS_BATTER_URL)
-PITCHER_LIST = player_creator.create_full_pitcher(ROS_PITCHER_URL)
 BATTERS_OVER_ZERO_DOLLARS = 176
 PITCHERS_OVER_ZERO_DOLLARS = 124
 ONE_DOLLAR_BATTERS = 30
@@ -19,44 +18,41 @@ B_PLAYER_POOL_MULT = 2.375
 P_PLAYER_POOL_MULT = 4.45
 LEAGUE_NO = 5091
 TEAM_COUNT = 12
-BATTER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "B")
-PITCHER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "P")
+
+# dynamic variables
+BATTER_LIST = player_creator.create_full_batter(ROS_BATTER_URL)
+PITCHER_LIST = player_creator.create_full_pitcher(ROS_PITCHER_URL)
 ROS_PROJ_B_LIST = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
                                                      ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
                                                      B_PLAYER_POOL_MULT)
 ROS_PROJ_P_LIST = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
                                                       ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
                                                       P_PLAYER_POOL_MULT)
-LEAGUE_SETTINGS = html_parser.get_league_settings(LEAGUE_NO)
-CURRENT_STANDINGS = html_parser.get_standings(LEAGUE_NO, int(LEAGUE_SETTINGS['Max Teams:']))
-TEAM_LIST = html_parser.yahoo_teams(LEAGUE_NO)
-LEAGUE_POS_DICT = html_parser.split_league_pos_types(LEAGUE_SETTINGS["Roster Positions:"])
-
-# print "Avail Pitching FAs"
-# print player_rater.rate_fa(PITCHER_FA_LIST, ROS_PROJ_P_LIST)
-# print "\nTeam Pitching Values"
-# print player_rater.rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
-#                        ROS_PROJ_P_LIST)
-# print "\nAvail Batting FAs"
-# print player_rater.rate_fa(BATTER_FA_LIST, ROS_PROJ_B_LIST)
-# print "\nTeam Batting Values"
-# print player_rater.rate_team(html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing"),
-#                        ROS_PROJ_B_LIST)
+# variable defined within methods
+# BATTER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "B")
+# PITCHER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "P")
+# LEAGUE_SETTINGS = html_parser.get_league_settings(LEAGUE_NO)
+# CURRENT_STANDINGS = html_parser.get_standings(LEAGUE_NO, int(LEAGUE_SETTINGS['Max Teams:']))
+# TEAM_LIST = html_parser.yahoo_teams(LEAGUE_NO)
+# LEAGUE_POS_DICT = html_parser.split_league_pos_types(LEAGUE_SETTINGS["Roster Positions:"])
 
 def fa_vs_team(league_no, team_name):
     """Compare team player values with available FA player values\n
     Args:\n
-        None.\n
+        league_no: Yahoo! fantasy baseball league number.\n
+        team_name: name of the team to retreive.\n
     Returns:\n
-        string with player data for diplay in html.\n
+        string comparing team values against fa values.\n
     Raises:\n
         None.
     """
-    avail_pitching_fas = player_rater.rate_fa(PITCHER_FA_LIST, ROS_PROJ_P_LIST)
+    pitching_fa_list = html_parser.yahoo_fa(league_no, "P")
+    batting_fa_list = html_parser.yahoo_fa(LEAGUE_NO, "B")
+    avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ROS_PROJ_P_LIST)
     team_pitching_values = player_rater.rate_team(html_parser.get_single_yahoo_team(league_no,
                                                                                     team_name),
                                                   ROS_PROJ_P_LIST)
-    avail_batting_fas = player_rater.rate_fa(BATTER_FA_LIST, ROS_PROJ_B_LIST)
+    avail_batting_fas = player_rater.rate_fa(batting_fa_list, ROS_PROJ_B_LIST)
     team_batting_values = player_rater.rate_team(html_parser.get_single_yahoo_team(league_no,
                                                                                    team_name),
                                                  ROS_PROJ_B_LIST)
@@ -94,8 +90,21 @@ def single_player_rater(player_name):
     return player_stats
 
 def final_standing_projection(league_no):
-    final_stats = player_rater.final_standings_projection(league_no, TEAM_LIST, ROS_PROJ_B_LIST,
-                                                          ROS_PROJ_P_LIST, LEAGUE_POS_DICT,
-                                                          CURRENT_STANDINGS, LEAGUE_SETTINGS)
+    """Returns projection of final standings for league based on\n
+    current standings and team projections\n
+    Args:\n
+        league_no: Yahoo! fantasy baseball league number.\n
+    Returns:\n
+        Final point standings.\n
+    Raises:\n
+        None.
+    """
+    league_settings = html_parser.get_league_settings(league_no)
+    current_standings = html_parser.get_standings(league_no, int(league_settings['Max Teams:']))
+    team_list = html_parser.yahoo_teams(league_no)
+    league_post_dict = html_parser.split_league_pos_types(league_settings["Roster Positions:"])
+    final_stats = player_rater.final_standings_projection(league_no, team_list, ROS_PROJ_B_LIST,
+                                                          ROS_PROJ_P_LIST, league_post_dict,
+                                                          current_standings, league_settings)
     final_standings = player_rater.rank_list(final_stats)
-    return final_stats
+    return final_standings

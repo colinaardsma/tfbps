@@ -1,7 +1,4 @@
-# """Long Variables for Testing"""
-import html_parser
-import player_rater
-import player_creator
+"""Long Variables for Testing"""
 
 # TEAM_DICT = html_parser.get_single_yahoo_team(LEAGUE_NO, "MachadoAboutNothing")
 TEAM_DICT = {'TEAM_NAME': 'MachadoAboutNothing', 'TEAM_NUMBER': '1',
