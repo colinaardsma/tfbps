@@ -210,7 +210,7 @@ def get_single_yahoo_team(league_no, team_name=None, team_number=None):
     for team in team_list:
         if team_number is not None and team['TEAM_NUMBER'] == str(team_number):
             return team
-        elif team_name is not None and team['TEAM_NAME'] == team_name:
+        elif team_name is not None and team['TEAM_NAME'].lower() == team_name.lower():
             return team
     print "Team Name or Team Number are invalid."
 

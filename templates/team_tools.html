@@ -22,7 +22,7 @@
         <tbody>
           {%- for pitcher in top_fa['Pitching FAs'] %}
             <tr>
-              <td>{{pitcher.dollarValue}}</td>
+              <td>{{'$%0.2f' % pitcher.dollarValue}}</td>
               <td>{{pitcher.name}}</td>
               <td>{{pitcher.pos}}</td>
               <td>{{pitcher.wins}}</td>
@@ -53,7 +53,7 @@
         <tbody>
           {%- for pitcher in top_fa['Pitching Team'] %}
             <tr>
-              <td>{{pitcher.dollarValue}}</td>
+              <td>{{'$%0.2f' % pitcher.dollarValue}}</td>
               <td>{{pitcher.name}}</td>
               <td>{{pitcher.pos}}</td>
               <td>{{pitcher.wins}}</td>
@@ -82,7 +82,7 @@
         <tbody>
           {%- for batter in top_fa['Batting FAs'] %}
             <tr>
-              <td>{{batter.dollarValue}}</td>
+              <td>{{'$%0.2f' % batter.dollarValue}}</td>
               <td>{{batter.name}}</td>
               <td>{{batter.pos}}</td>
               <td>{{batter.runs}}</td>
@@ -109,7 +109,7 @@
         <tbody>
           {%- for batter in top_fa['Batting Team'] %}
             <tr>
-              <td>{{batter.dollarValue}}</td>
+              <td>{{'$%0.2f' % batter.dollarValue}}</td>
               <td>{{batter.name}}</td>
               <td>{{batter.pos}}</td>
               <td>{{batter.runs}}</td>
