@@ -62,14 +62,36 @@
       <h2>Projected Final Standings</h2>
       <table>
         <tr>
-          <th>Points</th>
+          <th>Total Points</th>
           <th>Team Name</th>
+          <th>R</th>
+          <th>HR</th>
+          <th>RBI</th>
+          <th>SB</th>
+          <th>OPS</th>
+          <th>W</th>
+          <th>SV</th>
+          <th>K</th>
+          <th>ERA</th>
+          <th>WHIP</th>
+          <th>IP</th>
         </tr>
         <tbody>
           {%- for team in projected_standings %}
             <tr>
               <td>{{team['PointsTotal']}}</td>
               <td>{{team['TEAM_NAME']}}</td>
+              <td>{{team['PointsR']}}</td>
+              <td>{{team['PointsHR']}}</td>
+              <td>{{team['PointsRBI']}}</td>
+              <td>{{team['PointsSB']}}</td>
+              <td>{{team['PointsOPS']}}</td>
+              <td>{{team['PointsW']}}</td>
+              <td>{{team['PointsSV']}}</td>
+              <td>{{team['PointsK']}}</td>
+              <td>{{team['PointsERA']}}</td>
+              <td>{{team['PointsWHIP']}}</td>
+              <td>{{team['StatsIP']}}</td>
             </tr>
           {% endfor %}
         </tbody>
