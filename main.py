@@ -77,7 +77,6 @@ class TeamToolsHandler(Handler):
             top_fa = None
         else:
             top_fa = fa_vs_team.fa_vs_team(league_no, team_name)
-            top_fa = top_fa.replace("\n", "<br />")
         # single player lookup
         if player_name == "":
             single_player = None

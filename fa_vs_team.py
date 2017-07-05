@@ -46,6 +46,7 @@ def fa_vs_team(league_no, team_name):
     Raises:\n
         None.
     """
+    player_comp = {}
     pitching_fa_list = html_parser.yahoo_fa(league_no, "P")
     batting_fa_list = html_parser.yahoo_fa(LEAGUE_NO, "B")
     avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ROS_PROJ_P_LIST)
@@ -56,14 +57,10 @@ def fa_vs_team(league_no, team_name):
     team_batting_values = player_rater.rate_team(html_parser.get_single_yahoo_team(league_no,
                                                                                    team_name),
                                                  ROS_PROJ_B_LIST)
-    player_comp = "Avail Pitching FAs\n"
-    player_comp += avail_pitching_fas
-    player_comp += "\nTeam Pitching Values\n"
-    player_comp += team_pitching_values
-    player_comp += "\nAvail Batting FAs\n"
-    player_comp += avail_batting_fas
-    player_comp += "\nTeam Batting Values\n"
-    player_comp += team_batting_values
+    player_comp['Pitching FAs'] = avail_pitching_fas
+    player_comp['Pitching Team'] = team_pitching_values
+    player_comp['Batting FAs'] = avail_batting_fas
+    player_comp['Batting Team'] = team_batting_values
 
     return player_comp
 

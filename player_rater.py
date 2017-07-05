@@ -10,7 +10,7 @@ def rate_fa(fa_list, ros_projection_list):
         fa_list: list of available FA on Yahoo!.\n
         ros_projection_list: Rest of Season projection list.\n
     Returns:\n
-        None.\n
+        list of players using FA projections.\n
     Raises:\n
         None.
     """
@@ -20,25 +20,27 @@ def rate_fa(fa_list, ros_projection_list):
                player.name.lower() for fa in fa_list):
             player.isFA = True
             fa_player_list.append(player)
+    fa_above_repl = []
     dollar_value = 100.00
     player_number = 0
-    team = ""
-    if ("SP" in ros_projection_list[0].pos or "RP" in ros_projection_list[0].pos or
-            "P" in ros_projection_list[0].pos):
-        while dollar_value > 1.0:
-            team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
-                     " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
-                     " - {player.whip:^4}\n").format(player=fa_player_list[player_number])
-            dollar_value = fa_player_list[player_number].dollarValue
-            player_number += 1
-    else:
-        while dollar_value > 1.0:
-            team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
-                     " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
-                     " - {player.ops:^5}\n").format(player=fa_player_list[player_number])
-            dollar_value = fa_player_list[player_number].dollarValue
-            player_number += 1
-    return team
+    # team = ""
+    # if ("SP" in ros_projection_list[0].pos or "RP" in ros_projection_list[0].pos or
+    #         "P" in ros_projection_list[0].pos):
+    while dollar_value > 1.0:
+    #         team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
+    #                  " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
+    #                  " - {player.whip:^4}\n").format(player=fa_player_list[player_number])
+        fa_above_repl.append(fa_player_list[player_number])
+        dollar_value = fa_player_list[player_number].dollarValue
+        player_number += 1
+    # else:
+    #     while dollar_value > 1.0:
+    #         team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
+    #                  " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
+    #                  " - {player.ops:^5}\n").format(player=fa_player_list[player_number])
+    #         dollar_value = fa_player_list[player_number].dollarValue
+    #         player_number += 1
+    return fa_above_repl
 
 def rate_team(team_dict, ros_projection_list):
     """Compare team with Projections\n
@@ -46,7 +48,7 @@ def rate_team(team_dict, ros_projection_list):
         team_dict: dict of players on team.\n
         ros_projection_list: Rest of Season projection list.\n
     Returns:\n
-        None.\n
+        list of players using team projections.\n
     Raises:\n
         None.
     """
@@ -55,18 +57,18 @@ def rate_team(team_dict, ros_projection_list):
     for player in ros_projection_list:
         if player.name.lower() in team_roster_list:
             team_player_list.append(player)
-    team = ""
-    for player in team_player_list:
-        if ("SP" in ros_projection_list[0].pos or "RP" in ros_projection_list[0].pos or
-                "P" in ros_projection_list[0].pos):
-            team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
-                     " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
-                     " - {player.whip:^4}\n").format(player=player)
-        else:
-            team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
-                     " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
-                     " - {player.ops:^5}\n").format(player=player)
-    return team
+    # team = ""
+    # for player in team_player_list:
+    #     if ("SP" in ros_projection_list[0].pos or "RP" in ros_projection_list[0].pos or
+    #             "P" in ros_projection_list[0].pos):
+    #         team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
+    #                  " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
+    #                  " - {player.whip:^4}\n").format(player=player)
+    #     else:
+    #         team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
+    #                  " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
+    #                  " - {player.ops:^5}\n").format(player=player)
+    return team_player_list
 
 def team_optimizer(team_dict, ros_proj_b_list, ros_proj_p_list, league_pos_dict,
                    current_stangings, league_settings):

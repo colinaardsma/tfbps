@@ -5,7 +5,118 @@
     {%- if single_player or projected_standings%}
     {%- elif top_fa %}
       <h2>FA Rater by Team/League</h2>
-      <p>{{top_fa|safe}}</p>
+      <h4>Top FA Pitchers</h4>
+      <table>
+        <tr>
+          <th>Value</th>
+          <th>Player Name</th>
+          <th>Position</th>
+          <th>W</th>
+          <th>SV</th>
+          <th>K</th>
+          <th>ERA</th>
+          <th>WHIP</th>
+          <th>IP</th>
+          <th>K/IP</th>
+        </tr>
+        <tbody>
+          {%- for pitcher in top_fa['Pitching FAs'] %}
+            <tr>
+              <td>{{pitcher.dollar_value}}</td>
+              <td>{{pitcher.name}}</td>
+              <td>{{pitcher.pos}}</td>
+              <td>{{pitcher.wins}}</td>
+              <td>{{pitcher.svs}}</td>
+              <td>{{pitcher.sos}}</td>
+              <td>{{pitcher.era}}</td>
+              <td>{{pitcher.whip}}</td>
+              <td>{{pitcher.ips}}</td>
+              <td>{{pitcher.kip}}</td>
+            </tr>
+          {%- endfor %}
+        </tbody>
+      <h4>Team Pitchers</h4>
+      <table>
+        <tr>
+          <th>Value</th>
+          <th>Player Name</th>
+          <th>Position</th>
+          <th>W</th>
+          <th>SV</th>
+          <th>K</th>
+          <th>ERA</th>
+          <th>WHIP</th>
+          <th>IP</th>
+          <th>K/IP</th>
+        </tr>
+        <tbody>
+          {%- for pitcher in top_fa['Pitching Team'] %}
+            <tr>
+              <td>{{pitcher.dollar_value}}</td>
+              <td>{{pitcher.name}}</td>
+              <td>{{pitcher.pos}}</td>
+              <td>{{pitcher.wins}}</td>
+              <td>{{pitcher.svs}}</td>
+              <td>{{pitcher.sos}}</td>
+              <td>{{pitcher.era}}</td>
+              <td>{{pitcher.whip}}</td>
+              <td>{{pitcher.ips}}</td>
+              <td>{{pitcher.kip}}</td>
+            </tr>
+          {%- endfor %}
+        </tbody>
+      <h4>Top FA Batters</h4>
+      <table>
+        <tr>
+          <th>Value</th>
+          <th>Player Name</th>
+          <th>Position</th>
+          <th>R</th>
+          <th>HR</th>
+          <th>RBI</th>
+          <th>SB</th>
+          <th>OPS</th>
+        </tr>
+        <tbody>
+          {%- for batter in top_fa['Batting FAs'] %}
+            <tr>
+              <td>{{batter.dollar_value}}</td>
+              <td>{{batter.name}}</td>
+              <td>{{batter.pos}}</td>
+              <td>{{batter.runs}}</td>
+              <td>{{batter.hrs}}</td>
+              <td>{{batter.rbis}}</td>
+              <td>{{batter.sbs}}</td>
+              <td>{{batter.ops}}</td>
+            </tr>
+          {%- endfor %}
+        </tbody>
+      <h4>Team Batters</h4>
+      <table>
+        <tr>
+          <th>Value</th>
+          <th>Player Name</th>
+          <th>Position</th>
+          <th>R</th>
+          <th>HR</th>
+          <th>RBI</th>
+          <th>SB</th>
+          <th>OPS</th>
+        </tr>
+        <tbody>
+          {%- for batter in top_fa['Batting Team'] %}
+            <tr>
+              <td>{{batter.dollar_value}}</td>
+              <td>{{batter.name}}</td>
+              <td>{{batter.pos}}</td>
+              <td>{{batter.runs}}</td>
+              <td>{{batter.hrs}}</td>
+              <td>{{batter.rbis}}</td>
+              <td>{{batter.sbs}}</td>
+              <td>{{batter.ops}}</td>
+            </tr>
+          {%- endfor %}
+        </tbody>
     {%- else %}
       <h2>FA Rater by Team/League</h2>
       <form method="post">

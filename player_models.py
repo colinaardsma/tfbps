@@ -80,6 +80,7 @@ class Pitcher(object):
     sos = 0
     era = 0
     whip = 0.000
+    kip = 0.000
     # Initial zScore Properties
     zScoreW = 0.000
     zScoreSv = 0.000
@@ -119,6 +120,7 @@ class Pitcher(object):
         self.sos = int(sos if sos != None else 0)
         self.era = float(era if era != None else 0.0)
         self.whip = float(whip if whip != None else 0.0)
+        self.kip = float(sos / ips if sos != None and ips != None else 0.0)
         # SP Status
         self.is_sp = (False if 'SP' not in str(pos) or int(svs) > 0 or
                       float(wins)/float(ips) < 0.05 else True)
