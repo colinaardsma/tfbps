@@ -337,10 +337,7 @@ def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_pr
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
             current_ip += int(math.ceil(float(standing['StatsIP'])))
     current_ip += starter_ip
-    # i = 0
-    # while i < len(team_player_list):
     for player in team_player_list:
-        # player = team_player_list[i]
         if any("P" in pos for pos in player.pos):
             if current_ip < max_ip:
                 if player.ips + current_ip > max_ip:
@@ -348,17 +345,12 @@ def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_pr
                 bench_players['pitchers'].append(player)
                 current_ip += player.ips
                 bench_ip += player.ips
-                # del team_player_list[i]
-                # bench_list = list(itertools.chain.from_iterable(bench_players.values()))
-                # if len(bench_list) == bench_pos.count:
                 if (sum(map(len, bench_players.values()))) == len(bench_pos):
                     break
         else:
             bench_players['batters'].append(bench_batter(player))
-            # del team_player_list[i]
             if (sum(map(len, bench_players.values()))) == len(bench_pos):
                 break
-    # bench_players['Bench IP'] = bench_ip
     return bench_players
 
 def partial_pitcher(player, max_ip, current_ip):
@@ -372,12 +364,13 @@ def partial_pitcher(player, max_ip, current_ip):
     Raises:\n
         None.
     """
-    stat_pct = (float(max_ip) - current_ip) / player.ips
-    player.ips *= stat_pct
-    player.wins *= stat_pct
-    player.svs *= stat_pct
-    player.sos *= stat_pct
-    return player
+    pitcher = copy.deepcopy(player)
+    stat_pct = (float(max_ip) - current_ip) / pitcher.ips
+    pitcher.ips *= stat_pct
+    pitcher.wins *= stat_pct
+    pitcher.svs *= stat_pct
+    pitcher.sos *= stat_pct
+    return pitcher
 
 def bench_batter(player):
     """Reduces the stat values of a bench batter by a percentage\n
@@ -389,12 +382,13 @@ def bench_batter(player):
         None.
     """
     stat_pct = .10
-    player.atbats *= stat_pct
-    player.runs *= stat_pct
-    player.hrs *= stat_pct
-    player.rbis *= stat_pct
-    player.sbs *= stat_pct
-    return player
+    batter = copy.deepcopy(player)
+    batter.atbats *= stat_pct
+    batter.runs *= stat_pct
+    batter.hrs *= stat_pct
+    batter.rbis *= stat_pct
+    batter.sbs *= stat_pct
+    return batter
 
 def single_player_rater(player_name, ros_batter_projection_list, ros_pitcher_projection_list):
     """Searches for and returns rating of and individual player\n
