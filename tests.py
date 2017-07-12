@@ -2,7 +2,7 @@
 import urllib
 import platform
 import html_parser
-# import player_rater
+import player_rater
 import player_creator
 import tests_long_variables
 
@@ -38,6 +38,10 @@ ROS_PROJ_P_LIST = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVE
                                                       ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
                                                       P_PLAYER_POOL_MULT)
 
+SGP_DICT = {'R SGP': 19.16666667, 'HR SGP': 11.5, 'RBI SGP': 20.83333333, 'SB SGP': 7.537037037,
+            'OPS SGP': 0.005055555556, 'W SGP': 3.277777778, 'SV SGP': 10.44444444, 'K SGP': 42.5,
+            'ERA SGP': -0.08444444444, 'WHIP SGP': -0.01666666667}
+
 # TEAM_LIST = html_parser.yahoo_teams(LEAGUE_NO)
 TEAM_LIST = tests_long_variables.TEAM_LIST
 
@@ -62,13 +66,17 @@ CURRENT_STANDINGS = html_parser.get_standings(LEAGUE_NO, TEAM_COUNT)
 #                                                       LEAGUE_POS_DICT, CURRENT_STANDINGS,
 #                                                       LEAGUE_SETTINGS, OPTIMIZED_BATTERS,
 #                                                       OPTIMIZED_PITCHERS)
-FINAL_STANDINGS_PROJECTION = tests_long_variables.FINAL_STANDINGS_PROJECTION
-# FINAL_STANDINGS_PROJECTION = player_rater.final_standings_projection(LEAGUE_NO, TEAM_LIST,
-#                                                                      ROS_PROJ_B_LIST,
-#                                                                      ROS_PROJ_P_LIST,
-#                                                                      LEAGUE_POS_DICT,
-#                                                                      CURRENT_STANDINGS,
-#                                                                      LEAGUE_SETTINGS)
+
+FINAL_STATS_PROJECTION = tests_long_variables.FINAL_STATS_PROJECTION
+# FINAL_STATS_PROJECTION = player_rater.final_stats_projection(LEAGUE_NO, TEAM_LIST,
+#                                                              ROS_PROJ_B_LIST,
+#                                                              ROS_PROJ_P_LIST,
+#                                                              LEAGUE_POS_DICT,
+#                                                              CURRENT_STANDINGS,
+#                                                              LEAGUE_SETTINGS)
+
+FINAL_POINTS_PROJECTION = tests_long_variables.FINAL_STATS_PROJECTION
+# FINAL_POINTS_PROJECTION = player_rater.rank_list(FINAL_STATS_PROJECTION)
 
 # print OPTIMIZED_BATTERS
 # print OPTIMIZED_PITCHERS
@@ -76,7 +84,9 @@ FINAL_STANDINGS_PROJECTION = tests_long_variables.FINAL_STANDINGS_PROJECTION
 # print player_rater.team_optimizer(TEAM_DICT, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST, LEAGUE_POS_DICT,
 #                                   CURRENT_STANDINGS, LEAGUE_SETTINGS)
 # print player_rater.rank_list(FINAL_STANDINGS_PROJECTION)
-print html_parser.html_to_document(ROS_BATTER_URL)
+# print html_parser.html_to_document(ROS_BATTER_URL)
+
+print player_rater.volatility(SGP_DICT, FINAL_STATS_PROJECTION)
 
 #TESTS
 

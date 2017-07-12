@@ -57,17 +57,6 @@ def rate_team(team_dict, ros_projection_list):
     for player in ros_projection_list:
         if player.name.lower() in team_roster_list:
             team_player_list.append(player)
-    # team = ""
-    # for player in team_player_list:
-    #     if ("SP" in ros_projection_list[0].pos or "RP" in ros_projection_list[0].pos or
-    #             "P" in ros_projection_list[0].pos):
-    #         team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
-    #                  " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
-    #                  " - {player.whip:^4}\n").format(player=player)
-    #     else:
-    #         team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
-    #                  " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
-    #                  " - {player.ops:^5}\n").format(player=player)
     return team_player_list
 
 def team_optimizer(team_dict, ros_proj_b_list, ros_proj_p_list, league_pos_dict,
@@ -412,7 +401,7 @@ def single_player_rater(player_name, ros_batter_projection_list, ros_pitcher_pro
             player = player_proj
     return player
 
-def final_standings_projection(league_no, team_list, ros_proj_b_list, ros_proj_p_list,
+def final_stats_projection(league_no, team_list, ros_proj_b_list, ros_proj_p_list,
                                league_pos_dict, current_stangings, league_settings):
     final_standings = []
     for team in team_list:
@@ -446,3 +435,6 @@ def stat_ranker(projected_final_stats_list, stat, reverse=True):
     for team in projected_final_stats_list:
         team[points_title] = points
         points -= 1
+
+def volatility(sgp_dict, final_stats):
+    return final_stats
