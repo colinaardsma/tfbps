@@ -459,23 +459,22 @@ def calc_volatility(sgp_dict, final_stats, stat, reverse=True):
     sgp_title = stat + " SGP"
     sgp = sgp_dict[sgp_title]
     final_stats.sort(key=operator.itemgetter(stats_title), reverse=reverse)
-
-    up_counter = 0
-    down_counter = 0
-    list_length = len(final_stats)
+    list_length = len(final_stats) - 1
 
     for i in range(list_length):
+        up_counter = 0
+        down_counter = 0
         j = i
         k = i
         current_team_stat = final_stats[i][stats_title]
         up_team_stat = final_stats[j][stats_title]
         down_team_stat = final_stats[k][stats_title]
-        while (i > 0 and j >= 0 and (up_team_stat - current_team_stat <= sgp)):
+        while (j >= 0 and (up_team_stat - current_team_stat <= sgp)):
             j -= 1
             up_counter += 1
             if up_team_stat - current_team_stat == sgp:
                 up_counter -= .5
-        while (i < list_length and k <= list_length and (current_team_stat - down_team_stat <= sgp)):
+        while (k <= list_length and (current_team_stat - down_team_stat <= sgp)):
             k += 1
             down_counter += 1
             if current_team_stat - down_team_stat == sgp:
