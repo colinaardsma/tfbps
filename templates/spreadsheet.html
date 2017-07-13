@@ -1,14 +1,14 @@
 {% extends "main.html" %}
 
 {% block content %}
-    <p>Date of last pull: {{dataDate.strftime('%m.%d.%Y')}}</p>
     <table>
       <thead>
         <tr>
+          <th>Value</th>
           <th>Name</th>
           <th>Team</th>
           <th>POS</th>
-          <th>SGP</th>
+          <!-- <th>SGP</th> -->
         {%- if cat == "batter" %}
           <th>AB</th>
           <th>R</th>
@@ -23,29 +23,32 @@
           <th>K</th>
           <th>ERA</th>
           <th>WHIP</th>
+          <th>K/IP</th>
         {%- endif %}
         </tr>
       </thead>
       {%- for player in players %}
         <tr>
+          <td>{{'$%0.2f' % player.dollarValue}}</td>
           <td>{{player.name}}</td>
           <td>{{player.team}}</td>
           <td>{{player.pos}}</td>
-          <td>{{player.sgp}}</td>
+          <!-- <td>{{player.sgp}}</td> -->
         {%- if cat == "batter" %}
-          <td>{{player.ab}}</td>
-          <td>{{player.r}}</td>
-          <td>{{player.hr}}</td>
-          <td>{{player.rbi}}</td>
-          <td>{{player.sb}}</td>
+          <td>{{player.atbats}}</td>
+          <td>{{player.runs}}</td>
+          <td>{{player.hrs}}</td>
+          <td>{{player.rbis}}</td>
+          <td>{{player.sbs}}</td>
           <td>{{player.ops}}</td>
         {%- elif cat == "pitcher" %}
-          <td>{{player.ip}}</td>
-          <td>{{player.w}}</td>
-          <td>{{player.sv}}</td>
-          <td>{{player.k}}</td>
+          <td>{{player.ips}}</td>
+          <td>{{player.wins}}</td>
+          <td>{{player.svs}}</td>
+          <td>{{player.sos}}</td>
           <td>{{player.era}}</td>
           <td>{{player.whip}}</td>
+          <td>{{'%0.2f' % player.kip}}</td>          
         {%- endif %}
         </tr>
       {%- endfor %}

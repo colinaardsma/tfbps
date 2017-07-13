@@ -1,4 +1,5 @@
 """Interface with program here"""
+import operator
 import html_parser
 import player_rater
 import player_creator
@@ -105,3 +106,17 @@ def final_standing_projection(league_no):
                                                       current_standings, league_settings)
     final_standings = player_rater.rank_list(final_stats)
     return final_standings
+
+def batter_projections():
+    projections = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
+                                                     ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
+                                                     B_PLAYER_POOL_MULT)
+    sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
+    return sorted_proj
+
+def pitcher_projections():
+    projections = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
+                                                      ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
+                                                      P_PLAYER_POOL_MULT)
+    sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
+    return sorted_proj
