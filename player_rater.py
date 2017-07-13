@@ -436,5 +436,49 @@ def stat_ranker(projected_final_stats_list, stat, reverse=True):
         team[points_title] = points
         points -= 1
 
-def volatility(sgp_dict, final_stats):
+def league_volatility(sgp_dict, final_stats):
+    calc_volatility(sgp_dict, final_stats, "R")
+    calc_volatility(sgp_dict, final_stats, "HR")
+    calc_volatility(sgp_dict, final_stats, "RBI")
+    calc_volatility(sgp_dict, final_stats, "SB")
+    calc_volatility(sgp_dict, final_stats, "OPS")
+    calc_volatility(sgp_dict, final_stats, "W")
+    calc_volatility(sgp_dict, final_stats, "SV")
+    calc_volatility(sgp_dict, final_stats, "K")
+    calc_volatility(sgp_dict, final_stats, "ERA", False)
+    calc_volatility(sgp_dict, final_stats, "WHIP", False)
+    for team in final_stats:
+        team['Total Upward Volatility'] = sum([value for key, value in team.items() if 'UpVol' in key])
+        team['Total Downward Volatility'] = sum([value for key, value in team.items() if 'DownVol' in key])
     return final_stats
+
+def calc_volatility(sgp_dict, final_stats, stat, reverse=True):
+    stats_title = "Stats" + stat
+    up_vol_title = "UpVol " + stat
+    down_vol_title = "DownVol " + stat
+    sgp_title = stat + " SGP"
+    sgp = sgp_dict[sgp_title]
+    final_stats.sort(key=operator.itemgetter(stats_title), reverse=reverse)
+
+    up_counter = 0
+    down_counter = 0
+    list_length = len(final_stats)
+
+    for i in range(list_length):
+        j = i
+        k = i
+        current_team_stat = final_stats[i][stats_title]
+        up_team_stat = final_stats[j][stats_title]
+        down_team_stat = final_stats[k][stats_title]
+        while (i > 0 and j >= 0 and (up_team_stat - current_team_stat <= sgp)):
+            j -= 1
+            up_counter += 1
+            if up_team_stat - current_team_stat == sgp:
+                up_counter -= .5
+        while (i < list_length and k <= list_length and (current_team_stat - down_team_stat <= sgp)):
+            k += 1
+            down_counter += 1
+            if current_team_stat - down_team_stat == sgp:
+                down_counter -= .5
+        final_stats[i][up_vol_title] = up_counter
+        final_stats[i][down_vol_title] = down_counter
