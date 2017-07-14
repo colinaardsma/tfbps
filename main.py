@@ -107,7 +107,7 @@ class TeamToolsHandler(Handler):
             projected_standings = fa_vs_team.final_standing_projection(league_no)
             
         self.render("team_tools.html", top_fa=top_fa, single_player=single_player,
-                    projected_standings=projected_standings)
+                    projected_standings=projected_standings, team_name=team_name)
 
     def get(self):
         self.render_fa_rater()
