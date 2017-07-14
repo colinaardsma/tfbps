@@ -196,16 +196,36 @@
             <tr>
               <td>{{team['PointsTotal']}}</td>
               <td>{{team['TEAM_NAME']}}</td>
-              <td>{{team['PointsR']}}</td>
-              <td>{{team['PointsHR']}}</td>
-              <td>{{team['PointsRBI']}}</td>
-              <td>{{team['PointsSB']}}</td>
-              <td>{{team['PointsOPS']}}</td>
-              <td>{{team['PointsW']}}</td>
-              <td>{{team['PointsSV']}}</td>
-              <td>{{team['PointsK']}}</td>
-              <td>{{team['PointsERA']}}</td>
-              <td>{{team['PointsWHIP']}}</td>
+              <td><small>{{team['DownVol R']}}</small>
+                {{team['PointsR']}}
+                <small>{{team['UpVol R']}}</small></td>
+              <td><small>{{team['DownVol HR']}}</small>
+                {{team['PointsHR']}}
+                <small>{{team['UpVol HR']}}</small></td>
+              <td><small>{{team['DownVol RBI']}}</small>
+                {{team['PointsRBI']}}
+                <small>{{team['UpVol RBI']}}</small></td>
+              <td><small>{{team['DownVol SB']}}</small>
+                {{team['PointsSB']}}
+                <small>{{team['UpVol SB']}}</small></td>
+              <td><small>{{team['DownVol OPS']}}</small>
+                {{team['PointsOPS']}}
+                <small>{{team['UpVol OPS']}}</small></td>
+              <td><small>{{team['DownVol W']}}</small>
+                {{team['PointsW']}}
+                <small>{{team['UpVol W']}}</small></td>
+              <td><small>{{team['DownVol SV']}}</small>
+                {{team['PointsSV']}}
+                <small>{{team['UpVol SV']}}</small></td>
+              <td><small>{{team['DownVol K']}}</small>
+                {{team['PointsK']}}
+                <small>{{team['UpVol K']}}</small></td>
+              <td><small>{{team['DownVol ERA']}}</small>
+                {{team['PointsERA']}}
+                <small>{{team['UpVol ERA']}}</small></td>
+              <td><small>{{team['DownVol WHIP']}}</small>
+                {{team['PointsWHIP']}}
+                <small>{{team['UpVol WHIP']}}</small></td>
               <td>{{team['StatsIP']}}</td>
             </tr>
           {% endfor %}
