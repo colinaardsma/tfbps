@@ -457,7 +457,7 @@ def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
     up_vol_title = "UpVol " + stat
     down_vol_title = "DownVol " + stat
     sgp_title = stat + " SGP"
-    sgp = sgp_dict[sgp_title] * factor
+    sgp = abs(sgp_dict[sgp_title] * factor)
     final_stats.sort(key=operator.itemgetter(stats_title), reverse=reverse)
     list_length = len(final_stats)
 
@@ -467,12 +467,12 @@ def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
         j = i
         k = i
         current_team_stat = final_stats[i][stats_title]
-        while (j > 0 and (final_stats[j][stats_title] - current_team_stat <= sgp)):
+        while (j > 0 and (abs(final_stats[j][stats_title] - current_team_stat) <= sgp)):
             if final_stats[j][stats_title] - current_team_stat == sgp:
                 up_counter -= .5
             j -= 1
             up_counter += 1
-        while (k < list_length and (current_team_stat - final_stats[k][stats_title] <= sgp)):
+        while (k < list_length and (abs(current_team_stat - final_stats[k][stats_title]) <= sgp)):
             if current_team_stat - final_stats[k][stats_title] == sgp:
                 down_counter -= .5
             k += 1
