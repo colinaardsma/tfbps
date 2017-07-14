@@ -69,24 +69,6 @@ class MainHandler(Handler):
     def get(self):
         self.render_main()
 
-class BattingProjections(Handler):
-    def render_batting_projections(self):
-        import fa_vs_team
-        players = fa_vs_team.batter_projections()
-        self.render("spreadsheet.html", players=players, cat="batter")
-
-    def get(self):
-        self.render_batting_projections()
-
-class PitchingProjections(Handler):
-    def render_pitching_projections(self):
-        import fa_vs_team
-        players = fa_vs_team.pitcher_projections()
-        self.render("spreadsheet.html", players=players, cat="pitcher")
-
-    def get(self):
-        self.render_pitching_projections()
-
 class TeamToolsHandler(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name=""):
         import fa_vs_team
@@ -135,8 +117,6 @@ app = webapp2.WSGIApplication([
     # user handling
     ('/oauth/?', Oauth),
     ('/redirect/?', Redirect),
-    ('/batting_projections/?', BattingProjections),
-    ('/pitching_projections/?', PitchingProjections),
     ('/team_tools/?', TeamToolsHandler)
     ], debug=True)
     
