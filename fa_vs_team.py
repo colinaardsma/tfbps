@@ -20,6 +20,10 @@ P_PLAYER_POOL_MULT = 4.45
 LEAGUE_NO = 5091
 TEAM_COUNT = 12
 
+SGP_DICT = {'R SGP': 19.16666667, 'HR SGP': 11.5, 'RBI SGP': 20.83333333, 'SB SGP': 7.537037037,
+            'OPS SGP': 0.005055555556, 'W SGP': 3.277777778, 'SV SGP': 10.44444444, 'K SGP': 42.5,
+            'ERA SGP': -0.08444444444, 'WHIP SGP': -0.01666666667}
+
 # dynamic variables
 BATTER_LIST = player_creator.create_full_batter(ROS_BATTER_URL)
 PITCHER_LIST = player_creator.create_full_pitcher(ROS_PITCHER_URL)
@@ -104,8 +108,9 @@ def final_standing_projection(league_no):
     final_stats = player_rater.final_stats_projection(league_no, team_list, ROS_PROJ_B_LIST,
                                                       ROS_PROJ_P_LIST, league_post_dict,
                                                       current_standings, league_settings)
-    final_standings = player_rater.rank_list(final_stats)
-    return final_standings
+    volatility_standings = player_rater.league_volatility(SGP_DICT, final_stats)
+    ranked_standings = player_rater.rank_list(volatility_standings)
+    return ranked_standings
 
 def batter_projections():
     projections = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
