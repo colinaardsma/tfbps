@@ -436,28 +436,28 @@ def stat_ranker(projected_final_stats_list, stat, reverse=True):
         team[points_title] = points
         points -= 1
 
-def league_volatility(sgp_dict, final_stats):
-    calc_volatility(sgp_dict, final_stats, "R")
-    calc_volatility(sgp_dict, final_stats, "HR")
-    calc_volatility(sgp_dict, final_stats, "RBI")
-    calc_volatility(sgp_dict, final_stats, "SB")
-    calc_volatility(sgp_dict, final_stats, "OPS")
-    calc_volatility(sgp_dict, final_stats, "W")
-    calc_volatility(sgp_dict, final_stats, "SV")
-    calc_volatility(sgp_dict, final_stats, "K")
-    calc_volatility(sgp_dict, final_stats, "ERA", True)
-    calc_volatility(sgp_dict, final_stats, "WHIP", True)
+def league_volatility(sgp_dict, final_stats, factor = 1):
+    calc_volatility(sgp_dict, final_stats, "R", factor)
+    calc_volatility(sgp_dict, final_stats, "HR", factor)
+    calc_volatility(sgp_dict, final_stats, "RBI", factor)
+    calc_volatility(sgp_dict, final_stats, "SB", factor)
+    calc_volatility(sgp_dict, final_stats, "OPS", factor)
+    calc_volatility(sgp_dict, final_stats, "W", factor)
+    calc_volatility(sgp_dict, final_stats, "SV", factor)
+    calc_volatility(sgp_dict, final_stats, "K", factor)
+    calc_volatility(sgp_dict, final_stats, "ERA", factor, True)
+    calc_volatility(sgp_dict, final_stats, "WHIP", factor, True)
     for team in final_stats:
         team['Total Upward Volatility'] = sum([value for key, value in team.items() if 'UpVol' in key])
         team['Total Downward Volatility'] = sum([value for key, value in team.items() if 'DownVol' in key])
     return final_stats
 
-def calc_volatility(sgp_dict, final_stats, stat, reverse=True):
+def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
     stats_title = "Stats" + stat
     up_vol_title = "UpVol " + stat
     down_vol_title = "DownVol " + stat
     sgp_title = stat + " SGP"
-    sgp = sgp_dict[sgp_title]
+    sgp = sgp_dict[sgp_title] * factor
     final_stats.sort(key=operator.itemgetter(stats_title), reverse=reverse)
     list_length = len(final_stats)
 

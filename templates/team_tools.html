@@ -10,6 +10,7 @@
         <tr>
           <th>Value</th>
           <th>Player Name</th>
+          <th>Team</th>
           <th>Position</th>
           <th>W</th>
           <th>SV</th>
@@ -24,6 +25,7 @@
             <tr>
               <td>{{'$%0.2f' % pitcher.dollarValue}}</td>
               <td>{{pitcher.name}}</td>
+              <td>{{pitcher.team}}</td>
               <td>{{pitcher.pos}}</td>
               <td>{{pitcher.wins}}</td>
               <td>{{pitcher.svs}}</td>
@@ -41,6 +43,7 @@
         <tr>
           <th>Value</th>
           <th>Player Name</th>
+          <th>Team</th>
           <th>Position</th>
           <th>W</th>
           <th>SV</th>
@@ -55,6 +58,7 @@
             <tr>
               <td>{{'$%0.2f' % pitcher.dollarValue}}</td>
               <td>{{pitcher.name}}</td>
+              <td>{{pitcher.team}}</td>
               <td>{{pitcher.pos}}</td>
               <td>{{pitcher.wins}}</td>
               <td>{{pitcher.svs}}</td>
@@ -72,6 +76,7 @@
         <tr>
           <th>Value</th>
           <th>Player Name</th>
+          <th>Team</th>
           <th>Position</th>
           <th>R</th>
           <th>HR</th>
@@ -84,6 +89,7 @@
             <tr>
               <td>{{'$%0.2f' % batter.dollarValue}}</td>
               <td>{{batter.name}}</td>
+              <td>{{batter.team}}</td>
               <td>{{batter.pos}}</td>
               <td>{{batter.runs}}</td>
               <td>{{batter.hrs}}</td>
@@ -99,6 +105,7 @@
         <tr>
           <th>Value</th>
           <th>Player Name</th>
+          <th>Team</th>
           <th>Position</th>
           <th>R</th>
           <th>HR</th>
@@ -111,6 +118,7 @@
             <tr>
               <td>{{'$%0.2f' % batter.dollarValue}}</td>
               <td>{{batter.name}}</td>
+              <td>{{batter.team}}</td>
               <td>{{batter.pos}}</td>
               <td>{{batter.runs}}</td>
               <td>{{batter.hrs}}</td>
@@ -196,37 +204,97 @@
             <tr>
               <td>{{team['PointsTotal']}}</td>
               <td>{{team['TEAM_NAME']}}</td>
-              <td><small>{{team['DownVol R']}}</small>
-                {{team['PointsR']}}
-                <small>{{team['UpVol R']}}</small></td>
-              <td><small>{{team['DownVol HR']}}</small>
-                {{team['PointsHR']}}
-                <small>{{team['UpVol HR']}}</small></td>
-              <td><small>{{team['DownVol RBI']}}</small>
-                {{team['PointsRBI']}}
-                <small>{{team['UpVol RBI']}}</small></td>
-              <td><small>{{team['DownVol SB']}}</small>
-                {{team['PointsSB']}}
-                <small>{{team['UpVol SB']}}</small></td>
-              <td><small>{{team['DownVol OPS']}}</small>
-                {{team['PointsOPS']}}
-                <small>{{team['UpVol OPS']}}</small></td>
-              <td><small>{{team['DownVol W']}}</small>
-                {{team['PointsW']}}
-                <small>{{team['UpVol W']}}</small></td>
-              <td><small>{{team['DownVol SV']}}</small>
-                {{team['PointsSV']}}
-                <small>{{team['UpVol SV']}}</small></td>
-              <td><small>{{team['DownVol K']}}</small>
-                {{team['PointsK']}}
-                <small>{{team['UpVol K']}}</small></td>
-              <td><small>{{team['DownVol ERA']}}</small>
-                {{team['PointsERA']}}
-                <small>{{team['UpVol ERA']}}</small></td>
-              <td><small>{{team['DownVol WHIP']}}</small>
-                {{team['PointsWHIP']}}
-                <small>{{team['UpVol WHIP']}}</small></td>
+              <td>{{team['PointsR']}}</td>
+              <td>{{team['PointsHR']}}</td>
+              <td>{{team['PointsRBI']}}</td>
+              <td>{{team['PointsSB']}}</td>
+              <td>{{team['PointsOPS']}}</td>
+              <td>{{team['PointsW']}}</td>
+              <td>{{team['PointsSV']}}</td>
+              <td>{{team['PointsK']}}</td>
+              <td>{{team['PointsERA']}}</td>
+              <td>{{team['PointsWHIP']}}</td>
               <td>{{team['StatsIP']}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <h2>Projected Final Stats</h2>
+      <table>
+        <tr>
+          <th>Total Points</th>
+          <th>Team Name</th>
+          <th>R</th>
+          <th>HR</th>
+          <th>RBI</th>
+          <th>SB</th>
+          <th>OPS</th>
+          <th>W</th>
+          <th>SV</th>
+          <th>K</th>
+          <th>ERA</th>
+          <th>WHIP</th>
+          <th>IP</th>
+        </tr>
+        <tbody>
+          {%- for team in projected_standings %}
+            <tr>
+              <td>{{team['StatsR']}}</td>
+              <td>{{team['StatsHR']}}</td>
+              <td>{{team['StatsRBI']}}</td>
+              <td>{{team['StatsSB']}}</td>
+              <td>{{team['StatsOPS']}}</td>
+              <td>{{team['StatsW']}}</td>
+              <td>{{team['StatsSV']}}</td>
+              <td>{{team['StatsK']}}</td>
+              <td>{{team['StatsERA']}}</td>
+              <td>{{team['StatsWHIP']}}</td>
+              <td>{{team['StatsIP']}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <h2>Projected Final Volatility</h2>
+      <table>
+        <tr>
+          <th>Total Points</th>
+          <th>Team Name</th>
+          <th>R</th>
+          <th>HR</th>
+          <th>RBI</th>
+          <th>SB</th>
+          <th>OPS</th>
+          <th>W</th>
+          <th>SV</th>
+          <th>K</th>
+          <th>ERA</th>
+          <th>WHIP</th>
+          <th>IP</th>
+        </tr>
+        <tbody>
+          {%- for team in projected_standings %}
+            <tr>
+              <td>{{team['TEAM_NAME']}}</td>
+              <td><small>{{team['DownVol R']}}</small>
+                <p>{{team['UpVol R']}}</p></td>
+              <td><small>{{team['DownVol HR']}}</small>
+                <p>{{team['UpVol HR']}}</p></td>
+              <td><small>{{team['DownVol RBI']}}</small>
+                <p>{{team['UpVol RBI']}}</p></td>
+              <td><small>{{team['DownVol SB']}}</small>
+                <p>{{team['UpVol SB']}}</p></td>
+              <td><small>{{team['DownVol OPS']}}</small>
+                <p>{{team['UpVol OPS']}}</p></td>
+              <td><small>{{team['DownVol W']}}</small>
+                <p>{{team['UpVol W']}}</p></td>
+              <td><small>{{team['DownVol SV']}}</small>
+                <p>{{team['UpVol SV']}}</p></td>
+              <td><small>{{team['DownVol K']}}</small>
+                <p>{{team['UpVol K']}}</p></td>
+              <td><small>{{team['DownVol ERA']}}</small>
+                <p>{{team['UpVol ERA']}}</p></td>
+              <td><small>{{team['DownVol WHIP']}}</small>
+                <p>{{team['UpVol WHIP']}}</p></td>
             </tr>
           {% endfor %}
         </tbody>
