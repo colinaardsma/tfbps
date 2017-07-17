@@ -5,6 +5,7 @@ import player_rater
 import player_creator
 
 # https://developer.yahoo.com/fantasysports/guide/players-collection.html
+# https://www.mysportsfeeds.com
 
 # static variables
 ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
