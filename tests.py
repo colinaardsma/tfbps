@@ -69,8 +69,7 @@ CURRENT_STANDINGS = html_parser.get_standings(LEAGUE_NO, TEAM_COUNT)
 #                                                       OPTIMIZED_PITCHERS)
 
 FINAL_STATS_PROJECTION = tests_long_variables.FINAL_STATS_PROJECTION
-# FINAL_STATS_PROJECTION = player_rater.final_stats_projection(LEAGUE_NO, TEAM_LIST,
-#                                                              ROS_PROJ_B_LIST,
+# FINAL_STATS_PROJECTION = player_rater.final_stats_projection(TEAM_LIST, ROS_PROJ_B_LIST,
 #                                                              ROS_PROJ_P_LIST,
 #                                                              LEAGUE_POS_DICT,
 #                                                              CURRENT_STANDINGS,

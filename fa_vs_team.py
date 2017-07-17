@@ -105,7 +105,7 @@ def final_standing_projection(league_no):
     current_standings = html_parser.get_standings(league_no, int(league_settings['Max Teams:']))
     team_list = html_parser.yahoo_teams(league_no)
     league_post_dict = html_parser.split_league_pos_types(league_settings["Roster Positions:"])
-    final_stats = player_rater.final_stats_projection(league_no, team_list, ROS_PROJ_B_LIST,
+    final_stats = player_rater.final_stats_projection(team_list, ROS_PROJ_B_LIST,
                                                       ROS_PROJ_P_LIST, league_post_dict,
                                                       current_standings, league_settings)
     volatility_standings = player_rater.league_volatility(SGP_DICT, final_stats)

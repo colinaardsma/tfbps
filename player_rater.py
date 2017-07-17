@@ -61,6 +61,19 @@ def rate_team(team_dict, ros_projection_list):
 
 def team_optimizer(team_dict, ros_proj_b_list, ros_proj_p_list, league_pos_dict,
                    current_stangings, league_settings):
+    """Optimizes full season lineups for team\n
+    Args:\n
+        team_dict: dict of players on team.\n
+        ros_proj_b_list: Rest of Season batter projection list.\n
+        ros_proj_p_list: Rest of Season pitcher projection list.\n
+        league_pos_dict: dict of team positions.\n
+        current_stangings: current league standings.\n
+        league_settings: league settings.\n
+    Returns:\n
+        Optimized team lineup as a dict.\n
+    Raises:\n
+        None.
+    """
     opt_batters = batting_roster_optimizer(team_dict, ros_proj_b_list, league_pos_dict)
     opt_pitchers = pitching_roster_optimizer(team_dict, ros_proj_p_list, league_pos_dict,
                                              current_stangings, league_settings)
@@ -401,8 +414,21 @@ def single_player_rater(player_name, ros_batter_projection_list, ros_pitcher_pro
             player = player_proj
     return player
 
-def final_stats_projection(league_no, team_list, ros_proj_b_list, ros_proj_p_list,
-                               league_pos_dict, current_stangings, league_settings):
+def final_stats_projection(team_list, ros_proj_b_list, ros_proj_p_list,
+                           league_pos_dict, current_stangings, league_settings):
+    """
+    """Calculates final stats of the team based on an optimized lineup\n
+    Args:\n
+        team_list: a list of dicts of teams in the league with current rosters and stats.\n
+        ros_proj_b_list: Rest of Season batter projection list.\n
+        ros_proj_p_list: Rest of Season pitcher projection list.\n
+        league_pos_dict: dict of team positions.\n
+        current_stangings: current league standings.\n
+        league_settings: league settings.\n
+    Returns:\n
+        list of dicts of teams with full season stat projections.\n
+    Raises:\n
+        None.
     final_standings = []
     for team in team_list:
         post_dict_copy = copy.deepcopy(league_pos_dict)
@@ -412,6 +438,14 @@ def final_stats_projection(league_no, team_list, ros_proj_b_list, ros_proj_p_lis
     return final_standings
 
 def rank_list(projected_final_stats_list):
+    """Ranks each stat and calculates total points in final stat projections\n
+    Args:\n
+        projected_final_stats_list: a list of dicts of teams with full season stat projections.\n
+    Returns:\n
+        list of dicts of teams with full season stat projections, ranks, and final point totals.\n
+    Raises:\n
+        None.
+    """
     stat_ranker(projected_final_stats_list, "R")
     stat_ranker(projected_final_stats_list, "HR")
     stat_ranker(projected_final_stats_list, "RBI")
@@ -428,6 +462,16 @@ def rank_list(projected_final_stats_list):
     return projected_final_stats_list
 
 def stat_ranker(projected_final_stats_list, stat, reverse=True):
+    """Orders stats by value and calculates point value\n
+    Args:\n
+        projected_final_stats_list: a list of dicts of teams with full season stat projections.\n
+        stat: statistic to calculate\n
+        reverse: whether or not to reverse the ranking (ERA/WHIP = False, else = True)\n
+    Returns:\n
+        list of dicts of teams with full season stat projections and rank for secific stat.\n
+    Raises:\n
+        None.
+    """
     stats_title = "Stats" + stat
     points_title = "Points" + stat
     projected_final_stats_list.sort(key=operator.itemgetter(stats_title), reverse=reverse)
@@ -436,7 +480,19 @@ def stat_ranker(projected_final_stats_list, stat, reverse=True):
         team[points_title] = points
         points -= 1
 
-def league_volatility(sgp_dict, final_stats, factor = 1):
+def league_volatility(sgp_dict, final_stats, factor=1):
+    """Calculates volatility for each position. Volatility = # of teams within factor * SGP\n
+    Args:\n
+        sgp_dict: dict of sgp values for each statistic\n
+        final_stats: list of dicts of teams with full season stat projections, ranks, and
+        final point totals.\n
+        factor: sgp multiplier\n
+    Returns:\n
+        list of dicts of teams with full season stat projections, ranks, final point totals,
+        and upward/downward volatility.\n
+    Raises:\n
+        None.
+    """
     calc_volatility(sgp_dict, final_stats, "R", factor)
     calc_volatility(sgp_dict, final_stats, "HR", factor)
     calc_volatility(sgp_dict, final_stats, "RBI", factor)
@@ -453,6 +509,20 @@ def league_volatility(sgp_dict, final_stats, factor = 1):
     return final_stats
 
 def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
+    """Calculates volatility for individual stat. Volatility = # of teams within factor * SGP\n
+    Args:\n
+        sgp_dict: dict of sgp values for each statistic\n
+        final_stats: list of dicts of teams with full season stat projections, ranks, and
+        final point totals.\n
+        stat: statistic to calculate\n
+        factor: sgp multiplier\n
+        reverse: whether or not to reverse the ranking (ERA/WHIP = False, else = True)\n
+    Returns:\n
+        list of dicts of teams with full season stat projections, ranks, final point totals,
+        and upward/downward volatility for specific stat.\n
+    Raises:\n
+        None.
+    """
     stats_title = "Stats" + stat
     up_vol_title = "UpVol " + stat
     down_vol_title = "DownVol " + stat
