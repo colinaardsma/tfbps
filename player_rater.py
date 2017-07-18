@@ -416,7 +416,6 @@ def single_player_rater(player_name, ros_batter_projection_list, ros_pitcher_pro
 
 def final_stats_projection(team_list, ros_proj_b_list, ros_proj_p_list,
                            league_pos_dict, current_stangings, league_settings):
-    """
     """Calculates final stats of the team based on an optimized lineup\n
     Args:\n
         team_list: a list of dicts of teams in the league with current rosters and stats.\n
@@ -429,6 +428,7 @@ def final_stats_projection(team_list, ros_proj_b_list, ros_proj_p_list,
         list of dicts of teams with full season stat projections.\n
     Raises:\n
         None.
+    """
     final_standings = []
     for team in team_list:
         post_dict_copy = copy.deepcopy(league_pos_dict)
@@ -534,8 +534,8 @@ def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
     for i in range(list_length):
         up_counter = 0
         down_counter = 0
-        j = i
-        k = i
+        j = i - 1
+        k = i + 1
         current_team_stat = final_stats[i][stats_title]
         while (j > 0 and (abs(final_stats[j][stats_title] - current_team_stat) <= sgp)):
             if final_stats[j][stats_title] - current_team_stat == sgp:
@@ -549,3 +549,4 @@ def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
             down_counter += 1
         final_stats[i][up_vol_title] = up_counter
         final_stats[i][down_vol_title] = down_counter
+

@@ -11,12 +11,12 @@ import base64
 # https://developer.yahoo.com/oauth2/guide/flows_authcode/
 
 # consumer key
-CLIENT_ID = "dj0yJmk9WFp0SWhGNkVCR0R5JmQ9WVdrOWJucFRaa2wwTXpnbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD01Zg--"
-# CLIENT_ID = "dj0yJmk9YWE1SnlhV0lUbndoJmQ9WVdrOU9FUmhUelV6TkdVbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD1lMQ--"
+# CLIENT_ID = "dj0yJmk9WFp0SWhGNkVCR0R5JmQ9WVdrOWJucFRaa2wwTXpnbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD01Zg--"
+CLIENT_ID = "dj0yJmk9YWE1SnlhV0lUbndoJmQ9WVdrOU9FUmhUelV6TkdVbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD1lMQ--"
 # consumer secret
-CLIENT_SECRET = "612e995401b6abd14e27c1422b1d31f097a8971f"
-# CLIENT_SECRET = "55d6606ea0bec9a1468d3ea01bbf1c9991dbf93f"
-REDIRECT_URI = "http://mytestsite.dev/redirect"
+# CLIENT_SECRET = "612e995401b6abd14e27c1422b1d31f097a8971f"
+CLIENT_SECRET = "55d6606ea0bec9a1468d3ea01bbf1c9991dbf93f"
+REDIRECT_URI = "localhost:8080"
 # REDIRECT_URI = "oob"
 
 def request_auth():
@@ -91,7 +91,7 @@ AUTHORIZATION_CODE = "bv7mnu7"
 LEAGUE_YEAR_CODE = "370"
 LEAGUE_KEY = "5091"
 PATH = "/leagues;league_keys=" + LEAGUE_YEAR_CODE + ".l." + LEAGUE_KEY + "/standings"
-# webbrowser.open(request_auth())
+webbrowser.open(request_auth())
 # OAUTH_TOKEN = get_token(AUTHORIZATION_CODE)
 # print yql_query(PATH, OAUTH_TOKEN)
 
