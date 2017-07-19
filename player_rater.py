@@ -478,18 +478,23 @@ def stat_ranker(projected_final_stats_list, stat, reverse=True):
     projected_final_stats_list.sort(key=operator.itemgetter(stats_title), reverse=reverse)
     points = 12
     highest_shared_point = 0
+    new_stat_value = 0
+    old_stat_value = 0
     for team in projected_final_stats_list:
         counter = collections.Counter([s[stats_title] for s in projected_final_stats_list])
         shared_count = counter[team[stats_title]]
         if shared_count > 1:
-            if highest_shared_point == 0:
+            new_stat_value = team[stats_title]
+            if new_stat_value == 0 or new_stat_value != old_stat_value:
                 highest_shared_point = points
             lowest_shared_point = (highest_shared_point - shared_count)
             shared_point_total = (((float(highest_shared_point) / 2) * (highest_shared_point + 1)) -
                                   ((float(lowest_shared_point) / 2) * (lowest_shared_point + 1)))
             shared_points = float(shared_point_total) / float(shared_count)
             team[points_title] = shared_points
+            old_stat_value = new_stat_value
         else:
+            highest_shared_point = 0
             team[points_title] = points
         points -= 1
 
