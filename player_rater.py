@@ -3,6 +3,7 @@ import operator
 import math
 import re
 import copy
+import collections
 
 def rate_fa(fa_list, ros_projection_list):
     """Compare available FAs with Projections\n
@@ -477,7 +478,16 @@ def stat_ranker(projected_final_stats_list, stat, reverse=True):
     projected_final_stats_list.sort(key=operator.itemgetter(stats_title), reverse=reverse)
     points = 12
     for team in projected_final_stats_list:
-        team[points_title] = points
+        counter = collections.Counter([s[stats_title] for s in projected_final_stats_list])
+        shared_count = counter[team[stats_title]]
+        if shared_count > 1:
+            lowest_points = (points - shared_count)
+            shared_point_total = (((points / 2) * (points + 1)) -
+                                  ((lowest_points / 2) * (lowest_points + 1)))
+            shared_points = float(shared_point_total) / float(shared_count)
+            team[points_title] = shared_points
+        else:
+            team[points_title] = points
         points -= 1
 
 def league_volatility(sgp_dict, final_stats, factor=1):

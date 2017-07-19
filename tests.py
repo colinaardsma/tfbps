@@ -75,8 +75,8 @@ FINAL_STATS_PROJECTION = tests_long_variables.FINAL_STATS_PROJECTION
 #                                                              CURRENT_STANDINGS,
 #                                                              LEAGUE_SETTINGS)
 
-FINAL_POINTS_PROJECTION = tests_long_variables.FINAL_STATS_PROJECTION
-# FINAL_POINTS_PROJECTION = player_rater.rank_list(FINAL_STATS_PROJECTION)
+# FINAL_POINTS_PROJECTION = tests_long_variables.FINAL_POINTS_PROJECTION
+FINAL_POINTS_PROJECTION = player_rater.rank_list(FINAL_STATS_PROJECTION)
 
 # print OPTIMIZED_BATTERS
 # print OPTIMIZED_PITCHERS
@@ -86,7 +86,7 @@ FINAL_POINTS_PROJECTION = tests_long_variables.FINAL_STATS_PROJECTION
 # print player_rater.rank_list(FINAL_STANDINGS_PROJECTION)
 # print html_parser.html_to_document(ROS_BATTER_URL)
 
-print player_rater.league_volatility(SGP_DICT, FINAL_POINTS_PROJECTION)
+print FINAL_POINTS_PROJECTION
 # print fa_vs_team.batter_projections()
 # print PITCHER_LIST
 
