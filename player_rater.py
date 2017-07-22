@@ -568,3 +568,73 @@ def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
         final_stats[i][up_vol_title] = up_counter
         final_stats[i][down_vol_title] = down_counter
 
+def trade_analyzer(projected_volatility, team_a, team_a_players, team_b, team_b_players, team_list,
+                   league_pos_dict, ros_proj_b_list, ros_proj_p_list, current_standings,
+                   league_settings, sgp_dict):
+    """Analyzes value of trade for 2 teams\n
+    Args:\n
+        projected_volatility: projected volatility for league\n
+        team_a: Team A dict\n
+        team_a_players: list of players to be offered\n
+        team_b: Team B dict\n
+        team_b_players: list of players to be offered\n
+        team_list: \n
+        league_pos_dict: \n
+        ros_proj_b_list: \n
+        ros_proj_p_list: \n
+        current_standings: \n
+        league_settings: \n
+        sgp_dict: \n
+    Returns:\n
+        Updated standings post trade\n
+    Raises:\n
+        None.
+    """
+    for player in team_a_players:
+        team_a['ROSTER'].remove(player)
+        team_b['ROSTER'].append(player)
+    for player in team_b_players:
+        team_a['ROSTER'].append(player)
+        team_b['ROSTER'].remove(player)
+    for team in team_list:
+        if (team['TEAM_NUMBER'] == team_a['TEAM_NUMBER'] or
+                team['TEAM_NUMBER'] == team_b['TEAM_NUMBER']):
+            team.update()
+            team_list.remove(team)
+
+    for team in team_list:
+        if (team['TEAM_NUMBER'] == team_a['TEAM_NUMBER'] or
+                team['TEAM_NUMBER'] == team_b['TEAM_NUMBER']):
+            team.update((k, "new") for k, v in team.iteritems() if v == "value2")
+    
+    # for team in team_list:
+    #     if team['TEAM_NUMBER'] == team_a['TEAM_NUMBER']:
+    #         team_listteam = team_a
+
+    for key, value in enumerate(team_list):
+        if team_a['TEAM_NUMBER'] in key:
+            value = team_a['ROSTER']
+
+    [team_a if x['TEAM_NUMBER'] == team_a['TEAM_NUMBER'] else x for x in team_list]
+    [team_b if x['TEAM_NUMBER'] == team_b['TEAM_NUMBER'] else x for x in team_list]
+
+    final_stats = final_stats_projection(team_list, ros_proj_b_list,
+                                         ros_proj_p_list, league_pos_dict,
+                                         current_standings, league_settings)
+    volatility_standings = league_volatility(sgp_dict, final_stats)
+    ranked_standings = rank_list(volatility_standings)
+    return ranked_standings
+
+    post_trade_standings = dict(projected_volatility)
+
+def first_name_checker(source_name, destination_name):
+    """Checks first names against nicknames/shortened names\n
+    Args:\n
+        source_name: full name of the source player\n
+        destination_name: full name of the destination player\n
+    Returns:\n
+        True if match\n
+    Raises:\n
+        None.
+    """
+    name_dict

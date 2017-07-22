@@ -40,6 +40,7 @@ class Batter(object):
     # Values
     fvaaz = 0.00
     dollarValue = 0.00
+    keeper = 0.00
     # FA Status
     isFA = False
 
@@ -105,6 +106,7 @@ class Pitcher(object):
     # Values
     fvaaz = 0.00
     dollarValue = 0.00
+    keeper = 0.00
     # FA Status
     isFA = False
 
