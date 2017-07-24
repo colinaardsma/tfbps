@@ -16,11 +16,23 @@ def rate_fa(fa_list, ros_projection_list):
         None.
     """
     fa_player_list = []
-    for player in ros_projection_list:
-        if any(fa['NAME'].lower() ==
-               player.name.lower() for fa in fa_list):
-            player.isFA = True
-            fa_player_list.append(player)
+    for player_proj in ros_projection_list:
+    # for fa_player in fa_list:
+        if any(player_proj.team == fa_player['TEAM'] and
+               name_char_pair_comparer(fa_player['NAME'], player_proj.name)
+               for fa_player in fa_list):
+            # if (fa_player['TEAM'] == player_proj.team and
+            #         name_char_pair_comparer(fa_player['NAME'], player_proj.name)):
+            player_proj.isFA = True
+            fa_player_list.append(player_proj)
+    # for player in ros_projection_list:
+    #     # if any(fa['NAME'].lower() ==
+    #     #        player.name.lower() for fa in fa_list):
+    #     if any((fa['TEAM'] == player.team and
+    #             name_char_pair_comparer(fa['NAME'], player.name))
+    #            for fa in fa_list):
+    #         player.isFA = True
+    #         fa_player_list.append(player)
     fa_above_repl = []
     dollar_value = 100.00
     player_number = 0
@@ -53,11 +65,22 @@ def rate_team(team_dict, ros_projection_list):
     Raises:\n
         None.
     """
-    team_roster_list = [roster.lower() for roster in team_dict['ROSTER']]
+    # team_roster_list = [roster.lower() for roster in team_dict['ROSTER']]
     team_player_list = []
-    for player in ros_projection_list:
-        if player.name.lower() in team_roster_list:
-            team_player_list.append(player)
+    for roster_player in team_dict['ROSTER']:
+        for player_proj in ros_projection_list:
+            if roster_player['TEAM'] == player_proj.team:
+                if name_char_pair_comparer(roster_player['NAME'], player_proj.name):
+
+            # if any(roster_player['TEAM'] == player_proj.team and
+            #         name_char_pair_comparer(roster_player['NAME'], player_proj.name)
+            #         for roster_player in team_dict['ROSTER']):
+    # for player in ros_projection_list:
+    #     # if player.name.lower() in team_roster_list:
+    #     if any((roster_player['TEAM'] == player.team and
+    #             name_char_pair_comparer(roster_player['NAME'], player.name))
+    #            for roster_player in team_dict['ROSTER']):
+                    team_player_list.append(player_proj)
     return team_player_list
 
 def team_optimizer(team_dict, ros_proj_b_list, ros_proj_p_list, league_pos_dict,
@@ -627,7 +650,7 @@ def trade_analyzer(projected_volatility, team_a, team_a_players, team_b, team_b_
 
     post_trade_standings = dict(projected_volatility)
 
-def first_name_checker(source_name, destination_name):
+def name_checker(name_a, name_b):
     """Checks first names against nicknames/shortened names\n
     Args:\n
         source_name: full name of the source player\n
@@ -637,4 +660,66 @@ def first_name_checker(source_name, destination_name):
     Raises:\n
         None.
     """
-    name_dict
+    name_a_chars = name_char_pair_creator(name_a)
+    name_b_chars = name_char_pair_creator(name_b)
+    similarity = name_char_pair_comparer(name_a_chars, name_b_chars)
+    match = False
+    if similarity > 60.0:
+        match = True
+    return match
+
+def name_char_pair_creator(name):
+    """Checks first names against nicknames/shortened names\n
+    Args:\n
+        name (str): full name of the source player\n
+    Returns:\n
+        (list) of the name's character pairs\n
+    Raises:\n
+        None.
+    """
+    name = name.strip().lower()
+    name = re.sub(r"\W", "", name).strip()
+    char_pair_list = []
+    i = 0
+    while i < len(name) - 1:
+        char_pair = name[i] + name[i + 1]
+        char_pair_list.append(char_pair)
+        i += 1
+    return char_pair_list
+
+def name_char_pair_comparer(name_a_chars, name_b_chars):
+    """Checks first names against nicknames/shortened names\n
+    Args:\n
+        name_a_chars (list): list of the name's character pairs\n
+        name_b_chars (list): list of the name's character pairs\n
+    Returns:\n
+        (float) percentage of match value\n
+    Raises:\n
+        None.
+    """
+    match_counter = 0
+    total_pairs = len(name_a_chars) + len(name_b_chars)
+    for a_pair in name_a_chars:
+        for b_pair in name_b_chars:
+            if a_pair == b_pair:
+                match_counter += 1
+    match_value = (float(match_counter) / float(total_pairs)) * 100.0 * 2.0
+    return match_value
+
+
+# NAME_A = "Joe H. Smith"
+# NAME_B = "Joseph Smith"
+# NAME_C = "Joe Smith"
+# NAME_D = "Jorge De La Rosa"
+# NAME_E = "Rubby De La Rosa"
+# CHARS_A = name_char_pair_creator(NAME_A)
+# CHARS_B = name_char_pair_creator(NAME_B)
+# CHARS_C = name_char_pair_creator(NAME_C)
+# CHARS_D = name_char_pair_creator(NAME_D)
+# CHARS_E = name_char_pair_creator(NAME_E)
+# print CHARS_A
+# print CHARS_C
+# print name_char_pair_comparer(CHARS_D, CHARS_E)
+
+# print name_checker(NAME_D, NAME_E)
+# # # 60

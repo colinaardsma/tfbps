@@ -126,3 +126,5 @@ def pitcher_projections():
                                                       P_PLAYER_POOL_MULT)
     sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
     return sorted_proj
+
+print fa_vs_team(5091, "Big Sack")

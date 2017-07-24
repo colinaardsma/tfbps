@@ -125,9 +125,11 @@ def yahoo_player_dict_creator(single_player_html, b_or_p):
     """
     single_player = {}
     counter = 1
+    counter_addition = 0
     if b_or_p == "B":
         dict_key_list = ["STARRED", "NAME", "TEAM", "POS", "OWNER", "GP", "PRESEASON_RANK",
                          "CURRENT_RANK", "PCT_OWN", "HAB", "R", "HR", "RBI", "SB", "OPS"]
+        counter_addition = 2
     else:
         dict_key_list = ["STARRED", "NAME", "TEAM", "POS", "OWNER", "GP", "PRESEASON_RANK",
                          "CURRENT_RANK", "PCT_OWN", "IP", "W", "SV", "K", "ERA", "WHIP"]
@@ -146,7 +148,7 @@ def yahoo_player_dict_creator(single_player_html, b_or_p):
             counter = 6
             continue
         else:
-            stat = single_player_html[counter].xpath("descendant::*/text()")
+            stat = single_player_html[counter + counter_addition].xpath("descendant::*/text()")
             if len(stat) != 0:
                 single_player[dict_key_list[counter]] = stat[0]
         counter += 1
@@ -188,10 +190,21 @@ def yahoo_team_creator(single_team_html):
     table_body = single_team_html.xpath(".//table/tbody")
     for row in table_body:
         roster = []
-        html_roster = row.xpath(".//tr/td[@class='player']/div[1]/div/a/text()")
-        for html_player in html_roster:
-            player = html_player.replace('.', '')
-            roster.append(player)
+        player_div = row.xpath(".//tr/td[@class='player']/div[1]/div")
+        # html_player = row.xpath(".//tr/td[@class='player']/div[1]/div/a/text()")
+        # html_team = row.xpath(".//tr/td[@class='player']/div[1]/div/span/text()")
+        for player in player_div:
+            player_dict = {}
+            player_name = player.xpath(".//a/text()")
+            player_team = player.xpath(".//span/text()")
+            if player_team[0] == "(Empty)":
+                continue
+            string_loc = player_team[0].find(" - ")
+            player_team = player_team[0][:string_loc]
+            player_dict['NAME'] = player_name[0]
+            player_dict['TEAM'] = player_team.upper()
+            # player = player.replace('.', '')
+            roster.append(player_dict)
         team[dict_key_list[2]] = roster
     return team
 
@@ -350,3 +363,4 @@ def split_league_pos_types(league_roster_pos):
 
 
 # print single_team_standing_dict(LEAGUE_NO, CURRENT_STANDINGS)
+# print yahoo_fa(5091, "b")

@@ -91,7 +91,7 @@ AUTHORIZATION_CODE = "bv7mnu7"
 LEAGUE_YEAR_CODE = "370"
 LEAGUE_KEY = "5091"
 PATH = "/leagues;league_keys=" + LEAGUE_YEAR_CODE + ".l." + LEAGUE_KEY + "/standings"
-webbrowser.open(request_auth())
+# webbrowser.open(request_auth())
 # OAUTH_TOKEN = get_token(AUTHORIZATION_CODE)
 # print yql_query(PATH, OAUTH_TOKEN)
 
