@@ -17,7 +17,7 @@ def rate_fa(fa_list, ros_projection_list):
     """
     fa_player_list = []
     for player_proj in ros_projection_list:
-        if any(player_proj.team == fa_player['TEAM'] and
+        if any(team_comparer(player_proj.team, fa_player['TEAM']) and
                name_comparer(fa_player['NAME'], player_proj.name)
                for fa_player in fa_list):
             player_proj.isFA = True
@@ -56,7 +56,7 @@ def rate_team(team_dict, ros_projection_list):
     """
     team_player_list = []
     for player_proj in ros_projection_list:
-        if any(roster_player['TEAM'] == player_proj.team and
+        if any(team_comparer(roster_player['TEAM'], player_proj.team) and
                name_comparer(roster_player['NAME'], player_proj.name)
                for roster_player in team_dict['ROSTER']):
             team_player_list.append(player_proj)
@@ -149,7 +149,7 @@ def batting_roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
     """
     team_player_list = []
     for player_proj in ros_projection_list:
-        if any(roster_player['TEAM'] == player_proj.team and
+        if any(team_comparer(roster_player['TEAM'], player_proj.team) and
                name_comparer(roster_player['NAME'], player_proj.name)
                for roster_player in team_dict['ROSTER']):
             team_player_list.append(player_proj)
@@ -249,7 +249,7 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
             current_ip += int(math.ceil(float(standing['StatsIP'])))
     for player_proj in ros_projection_list:
-        if any(roster_player['TEAM'] == player_proj.team and
+        if any(team_comparer(roster_player['TEAM'], player_proj.team) and
                name_comparer(roster_player['NAME'], player_proj.name)
                for roster_player in team_dict['ROSTER']):
             team_player_list.append(player_proj)
@@ -325,15 +325,21 @@ def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_pr
     opt_batters = list(sum(optimized_batters.values(), []))
     opt_pitchers = list(sum(optimized_pitchers.values(), []))
     for player in team_dict['ROSTER']:
-        if (not any(name_comparer(batter.name, player['NAME']) for batter in opt_batters) and
-                not any(name_comparer(pitcher.name, player['NAME']) for pitcher in opt_pitchers)):
+        if (not any(team_comparer(player['TEAM'], batter.team) and
+                    name_comparer(batter.name, player['NAME'])
+                    for batter in opt_batters) and
+                not any(team_comparer(player['TEAM'], pitcher.team) and
+                        name_comparer(pitcher.name, player['NAME'])
+                        for pitcher in opt_pitchers)):
             bench_roster_list.append(player)
     for player in ros_pitcher_projection_list:
-        if any(name_comparer(player.name, bench_player['NAME'])
+        if any(team_comparer(bench_player['TEAM'], player.team) and
+               name_comparer(player.name, bench_player['NAME'])
                for bench_player in bench_roster_list):
             team_player_list.append(player)
     for player in ros_batter_projection_list:
-        if any(name_comparer(player.name, bench_player['NAME'])
+        if any(team_comparer(bench_player['TEAM'], player.team) and
+               name_comparer(player.name, bench_player['NAME'])
                for bench_player in bench_roster_list):
             team_player_list.append(player)
     bench_players = {}
@@ -412,11 +418,12 @@ def single_player_rater(player_name, ros_batter_projection_list, ros_pitcher_pro
     """
     player = None
     for player_proj in ros_pitcher_projection_list:
-        if player_name.lower() == player_proj.name.lower():
+        if name_comparer(player_name, player_proj.name):
             player = player_proj
-    for player_proj in ros_batter_projection_list:
-        if player_name.lower() == player_proj.name.lower():
-            player = player_proj
+    if player is None:
+        for player_proj in ros_batter_projection_list:
+            if name_comparer(player_name, player_proj.name):
+                player = player_proj
     return player
 
 def final_stats_projection(team_list, ros_proj_b_list, ros_proj_p_list,
@@ -731,13 +738,57 @@ def name_comparer(name_a, name_b):
         return True
     if name_a_last != name_b_last:
         return False
-    # [k for k, v in textbooks.iteritems() if 'red' in v]
     for key, val in name_list.iteritems():
         if name_a_first in val:
             name_a_norm = key
         if name_b_first in val:
             name_b_norm = key
     if name_a_norm == name_b_norm:
+        return True
+    return False
+
+def team_comparer(team_a, team_b):
+    team_list = {'LAA':['LAA', 'AN', 'ANA'],
+                 'ARI':['ARI'],
+                 'ATL':['ATL'],
+                 'BAL':['BAL'],
+                 'BOS':['BOS'],
+                 'CHW':['CHW', 'CHA', 'CWS'],
+                 'CHC':['CHC', 'CHN'],
+                 'CIN':['CIN'],
+                 'CLE':['CLE'],
+                 'COL':['COL'],
+                 'DET':['DET'],
+                 'FA':['FA'],
+                 'MIA':['MIA', 'FLO', 'FL'],
+                 'HOU':['HOU'],
+                 'KC':['KC', 'KCA'],
+                 'LAD':['LAD', 'LAN', 'LA'],
+                 'MIL':['MIL'],
+                 'MIN':['MIN'],
+                 'NYY':['NYY', 'NYA'],
+                 'NYM':['NYM', 'NYN'],
+                 'OAK':['OAK'],
+                 'PHI':['PHI'],
+                 'PIT':['PIT'],
+                 'SD':['SD', 'SDN'],
+                 'SEA':['SEA'],
+                 'SF':['SF', 'SFN'],
+                 'STL':['STL', 'SLN'],
+                 'TB':['TB', 'TBA'],
+                 'TEX':['TEX'],
+                 'TOR':['TOR'],
+                 'WAS':['WAS', 'WSH']}
+    team_a_norm = ""
+    team_b_norm = ""
+    if team_a == team_b:
+        return True
+    for key, val in team_list.iteritems():
+        if team_a in val:
+            team_a_norm = key
+        if team_b in val:
+            team_b_norm = key
+    if team_a_norm == team_b_norm:
         return True
     return False
 
