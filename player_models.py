@@ -61,8 +61,8 @@ class Batter(object):
         self.avg = float(avg if avg != None else 0)
         self.ops = float(ops if ops != None else 0)
 
-    def __getitem__(self, name):
-        return self.__dict__[name]
+    # def __getitem__(self, name):
+    #     return self.__dict__[name]
 
     # def get_dollar_value(self):
     #     """Return dollar value of player"""
@@ -130,8 +130,8 @@ class Pitcher(object):
         self.is_sp = (False if 'SP' not in str(pos) or int(svs) > 0 or
                       float(wins) / float(ips) < 0.05 else True)
 
-    def __getitem__(self, name):
-        return self.__dict__[name]
+    # def __getitem__(self, name):
+    #     return self.__dict__[name]
 
     # def get_dollar_value(self):
     #     """Return dollar value of player"""
