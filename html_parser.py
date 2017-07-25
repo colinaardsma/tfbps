@@ -133,6 +133,7 @@ def yahoo_player_dict_creator(single_player_html, b_or_p):
     else:
         dict_key_list = ["STARRED", "NAME", "TEAM", "POS", "OWNER", "GP", "PRESEASON_RANK",
                          "CURRENT_RANK", "PCT_OWN", "IP", "W", "SV", "K", "ERA", "WHIP"]
+        counter_addition = 1
     while counter < len(single_player_html) and counter < 15:
         if counter == 1:
             name = single_player_html[1].xpath("descendant::a[@class='Nowrap name F-link']" +
@@ -143,7 +144,7 @@ def yahoo_player_dict_creator(single_player_html, b_or_p):
             single_player[dict_key_list[1]] = name.replace('.', '')
             team_pos = single_player_html[1].xpath("descendant::span[@class='Fz-xxs']" +
                                                    "/text()")[0]
-            single_player[dict_key_list[2]] = team_pos.split(" - ")[0]
+            single_player[dict_key_list[2]] = team_pos.split(" - ")[0].upper()
             single_player[dict_key_list[3]] = team_pos.split(" - ")[1]
             counter = 6
             continue

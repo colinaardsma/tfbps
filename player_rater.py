@@ -695,54 +695,54 @@ def name_char_pair_comparer(name_a_chars, name_b_chars):
     return match_value
 
 def name_comparer(name_a, name_b):
-    name_list = {'Chris':['Chris', 'Christopher', 'Topher'],
-                 'Alex':['Alex', 'Alexander'],
-                 'Ken':['Ken', 'Kenneth'],
-                 'Jake':['Jake', 'Jacob'],
-                 'Greg':['Greg', 'Gregory'],
-                 'Matt':['Matt', 'Matthew'],
-                 'Brad':['Brad', 'Bradley'],
-                 'Mike':['Mike', 'Michael'],
-                 'John':['John', 'Jon', 'Johnny', 'Johnathan'],
-                 'Dan':['Dan', 'Danny', 'Daniel'],
-                 'Steve':['Steve', 'Steven', 'Stephen'],
-                 'Bill':['Bill', 'Billy', 'Will', 'William'],
-                 'Charlie':['Charlie', 'Chuck', 'Charles'],
-                 'Tony':['Tony', 'Anthony'],
-                 'Zack':['Zack', 'Zach', 'Zachary'],
-                 'Manny':['Manny', 'Manuel'],
-                 'Tom':['Tom', 'Tommy', 'Thomas'],
-                 'Dave':['Dave', 'David'],
-                 'Josh':['Josh', 'Joshua'],
-                 'Drew':['Drew', 'Andy', 'Andrew'],
-                 'Fred':['Fred', 'Freddie', 'Freddy', 'Frederick'],
-                 'Scott':['Scott', 'Scotty', 'Scottie'],
-                 'Sam':['Sam', 'Sammy', 'Sammie', 'Samuel'],
-                 'Jim':['Jim', 'Jimmy', 'Jimmie', 'James'],
-                 'Joe':['Joe', 'Joey', 'Joseph'],
-                 'Bran':['Bran', 'Brand', 'Brandon'],
-                 'Javy':['Javy', 'Javier'],
-                 'Rob':['Rob', 'Robbie', 'Bob', 'Bobbie', 'Bobby', 'Robert'],
-                 'Sal':['Sal', 'Salvador'],
-                 'Al':['Al', 'Allen', 'Alan', 'Allan', 'Albert'],
-                 'Vince':['Vince', 'Vincent']}
-    name_a_groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', name_a.replace(".", ""))
-    name_a_first = name_a_groups.group(1)
-    name_a_last = name_a_groups.group(2)
+    name_list = {'chris':['chris', 'christopher', 'topher'],
+                 'alex':['alex', 'alexander'],
+                 'ken':['ken', 'kenneth'],
+                 'jake':['jake', 'jacob'],
+                 'greg':['greg', 'gregory'],
+                 'matt':['matt', 'matthew'],
+                 'brad':['brad', 'bradley'],
+                 'mike':['mike', 'michael'],
+                 'john':['john', 'jon', 'johnny', 'johnathan'],
+                 'dan':['dan', 'danny', 'daniel'],
+                 'steve':['steve', 'steven', 'stephen'],
+                 'bill':['bill', 'billy', 'will', 'william'],
+                 'charlie':['charlie', 'chuck', 'charles'],
+                 'tony':['tony', 'anthony'],
+                 'zack':['zack', 'zach', 'zachary'],
+                 'manny':['manny', 'manuel'],
+                 'tom':['tom', 'tommy', 'thomas'],
+                 'dave':['dave', 'david'],
+                 'josh':['josh', 'joshua'],
+                 'drew':['drew', 'andy', 'andrew'],
+                 'fred':['fred', 'freddie', 'freddy', 'frederick'],
+                 'scott':['scott', 'scotty', 'scottie'],
+                 'sam':['sam', 'sammy', 'sammie', 'samuel'],
+                 'jim':['jim', 'jimmy', 'jimmie', 'james'],
+                 'joe':['joe', 'joey', 'joseph'],
+                 'bran':['bran', 'brand', 'brandon'],
+                 'javy':['javy', 'javier'],
+                 'rob':['rob', 'robbie', 'bob', 'bobbie', 'bobby', 'robert'],
+                 'sal':['sal', 'salvador'],
+                 'al':['al', 'allen', 'alan', 'allan', 'albert'],
+                 'vince':['vince', 'vincent']}
+    name_a_groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', name_a.replace(".", "").lower())
+    name_a_first = name_a_groups.group(1).lower()
+    name_a_last = name_a_groups.group(2).lower()
     name_a_norm = ""
-    name_b_groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', name_b.replace(".", ""))
-    name_b_first = name_b_groups.group(1)
-    name_b_last = name_b_groups.group(2)
+    name_b_groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', name_b.replace(".", "").lower())
+    name_b_first = name_b_groups.group(1).lower()
+    name_b_last = name_b_groups.group(2).lower()
     name_b_norm = ""
-    if name_a.replace(".", "") == name_b.replace(".", ""):
+    if name_a.replace(".", "").lower() == name_b.replace(".", "").lower():
         return True
     if name_a_last != name_b_last:
         return False
     for key, val in name_list.iteritems():
         if name_a_first in val:
-            name_a_norm = key
+            name_a_norm = key.lower()
         if name_b_first in val:
-            name_b_norm = key
+            name_b_norm = key.lower()
     if name_a_norm == name_b_norm:
         return True
     return False
@@ -781,12 +781,12 @@ def team_comparer(team_a, team_b):
                  'WAS':['WAS', 'WSH']}
     team_a_norm = ""
     team_b_norm = ""
-    if team_a == team_b:
+    if team_a.upper() == team_b.upper():
         return True
     for key, val in team_list.iteritems():
-        if team_a in val:
+        if team_a.upper() in val:
             team_a_norm = key
-        if team_b in val:
+        if team_b.upper() in val:
             team_b_norm = key
     if team_a_norm == team_b_norm:
         return True

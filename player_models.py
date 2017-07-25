@@ -46,6 +46,12 @@ class Batter(object):
 
     def __init__(self, name, team, pos, category, atbats=0, runs=0, hrs=0, rbis=0,
                  sbs=0, avg=0.000, ops=0.000):
+        __dict__(name, team, pos, category, atbats=0, runs=0, hrs=0, rbis=0,
+                 sbs=0, avg=0.000, ops=0.000)
+        locals()
+
+    def __dict__(self, name, team, pos, category, atbats=0, runs=0, hrs=0, rbis=0,
+                 sbs=0, avg=0.000, ops=0.000):
         # Descriptive Properties
         self.name = str(name)
         self.team = str(team)
@@ -60,6 +66,10 @@ class Batter(object):
         self.sbs = int(sbs if sbs != None else 0)
         self.avg = float(avg if avg != None else 0)
         self.ops = float(ops if ops != None else 0)
+
+
+    def __dir__(self):
+        return ['area', 'perimeter', 'location']
 
     def __getitem__(self, name):
         return self.__dict__[name]
@@ -129,6 +139,7 @@ class Pitcher(object):
         # SP Status
         self.is_sp = (False if 'SP' not in str(pos) or int(svs) > 0 or
                       float(wins) / float(ips) < 0.05 else True)
+        locals()
 
     def __getitem__(self, name):
         return self.__dict__[name]
