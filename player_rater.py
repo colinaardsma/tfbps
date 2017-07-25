@@ -18,8 +18,9 @@ def rate_fa(fa_list, ros_projection_list):
     fa_player_list = []
     for player_proj in ros_projection_list:
         if any(team_comparer(player_proj.team, fa_player['TEAM']) and
-               name_comparer(fa_player['NAME'], player_proj.name)
+               name_comparer(player_proj.name, fa_player['NAME'])
                for fa_player in fa_list):
+            name = player_proj.name
             player_proj.isFA = True
             fa_player_list.append(player_proj)
     fa_above_repl = []
@@ -56,8 +57,8 @@ def rate_team(team_dict, ros_projection_list):
     """
     team_player_list = []
     for player_proj in ros_projection_list:
-        if any(team_comparer(roster_player['TEAM'], player_proj.team) and
-               name_comparer(roster_player['NAME'], player_proj.name)
+        if any(team_comparer(player_proj.team, roster_player['TEAM']) and
+               name_comparer(player_proj.name, roster_player['NAME'])
                for roster_player in team_dict['ROSTER']):
             team_player_list.append(player_proj)
     return team_player_list
@@ -149,8 +150,8 @@ def batting_roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
     """
     team_player_list = []
     for player_proj in ros_projection_list:
-        if any(team_comparer(roster_player['TEAM'], player_proj.team) and
-               name_comparer(roster_player['NAME'], player_proj.name)
+        if any(team_comparer(player_proj.team, roster_player['TEAM']) and
+               name_comparer(player_proj.name, roster_player['NAME'])
                for roster_player in team_dict['ROSTER']):
             team_player_list.append(player_proj)
     sorted(team_player_list, key=operator.attrgetter('dollarValue'))
@@ -249,8 +250,8 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
             current_ip += int(math.ceil(float(standing['StatsIP'])))
     for player_proj in ros_projection_list:
-        if any(team_comparer(roster_player['TEAM'], player_proj.team) and
-               name_comparer(roster_player['NAME'], player_proj.name)
+        if any(team_comparer(player_proj.team, roster_player['TEAM']) and
+               name_comparer(player_proj.name, roster_player['NAME'])
                for roster_player in team_dict['ROSTER']):
             team_player_list.append(player_proj)
     sorted(team_player_list, key=operator.attrgetter('dollarValue'))
@@ -333,12 +334,12 @@ def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_pr
                         for pitcher in opt_pitchers)):
             bench_roster_list.append(player)
     for player in ros_pitcher_projection_list:
-        if any(team_comparer(bench_player['TEAM'], player.team) and
+        if any(team_comparer(player.team, bench_player['TEAM']) and
                name_comparer(player.name, bench_player['NAME'])
                for bench_player in bench_roster_list):
             team_player_list.append(player)
     for player in ros_batter_projection_list:
-        if any(team_comparer(bench_player['TEAM'], player.team) and
+        if any(team_comparer(player.team, bench_player['TEAM']) and
                name_comparer(player.name, bench_player['NAME'])
                for bench_player in bench_roster_list):
             team_player_list.append(player)
@@ -726,23 +727,25 @@ def name_comparer(name_a, name_b):
                  'sal':['sal', 'salvador'],
                  'al':['al', 'allen', 'alan', 'allan', 'albert'],
                  'vince':['vince', 'vincent']}
-    name_a_groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', name_a.replace(".", "").lower())
-    name_a_first = name_a_groups.group(1).lower()
-    name_a_last = name_a_groups.group(2).lower()
-    name_a_norm = ""
-    name_b_groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', name_b.replace(".", "").lower())
-    name_b_first = name_b_groups.group(1).lower()
-    name_b_last = name_b_groups.group(2).lower()
-    name_b_norm = ""
-    if name_a.replace(".", "").lower() == name_b.replace(".", "").lower():
+    name_a = name_a.replace(".", "").lower())
+    name_b = name_b.replace(".", "").lower())
+    name_a_groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', name_a)
+    name_a_first = name_a_groups.group(1)
+    name_a_last = name_a_groups.group(2)
+    name_a_norm = "a"
+    name_b_groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', name_b)
+    name_b_first = name_b_groups.group(1)
+    name_b_last = name_b_groups.group(2)
+    name_b_norm = "b"
+    if name_a == name_b:
         return True
     if name_a_last != name_b_last:
         return False
     for key, val in name_list.iteritems():
         if name_a_first in val:
-            name_a_norm = key.lower()
+            name_a_norm = key
         if name_b_first in val:
-            name_b_norm = key.lower()
+            name_b_norm = key
     if name_a_norm == name_b_norm:
         return True
     return False
@@ -779,14 +782,16 @@ def team_comparer(team_a, team_b):
                  'TEX':['TEX'],
                  'TOR':['TOR'],
                  'WAS':['WAS', 'WSH']}
-    team_a_norm = ""
-    team_b_norm = ""
-    if team_a.upper() == team_b.upper():
+    team_a = team_a.upper()
+    team_b = teams_b.upper()
+    team_a_norm = "a"
+    team_b_norm = "b"
+    if team_a == team_b:
         return True
     for key, val in team_list.iteritems():
-        if team_a.upper() in val:
+        if team_a in val:
             team_a_norm = key
-        if team_b.upper() in val:
+        if team_b) in val:
             team_b_norm = key
     if team_a_norm == team_b_norm:
         return True
