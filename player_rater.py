@@ -16,11 +16,13 @@ def rate_fa(fa_list, ros_projection_list):
         None.
     """
     fa_player_list = []
-    for player_proj in ros_projection_list:
+    for player_proj, fa_player in zip(ros_projection_list, fa_list):
         if any(team_comparer(player_proj.team, fa_player['TEAM']) and
-               name_comparer(player_proj.name, fa_player['NAME'])
-               for fa_player in fa_list):
-            name = player_proj.name
+               name_comparer(player_proj.name, fa_player['NAME'])):
+    # for player_proj in ros_projection_list:
+    #     if any(team_comparer(player_proj.team, fa_player['TEAM']) and
+    #            name_comparer(player_proj.name, fa_player['NAME'])
+    #            for fa_player in fa_list):
             player_proj.isFA = True
             fa_player_list.append(player_proj)
     fa_above_repl = []
@@ -56,10 +58,13 @@ def rate_team(team_dict, ros_projection_list):
         None.
     """
     team_player_list = []
-    for player_proj in ros_projection_list:
+    for player_proj, roster_player in zip(ros_projection_list, team_dict['ROSTER']):
         if any(team_comparer(player_proj.team, roster_player['TEAM']) and
-               name_comparer(player_proj.name, roster_player['NAME'])
-               for roster_player in team_dict['ROSTER']):
+               name_comparer(player_proj.name, roster_player['NAME'])):
+    # for player_proj in ros_projection_list:
+    #     if any(team_comparer(player_proj.team, roster_player['TEAM']) and
+    #            name_comparer(player_proj.name, roster_player['NAME'])
+    #            for roster_player in team_dict['ROSTER']):
             team_player_list.append(player_proj)
     return team_player_list
 
@@ -149,10 +154,13 @@ def batting_roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
         None.
     """
     team_player_list = []
-    for player_proj in ros_projection_list:
+    for player_proj, roster_player in zip(ros_projection_list, team_dict['ROSTER']):
         if any(team_comparer(player_proj.team, roster_player['TEAM']) and
-               name_comparer(player_proj.name, roster_player['NAME'])
-               for roster_player in team_dict['ROSTER']):
+               name_comparer(player_proj.name, roster_player['NAME'])):
+    # for player_proj in ros_projection_list:
+    #     if any(team_comparer(player_proj.team, roster_player['TEAM']) and
+    #            name_comparer(player_proj.name, roster_player['NAME'])
+    #            for roster_player in team_dict['ROSTER']):
             team_player_list.append(player_proj)
     sorted(team_player_list, key=operator.attrgetter('dollarValue'))
     starting_batters = {}
@@ -249,10 +257,13 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
     for standing in current_stangings:
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
             current_ip += int(math.ceil(float(standing['StatsIP'])))
-    for player_proj in ros_projection_list:
+    for player_proj, roster_player in zip(ros_projection_list, team_dict['ROSTER']):
         if any(team_comparer(player_proj.team, roster_player['TEAM']) and
-               name_comparer(player_proj.name, roster_player['NAME'])
-               for roster_player in team_dict['ROSTER']):
+               name_comparer(player_proj.name, roster_player['NAME'])):
+    # for player_proj in ros_projection_list:
+    #     if any(team_comparer(player_proj.team, roster_player['TEAM']) and
+    #            name_comparer(player_proj.name, roster_player['NAME'])
+    #            for roster_player in team_dict['ROSTER']):
             team_player_list.append(player_proj)
     sorted(team_player_list, key=operator.attrgetter('dollarValue'))
     starting_pitchers = {}
@@ -333,15 +344,21 @@ def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_pr
                         name_comparer(pitcher.name, player['NAME'])
                         for pitcher in opt_pitchers)):
             bench_roster_list.append(player)
-    for player in ros_pitcher_projection_list:
-        if any(team_comparer(player.team, bench_player['TEAM']) and
-               name_comparer(player.name, bench_player['NAME'])
-               for bench_player in bench_roster_list):
+    for player_proj, bench_player in zip(ros_pitcher_projection_list, bench_roster_list):
+        if any(team_comparer(player_proj.team, bench_player['TEAM']) and
+               name_comparer(player_proj.name, bench_player['NAME'])):
+    # for player in ros_pitcher_projection_list:
+    #     if any(team_comparer(player.team, bench_player['TEAM']) and
+    #            name_comparer(player.name, bench_player['NAME'])
+    #            for bench_player in bench_roster_list):
             team_player_list.append(player)
-    for player in ros_batter_projection_list:
-        if any(team_comparer(player.team, bench_player['TEAM']) and
-               name_comparer(player.name, bench_player['NAME'])
-               for bench_player in bench_roster_list):
+    for player_proj, bench_player in zip(ros_batter_projection_list, bench_roster_list):
+        if any(team_comparer(player_proj.team, bench_player['TEAM']) and
+               name_comparer(player_proj.name, bench_player['NAME'])):
+    # for player in ros_batter_projection_list:
+    #     if any(team_comparer(player.team, bench_player['TEAM']) and
+    #            name_comparer(player.name, bench_player['NAME'])
+    #            for bench_player in bench_roster_list):
             team_player_list.append(player)
     bench_players = {}
     bench_players['pitchers'] = []
@@ -470,7 +487,7 @@ def rank_list(projected_final_stats_list):
     stat_ranker(projected_final_stats_list, "ERA", False)
     stat_ranker(projected_final_stats_list, "WHIP", False)
     for team in projected_final_stats_list:
-        team['PointsTotal'] = sum([value for key, value in team.items() if 'Points' in key])
+        team['PointsTotal'] = sum([value for key, value in team.iteritems() if 'Points' in key])
     projected_final_stats_list.sort(key=operator.itemgetter('PointsTotal'), reverse=True)
     return projected_final_stats_list
 
@@ -534,8 +551,8 @@ def league_volatility(sgp_dict, final_stats, factor=1):
     calc_volatility(sgp_dict, final_stats, "ERA", factor, True)
     calc_volatility(sgp_dict, final_stats, "WHIP", factor, True)
     for team in final_stats:
-        team['Total Upward Volatility'] = sum([value for key, value in team.items() if 'UpVol' in key])
-        team['Total Downward Volatility'] = sum([value for key, value in team.items() if 'DownVol' in key])
+        team['Total Upward Volatility'] = sum([value for key, value in team.iteritems() if 'UpVol' in key])
+        team['Total Downward Volatility'] = sum([value for key, value in team.iteritems() if 'DownVol' in key])
     return final_stats
 
 def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
