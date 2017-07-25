@@ -727,8 +727,8 @@ def name_comparer(name_a, name_b):
                  'sal':['sal', 'salvador'],
                  'al':['al', 'allen', 'alan', 'allan', 'albert'],
                  'vince':['vince', 'vincent']}
-    name_a = name_a.replace(".", "").lower())
-    name_b = name_b.replace(".", "").lower())
+    name_a = name_a.replace(".", "").lower()
+    name_b = name_b.replace(".", "").lower()
     name_a_groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', name_a)
     name_a_first = name_a_groups.group(1)
     name_a_last = name_a_groups.group(2)
@@ -783,7 +783,7 @@ def team_comparer(team_a, team_b):
                  'TOR':['TOR'],
                  'WAS':['WAS', 'WSH']}
     team_a = team_a.upper()
-    team_b = teams_b.upper()
+    team_b = team_b.upper()
     team_a_norm = "a"
     team_b_norm = "b"
     if team_a == team_b:
@@ -791,7 +791,7 @@ def team_comparer(team_a, team_b):
     for key, val in team_list.iteritems():
         if team_a in val:
             team_a_norm = key
-        if team_b) in val:
+        if team_b in val:
             team_b_norm = key
     if team_a_norm == team_b_norm:
         return True
