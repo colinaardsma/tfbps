@@ -4,6 +4,7 @@ import math
 import re
 import copy
 import collections
+import itertools
 
 def rate_fa(fa_list, ros_projection_list):
     """Compare available FAs with Projections\n
@@ -16,9 +17,9 @@ def rate_fa(fa_list, ros_projection_list):
         None.
     """
     fa_player_list = []
-    for player_proj, fa_player in zip(ros_projection_list, fa_list):
-        if any(team_comparer(player_proj.team, fa_player['TEAM']) and
-               name_comparer(player_proj.name, fa_player['NAME'])):
+    for player_proj, fa_player in itertools.product(ros_projection_list, fa_list):
+        if (team_comparer(player_proj.team, fa_player['TEAM']) and
+            name_comparer(player_proj.name, fa_player['NAME'])):
     # for player_proj in ros_projection_list:
     #     if any(team_comparer(player_proj.team, fa_player['TEAM']) and
     #            name_comparer(player_proj.name, fa_player['NAME'])
@@ -58,9 +59,9 @@ def rate_team(team_dict, ros_projection_list):
         None.
     """
     team_player_list = []
-    for player_proj, roster_player in zip(ros_projection_list, team_dict['ROSTER']):
-        if any(team_comparer(player_proj.team, roster_player['TEAM']) and
-               name_comparer(player_proj.name, roster_player['NAME'])):
+    for player_proj, roster_player in itertools.product(ros_projection_list, team_dict['ROSTER']):
+        if (team_comparer(player_proj.team, roster_player['TEAM']) and
+            name_comparer(player_proj.name, roster_player['NAME'])):
     # for player_proj in ros_projection_list:
     #     if any(team_comparer(player_proj.team, roster_player['TEAM']) and
     #            name_comparer(player_proj.name, roster_player['NAME'])
@@ -154,9 +155,9 @@ def batting_roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
         None.
     """
     team_player_list = []
-    for player_proj, roster_player in zip(ros_projection_list, team_dict['ROSTER']):
-        if any(team_comparer(player_proj.team, roster_player['TEAM']) and
-               name_comparer(player_proj.name, roster_player['NAME'])):
+    for player_proj, roster_player in itertools.product(ros_projection_list, team_dict['ROSTER']):
+        if (team_comparer(player_proj.team, roster_player['TEAM']) and
+            name_comparer(player_proj.name, roster_player['NAME'])):
     # for player_proj in ros_projection_list:
     #     if any(team_comparer(player_proj.team, roster_player['TEAM']) and
     #            name_comparer(player_proj.name, roster_player['NAME'])
@@ -257,9 +258,9 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
     for standing in current_stangings:
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
             current_ip += int(math.ceil(float(standing['StatsIP'])))
-    for player_proj, roster_player in zip(ros_projection_list, team_dict['ROSTER']):
-        if any(team_comparer(player_proj.team, roster_player['TEAM']) and
-               name_comparer(player_proj.name, roster_player['NAME'])):
+    for player_proj, roster_player in itertools.product(ros_projection_list, team_dict['ROSTER']):
+        if (team_comparer(player_proj.team, roster_player['TEAM']) and
+                name_comparer(player_proj.name, roster_player['NAME'])):
     # for player_proj in ros_projection_list:
     #     if any(team_comparer(player_proj.team, roster_player['TEAM']) and
     #            name_comparer(player_proj.name, roster_player['NAME'])
@@ -344,22 +345,22 @@ def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_pr
                         name_comparer(pitcher.name, player['NAME'])
                         for pitcher in opt_pitchers)):
             bench_roster_list.append(player)
-    for player_proj, bench_player in zip(ros_pitcher_projection_list, bench_roster_list):
-        if any(team_comparer(player_proj.team, bench_player['TEAM']) and
-               name_comparer(player_proj.name, bench_player['NAME'])):
+    for player_proj, bench_player in itertools.product(ros_pitcher_projection_list, bench_roster_list):
+        if (team_comparer(player_proj.team, bench_player['TEAM']) and
+            name_comparer(player_proj.name, bench_player['NAME'])):
     # for player in ros_pitcher_projection_list:
     #     if any(team_comparer(player.team, bench_player['TEAM']) and
     #            name_comparer(player.name, bench_player['NAME'])
     #            for bench_player in bench_roster_list):
-            team_player_list.append(player)
-    for player_proj, bench_player in zip(ros_batter_projection_list, bench_roster_list):
-        if any(team_comparer(player_proj.team, bench_player['TEAM']) and
-               name_comparer(player_proj.name, bench_player['NAME'])):
+            team_player_list.append(player_proj)
+    for player_proj, bench_player in itertools.product(ros_batter_projection_list, bench_roster_list):
+        if (team_comparer(player_proj.team, bench_player['TEAM']) and
+            name_comparer(player_proj.name, bench_player['NAME'])):
     # for player in ros_batter_projection_list:
     #     if any(team_comparer(player.team, bench_player['TEAM']) and
     #            name_comparer(player.name, bench_player['NAME'])
     #            for bench_player in bench_roster_list):
-            team_player_list.append(player)
+            team_player_list.append(player_proj)
     bench_players = {}
     bench_players['pitchers'] = []
     bench_players['batters'] = []
