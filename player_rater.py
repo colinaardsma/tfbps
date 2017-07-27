@@ -335,9 +335,9 @@ def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_pr
     opt_batters = list(sum(optimized_batters.values(), []))
     opt_pitchers = list(sum(optimized_pitchers.values(), []))
     for player in team_dict['ROSTER']:
-        if (not (normalizer.player_comparer(player, batter)
+        if (not any(normalizer.player_comparer(player, batter)
                  for batter in opt_batters) and
-                not (normalizer.player_comparer(player, pitcher)
+                not any(normalizer.player_comparer(player, pitcher)
                      for pitcher in opt_pitchers)):
             bench_roster_list.append(player)
     for player_proj, bench_player in itertools.product(ros_pitcher_projection_list, bench_roster_list):

@@ -127,10 +127,10 @@ def pitcher_projections():
     sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
     return sorted_proj
 
-# import time
-# start = time.time()
-# # print fa_vs_team(5091, "MachadoAboutNothing") #42sec #29sec
-# print final_standing_projection(5091) #21sec #5sec
-# end = time.time()
-# elapsed = end - start
-# print "{elapsed:.2f} seconds".format(elapsed=elapsed)
+import time
+start = time.time()
+# print fa_vs_team(5091, "MachadoAboutNothing") #42sec #29sec
+print final_standing_projection(5091) #21sec #5sec
+end = time.time()
+elapsed = end - start
+print "{elapsed:.2f} seconds".format(elapsed=elapsed)
