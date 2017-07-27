@@ -1,9 +1,12 @@
-"""Creating player models"""
+"""Create player models"""
+import normalizer
 
 class Batter(object):
     """The Batter Model"""
     # Descriptive Properties
     name = ""
+    normalized_first_name = ""
+    last_name = ""
     team = ""
     pos = ""
     # last_modified =
@@ -48,7 +51,10 @@ class Batter(object):
                  sbs=0, avg=0.000, ops=0.000):
         # Descriptive Properties
         self.name = str(name)
-        self.team = str(team)
+        norm_name = normalizer.name_normalizer(name)
+        self.normalized_first_name = str(norm_name['First'])
+        self.last_name = str(norm_name['Last'])
+        self.team = str(normalizer.team_normalizer(str(team)))
         self.pos = str(pos).split(",")
         # self.last_modified = last_modified
         self.category = str(category)
@@ -61,17 +67,12 @@ class Batter(object):
         self.avg = float(avg if avg != None else 0)
         self.ops = float(ops if ops != None else 0)
 
-    # def __getitem__(self, name):
-    #     return self.__dict__[name]
-
-    # def get_dollar_value(self):
-    #     """Return dollar value of player"""
-    #     return self.dollarValue
-
 class Pitcher(object):
     """The Pitcher Model"""
     # Descriptive Properties
     name = ""
+    normalized_first_name = ""
+    last_name = ""
     team = ""
     pos = ""
     is_sp = False
@@ -111,10 +112,13 @@ class Pitcher(object):
     isFA = False
 
     def __init__(self, name, team, pos, category, ips=0, wins=0, svs=0, sos=0,
-                 era=0.000, whip=0.000):
+                 era=0.00, whip=0.00):
         # Descriptive Properties
         self.name = str(name)
-        self.team = str(team)
+        norm_name = normalizer.name_normalizer(name)
+        self.normalized_first_name = str(norm_name['First'])
+        self.last_name = str(norm_name['Last'])
+        self.team = str(normalizer.team_normalizer(team))
         self.pos = str(pos).split(",")
         # self.last_modified = last_modified
         self.category = str(category)
@@ -129,10 +133,4 @@ class Pitcher(object):
         # SP Status
         self.is_sp = (False if 'SP' not in str(pos) or int(svs) > 0 or
                       float(wins) / float(ips) < 0.05 else True)
-
-    # def __getitem__(self, name):
-    #     return self.__dict__[name]
-
-    # def get_dollar_value(self):
-    #     """Return dollar value of player"""
-    #     return self.dollarValue
+    

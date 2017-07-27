@@ -8,6 +8,7 @@ try:
 except ImportError:
     import urllib2
     # pass
+import normalizer
 
 def html_to_document(url):
     """Get league standings\n
@@ -75,7 +76,10 @@ def fant_pro_player_dict_creator(single_player_html, headings_list_html):
             if name_team_pos[0] is None or name_team_pos[0] == " ()":
                 counter = len(single_player_html)
                 continue
-            single_player["NAME"] = name_team_pos[0].replace('.', '')
+            # norm_name = normalizer.name_normalizer(name_team_pos[0])
+            single_player["NAME"] = name_team_pos[0]
+            # single_player["NORMALIZED_FIRST_NAME"] = norm_name['First']
+            # single_player["LAST_NAME"] = norm_name['Last']
             single_player["TEAM"] = name_team_pos[2]
             name_team_pos[3] = name_team_pos[3].strip(" - ")
             name_team_pos[3] = name_team_pos[3].strip(")")
@@ -127,13 +131,14 @@ def yahoo_player_dict_creator(single_player_html, b_or_p):
     counter = 1
     counter_addition = 0
     if b_or_p == "B":
-        dict_key_list = ["STARRED", "NAME", "TEAM", "POS", "OWNER", "GP", "PRESEASON_RANK",
-                         "CURRENT_RANK", "PCT_OWN", "HAB", "R", "HR", "RBI", "SB", "OPS"]
-        counter_addition = 2
-    else:
-        dict_key_list = ["STARRED", "NAME", "TEAM", "POS", "OWNER", "GP", "PRESEASON_RANK",
-                         "CURRENT_RANK", "PCT_OWN", "IP", "W", "SV", "K", "ERA", "WHIP"]
+        dict_key_list = ["STARRED", "NAME", "NORMALIZED_FIRST_NAME", "LAST_NAME", "TEAM",
+                         "POS", "OWNER", "GP", "PRESEASON_RANK", "CURRENT_RANK", "PCT_OWN",
+                         "HAB", "R", "HR", "RBI", "SB", "OPS"]
         counter_addition = 1
+    else:
+        dict_key_list = ["STARRED", "NAME", "NORMALIZED_FIRST_NAME", "LAST_NAME", "TEAM",
+                         "POS", "OWNER", "GP", "PRESEASON_RANK", "CURRENT_RANK", "PCT_OWN",
+                         "IP", "W", "SV", "K", "ERA", "WHIP"]
     while counter < len(single_player_html) and counter < 15:
         if counter == 1:
             name = single_player_html[1].xpath("descendant::a[@class='Nowrap name F-link']" +
@@ -141,12 +146,15 @@ def yahoo_player_dict_creator(single_player_html, b_or_p):
             if name is None:
                 counter = len(single_player_html)
                 continue
-            single_player[dict_key_list[1]] = name.replace('.', '')
+            single_player[dict_key_list[1]] = name
             team_pos = single_player_html[1].xpath("descendant::span[@class='Fz-xxs']" +
                                                    "/text()")[0]
-            single_player[dict_key_list[2]] = team_pos.split(" - ")[0].upper()
-            single_player[dict_key_list[3]] = team_pos.split(" - ")[1]
-            counter = 6
+            norm_name = normalizer.name_normalizer(name)
+            single_player[dict_key_list[2]] = norm_name['First']
+            single_player[dict_key_list[3]] = norm_name['Last']
+            single_player[dict_key_list[4]] = team_pos.split(" - ")[0].upper()
+            single_player[dict_key_list[5]] = team_pos.split(" - ")[1]
+            counter = 9
             continue
         else:
             stat = single_player_html[counter + counter_addition].xpath("descendant::*/text()")
@@ -202,7 +210,10 @@ def yahoo_team_creator(single_team_html):
                 continue
             string_loc = player_team[0].find(" - ")
             player_team = player_team[0][:string_loc]
+            norm_name = normalizer.name_normalizer(player_name[0])
             player_dict['NAME'] = player_name[0]
+            player_dict["NORMALIZED_FIRST_NAME"] = norm_name['First']
+            player_dict["LAST_NAME"] = norm_name['Last']
             player_dict['TEAM'] = player_team.upper()
             # player = player.replace('.', '')
             roster.append(player_dict)

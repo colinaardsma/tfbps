@@ -129,8 +129,8 @@ def pitcher_projections():
 
 # import time
 # start = time.time()
-# print fa_vs_team(5091, "MachadoAboutNothing")
-# # print final_standing_projection(5091)
+# # print fa_vs_team(5091, "MachadoAboutNothing") #42sec #29sec
+# print final_standing_projection(5091) #21sec #5sec
 # end = time.time()
 # elapsed = end - start
 # print "{elapsed:.2f} seconds".format(elapsed=elapsed)
