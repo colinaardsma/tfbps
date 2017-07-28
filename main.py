@@ -71,8 +71,8 @@ class MainHandler(Handler):
 
 class BattingProjections(Handler):
     def render_batting_projections(self):
-        import fa_vs_team
-        players = fa_vs_team.batter_projections()
+        import team_tools_html
+        players = team_tools_html.batter_projections()
         self.render("spreadsheet.html", players=players, cat="batter")
 
     def get(self):
@@ -80,8 +80,8 @@ class BattingProjections(Handler):
 
 class PitchingProjections(Handler):
     def render_pitching_projections(self):
-        import fa_vs_team
-        players = fa_vs_team.pitcher_projections()
+        import team_tools_html
+        players = team_tools_html.pitcher_projections()
         self.render("spreadsheet.html", players=players, cat="pitcher")
 
     def get(self):
@@ -89,23 +89,24 @@ class PitchingProjections(Handler):
 
 class TeamToolsHandler(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name=""):
-        import fa_vs_team
+        import team_tools_html
         # fa rater
         if league_no == "" or team_name == "":
             top_fa = None
         else:
-            top_fa = fa_vs_team.fa_vs_team(league_no, team_name)
+            top_fa = team_tools_html.fa_finder(league_no, team_name)
+            team_name = top_fa['Team Name']
         # single player lookup
         if player_name == "":
             single_player = None
         else:
-            single_player = fa_vs_team.single_player_rater(player_name)
+            single_player = team_tools_html.single_player_rater(player_name)
         # final stanings projection
         if league_no == "" or (league_no != "" and team_name != ""):
             projected_standings = None
         else:
-            projected_standings = fa_vs_team.final_standing_projection(league_no)
-            
+            projected_standings = team_tools_html.final_standing_projection(league_no)
+             
         self.render("team_tools.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name)
 

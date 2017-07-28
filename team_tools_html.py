@@ -1,5 +1,6 @@
 """Interface with program here"""
-import operator
+# import operator
+import time
 import html_parser
 import player_rater
 import player_creator
@@ -42,7 +43,7 @@ ROS_PROJ_P_LIST = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVE
 # TEAM_LIST = html_parser.yahoo_teams(LEAGUE_NO)
 # LEAGUE_POS_DICT = html_parser.split_league_pos_types(LEAGUE_SETTINGS["Roster Positions:"])
 
-def fa_vs_team(league_no, team_name):
+def fa_finder(league_no, team_name):
     """Compare team player values with available FA player values\n
     Args:\n
         league_no: Yahoo! fantasy baseball league number.\n
@@ -56,13 +57,12 @@ def fa_vs_team(league_no, team_name):
     pitching_fa_list = html_parser.yahoo_fa(league_no, "P")
     batting_fa_list = html_parser.yahoo_fa(LEAGUE_NO, "B")
     avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ROS_PROJ_P_LIST)
-    team_pitching_values = player_rater.rate_team(html_parser.get_single_yahoo_team(league_no,
-                                                                                    team_name),
-                                                  ROS_PROJ_P_LIST)
+    yahoo_team = html_parser.get_single_yahoo_team(league_no, team_name)
+    team_pitching_values = player_rater.rate_team(yahoo_team, ROS_PROJ_P_LIST)
     avail_batting_fas = player_rater.rate_fa(batting_fa_list, ROS_PROJ_B_LIST)
-    team_batting_values = player_rater.rate_team(html_parser.get_single_yahoo_team(league_no,
-                                                                                   team_name),
-                                                 ROS_PROJ_B_LIST)
+    team_batting_values = player_rater.rate_team(yahoo_team, ROS_PROJ_B_LIST)
+
+    player_comp['Team Name'] = yahoo_team['TEAM_NAME']
     player_comp['Pitching FAs'] = avail_pitching_fas
     player_comp['Pitching Team'] = team_pitching_values
     player_comp['Batting FAs'] = avail_batting_fas
@@ -127,10 +127,9 @@ def pitcher_projections():
     sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
     return sorted_proj
 
-import time
-start = time.time()
-# print fa_vs_team(5091, "MachadoAboutNothing") #42sec #29sec
-print final_standing_projection(5091) #21sec #5sec
-end = time.time()
-elapsed = end - start
-print "{elapsed:.2f} seconds".format(elapsed=elapsed)
+# start = time.time()
+# print fa_finder(5091, "MachadoAboutNothing") #42sec #29sec
+# # print final_standing_projection(5091) #21sec #5sec
+# end = time.time()
+# elapsed = end - start
+# print "{elapsed:.2f} seconds".format(elapsed=elapsed)

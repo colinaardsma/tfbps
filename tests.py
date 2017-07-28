@@ -5,7 +5,7 @@ import html_parser
 import player_rater
 import player_creator
 import tests_long_variables
-# import fa_vs_team
+# import team_tools_html
 
 #VARIABLES
 WIN_ROS_BATTER_URL = r"file:///C:\dev\git\tfbps\testing html\2017 Rest of Season Fantasy Baseball Projections - Hitters.html"
@@ -86,7 +86,7 @@ FINAL_POINTS_PROJECTION = player_rater.rank_list(FINAL_STATS_PROJECTION)
 # print player_rater.rank_list(FINAL_STANDINGS_PROJECTION)
 # print html_parser.html_to_document(ROS_BATTER_URL)
 
-print FINAL_POINTS_PROJECTION
+# print FINAL_POINTS_PROJECTION
 # print fa_vs_team.batter_projections()
 # print PITCHER_LIST
 
