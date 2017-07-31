@@ -19,11 +19,11 @@ class BatterHTML(object):
     # last_modified =
     category = ""
     # Raw Stat Properties
-    atbats = 0
-    runs = 0
-    hrs = 0
-    rbis = 0
-    sbs = 0
+    atbats = 0.0
+    runs = 0.0
+    hrs = 0.0
+    rbis = 0.0
+    sbs = 0.0
     avg = 0.000
     ops = 0.000
     # Initial zScore Properties
@@ -54,8 +54,8 @@ class BatterHTML(object):
     # FA Status
     isFA = False
 
-    def __init__(self, name, team, pos, category, atbats=0, runs=0, hrs=0, rbis=0,
-                 sbs=0, avg=0.000, ops=0.000):
+    def __init__(self, name, team, pos, category, atbats=0.0, runs=0.0, hrs=0.0, rbis=0.0,
+                 sbs=0.0, avg=0.000, ops=0.000):
         # Descriptive Properties
         self.name = str(name)
         norm_name = normalizer.name_normalizer(name)
@@ -66,13 +66,13 @@ class BatterHTML(object):
         # self.last_modified = last_modified
         self.category = str(category)
         # Raw Stat Properties
-        self.atbats = int(atbats if atbats != None else 0)
-        self.runs = int(runs if runs != None else 0)
-        self.hrs = int(hrs if hrs != None else 0)
-        self.rbis = int(rbis if rbis != None else 0)
-        self.sbs = int(sbs if sbs != None else 0)
-        self.avg = float(avg if avg != None else 0)
-        self.ops = float(ops if ops != None else 0)
+        self.atbats = float(atbats if atbats != None else 0.0)
+        self.runs = float(runs if runs != None else 0.0)
+        self.hrs = float(hrs if hrs != None else 0.0)
+        self.rbis = float(rbis if rbis != None else 0.0)
+        self.sbs = float(sbs if sbs != None else 0.0)
+        self.avg = float(avg if avg != None else 0.0)
+        self.ops = float(ops if ops != None else 0.0)
 
 class PitcherHTML(object):
     """The Pitcher HTML Model"""
@@ -87,10 +87,10 @@ class PitcherHTML(object):
     category = ""
     # Raw Stat Properties
     ips = 0.0
-    wins = 0
-    svs = 0
-    sos = 0
-    era = 0
+    wins = 0.0
+    svs = 0.0
+    sos = 0.0
+    era = 0.0
     whip = 0.000
     kip = 0.000
     # Initial zScore Properties
@@ -118,7 +118,7 @@ class PitcherHTML(object):
     # FA Status
     isFA = False
 
-    def __init__(self, name, team, pos, category, ips=0, wins=0, svs=0, sos=0,
+    def __init__(self, name, team, pos, category, ips=0.0, wins=0.0, svs=0.0, sos=0.0,
                  era=0.00, whip=0.00):
         # Descriptive Properties
         self.name = str(name)
@@ -131,9 +131,9 @@ class PitcherHTML(object):
         self.category = str(category)
         # Raw Stat Properties
         self.ips = float(ips if ips != None else 0.0)
-        self.wins = int(wins if wins != None else 0)
-        self.svs = int(svs if svs != None else 0)
-        self.sos = int(sos if sos != None else 0)
+        self.wins = float(wins if wins != None else 0.0)
+        self.svs = float(svs if svs != None else 0.0)
+        self.sos = float(sos if sos != None else 0.0)
         self.era = float(era if era != None else 0.0)
         self.whip = float(whip if whip != None else 0.0)
         self.kip = float(sos) / float(ips) if sos != None and ips != None else 0.0
@@ -148,15 +148,15 @@ class BatterDB(db.Model):
     normalized_first_name = db.StringProperty()
     last_name = db.StringProperty()
     team = db.StringProperty(required=True)
-    pos = db.ListProperty(str, required=True)
+    pos = db.StringListProperty(required=True)
     last_modified = db.DateTimeProperty(auto_now=True)
     category = db.StringProperty(required=True)
     # Raw Stat Properties
-    atbats = db.IntegerProperty(required=True)
-    runs = db.IntegerProperty(required=True)
-    hrs = db.IntegerProperty(required=True)
-    rbis = db.IntegerProperty(required=True)
-    sbs = db.IntegerProperty(required=True)
+    atbats = db.FloatProperty(required=True)
+    runs = db.FloatProperty(required=True)
+    hrs = db.FloatProperty(required=True)
+    rbis = db.FloatProperty(required=True)
+    sbs = db.FloatProperty(required=True)
     avg = db.FloatProperty(required=True)
     ops = db.FloatProperty(required=True)
     # Initial zScore Properties
@@ -194,16 +194,18 @@ class PitcherDB(db.Model):
     normalized_first_name = db.StringProperty()
     last_name = db.StringProperty()
     team = db.StringProperty(required=True)
-    pos = db.ListProperty(str, required=True)
+    pos = db.StringListProperty(required=True)
+    is_sp = db.BooleanProperty()
     last_modified = db.DateTimeProperty(auto_now=True)
     category = db.StringProperty(required=True)
     # Raw Stat Properties
     ips = db.FloatProperty(required=True)
-    wins = db.IntegerProperty(required=True)
-    svs = db.IntegerProperty(required=True)
-    sos = db.IntegerProperty(required=True)
+    wins = db.FloatProperty(required=True)
+    svs = db.FloatProperty(required=True)
+    sos = db.FloatProperty(required=True)
     era = db.FloatProperty(required=True)
     whip = db.FloatProperty(required=True)
+    kip = db.FloatProperty()
     # Initial zScore Properties
     zScoreW = db.FloatProperty()
     zScoreSv = db.FloatProperty()

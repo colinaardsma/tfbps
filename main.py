@@ -82,6 +82,8 @@ class PitchingProjections(Handler):
     def render_pitching_projections(self):
         import team_tools_db
         players = team_tools_db.pitcher_projections()
+        print "********************"
+        print players[len(players)-1].name
         self.render("spreadsheet.html", players=players, cat="pitcher")
 
     def get(self):

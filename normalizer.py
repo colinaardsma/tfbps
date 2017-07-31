@@ -79,7 +79,8 @@ def team_normalizer(team):
                  'TB':['TB', 'TBA'],
                  'TEX':['TEX'],
                  'TOR':['TOR'],
-                 'WAS':['WAS', 'WSH']}
+                 'WAS':['WAS', 'WSH'],
+                 'NONE':['NONE']}
     team = team.upper()
     for key, val in team_list.iteritems():
         if team in val:

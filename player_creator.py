@@ -10,17 +10,18 @@ def create_full_batter(url):
     raw_batter_list = html_parser.fantasy_pro_players(url)
     batter_model_list = []
     for raw_batter in raw_batter_list:
-        if ((raw_batter.get("AB") is not None and int(raw_batter.get("AB")) == 0) or
+        if ((raw_batter.get("AB") is not None and float(raw_batter.get("AB")) == 0.0) or
                 (raw_batter.get("OPS") is not None and float(raw_batter.get("OPS")) == .000) or
-                (raw_batter.get("AVG") is not None and float(raw_batter.get("AVG")) == .000)):
+                (raw_batter.get("AVG") is not None and float(raw_batter.get("AVG")) == .000) or
+                raw_batter.get("NAME") is None):
             continue
         else:
             batter = player_models.BatterHTML(name=raw_batter.get("NAME"),
                                           team=raw_batter.get("TEAM"),
                                           pos=raw_batter.get("POS"), category="batter",
-                                          atbats=raw_batter.get("AB"), runs=raw_batter.get("R"),
-                                          hrs=raw_batter.get("HR"), rbis=raw_batter.get("RBI"),
-                                          sbs=raw_batter.get("SB"), avg=raw_batter.get("AVG"),
+                                          atbats=float(raw_batter.get("AB")), runs=float(raw_batter.get("R")),
+                                          hrs=float(raw_batter.get("HR")), rbis=float(raw_batter.get("RBI")),
+                                          sbs=float(raw_batter.get("SB")), avg=raw_batter.get("AVG"),
                                           ops=raw_batter.get("OPS"))
             batter_model_list.append(batter)
     return batter_model_list
@@ -152,14 +153,15 @@ def create_full_pitcher(url):
     for raw_pitcher in raw_pitcher_list:
         if ((raw_pitcher.get("IP") is not None and int(raw_pitcher.get("IP")) == 0) or
                 (raw_pitcher.get("ERA") is not None and float(raw_pitcher.get("ERA")) == 0.0) or
-                (raw_pitcher.get("WHIP") is not None and float(raw_pitcher.get("WHIP")) == 0.0)):
+                (raw_pitcher.get("WHIP") is not None and float(raw_pitcher.get("WHIP")) == 0.0) or
+                raw_pitcher.get("NAME") is None):
             continue
         else:
             pitcher = player_models.PitcherHTML(name=raw_pitcher.get("NAME"),
                                             team=raw_pitcher.get("TEAM"),
                                             pos=raw_pitcher.get("POS"), category="pitcher",
-                                            ips=raw_pitcher.get("IP"), wins=raw_pitcher.get("W"),
-                                            svs=raw_pitcher.get("SV"), sos=raw_pitcher.get("K"),
+                                            ips=float(raw_pitcher.get("IP")), wins=float(raw_pitcher.get("W")),
+                                            svs=float(raw_pitcher.get("SV")), sos=float(raw_pitcher.get("K")),
                                             era=raw_pitcher.get("ERA"),
                                             whip=raw_pitcher.get("WHIP"))
             pitcher_model_list.append(pitcher)

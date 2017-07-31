@@ -82,8 +82,6 @@ def single_player_rater(player_name):
         None.
     """
     player = player_rater.single_player_rater(player_name, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST)
-    print "*****************"
-    print ROS_PROJ_P_LIST[0].name
     player_stats = ""
     if any("P" in pos for pos in player.pos):
         player_stats = ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
@@ -118,12 +116,14 @@ def final_standing_projection(league_no):
     return ranked_standings
 
 def batter_projections():
-    projections = ROS_PROJ_B_LIST
+    # projections = ROS_PROJ_B_LIST
+    projections = queries.get_batters()
     # sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
     return projections
 
 def pitcher_projections():
-    projections = ROS_PROJ_P_LIST
+    # projections = ROS_PROJ_P_LIST
+    projections = queries.get_pitchers()
     # sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
     return projections
 

@@ -6,6 +6,7 @@ import copy
 import collections
 import itertools
 import normalizer
+import queries
 
 def rate_fa(fa_list, ros_projection_list):
     """Compare available FAs with Projections\n
@@ -429,20 +430,19 @@ def single_player_rater(player_name, ros_batter_projection_list, ros_pitcher_pro
         None.
     """
     player = None
+    norm_player_name = normalizer.name_normalizer(player_name)
     player_name = player_name.lower()
-    for player_proj in ros_pitcher_projection_list:
-        norm_name = str("{player_proj.normalized_first_name} {player_proj.last_name}".format(player_proj=player_proj))
-        print "################"
-        print norm_name
-        if player_name == player_proj.name or player_name == norm_name:
-            player = player_proj
+    player = queries.get_single_batter(norm_player_name)
     if player is None:
-        for player_proj in ros_batter_projection_list:
-            norm_name = str("{player_proj.normalized_first_name} {player_proj.last_name}".format(player_proj=player_proj))
-            print "################"
-            print norm_name
-            if player_name == player_proj.name or player_name == norm_name:
-                player = player_proj
+        player = queries.get_single_pitcher(norm_player_name)
+    # for player_proj in ros_pitcher_projection_list:
+    #     if player_name == player_proj.name or player_name == norm_name:
+    #         player = player_proj
+    # if player is None:
+    #     for player_proj in ros_batter_projection_list:
+    #         norm_name = "{player_proj.normalized_first_name} {player_proj.last_name}".format(player_proj=player_proj)
+    #         if player_name == player_proj.name or player_name == norm_name:
+    #             player = player_proj
     return player
 
 def final_stats_projection(team_list, ros_proj_b_list, ros_proj_p_list,

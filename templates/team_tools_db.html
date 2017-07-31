@@ -37,12 +37,12 @@
               <td>{{pitcher.name}}</td>
               <td>{{pitcher.team}}</td>
               <td>{{pitcher.pos}}</td>
-              <td>{{pitcher.wins}}</td>
-              <td>{{pitcher.svs}}</td>
-              <td>{{pitcher.sos}}</td>
-              <td>{{pitcher.era}}</td>
-              <td>{{pitcher.whip}}</td>
-              <td>{{pitcher.ips}}</td>
+              <td>{{'%0.0f' % pitcher.wins}}</td>
+              <td>{{'%0.0f' % pitcher.svs}}</td>
+              <td>{{'%0.0f' % pitcher.sos}}</td>
+              <td>{{'%0.2f' % pitcher.era}}</td>
+              <td>{{'%0.2f' % pitcher.whip}}</td>
+              <td>{{'%0.0f' % pitcher.ips}}</td>
               <td>{{'%0.2f' % pitcher.kip}}</td>
             </tr>
           {%- endfor %}
@@ -70,12 +70,12 @@
               <td>{{pitcher.name}}</td>
               <td>{{pitcher.team}}</td>
               <td>{{pitcher.pos}}</td>
-              <td>{{pitcher.wins}}</td>
-              <td>{{pitcher.svs}}</td>
-              <td>{{pitcher.sos}}</td>
-              <td>{{pitcher.era}}</td>
-              <td>{{pitcher.whip}}</td>
-              <td>{{pitcher.ips}}</td>
+              <td>{{'%0.0f' % pitcher.wins}}</td>
+              <td>{{'%0.0f' % pitcher.svs}}</td>
+              <td>{{'%0.0f' % pitcher.sos}}</td>
+              <td>{{'%0.2f' % pitcher.era}}</td>
+              <td>{{'%0.2f' % pitcher.whip}}</td>
+              <td>{{'%0.0f' % pitcher.ips}}</td>
               <td>{{'%0.2f' % pitcher.kip}}</td>
             </tr>
           {%- endfor %}
@@ -101,11 +101,11 @@
               <td>{{batter.name}}</td>
               <td>{{batter.team}}</td>
               <td>{{batter.pos}}</td>
-              <td>{{batter.runs}}</td>
-              <td>{{batter.hrs}}</td>
-              <td>{{batter.rbis}}</td>
-              <td>{{batter.sbs}}</td>
-              <td>{{batter.ops}}</td>
+              <td>{{'%0.0f' % batter.runs}}</td>
+              <td>{{'%0.0f' % batter.hrs}}</td>
+              <td>{{'%0.0f' % batter.rbis}}</td>
+              <td>{{'%0.0f' % batter.sbs}}</td>
+              <td>{{'%0.3f' % batter.ops}}</td>
             </tr>
           {%- endfor %}
         </tbody>
@@ -130,11 +130,11 @@
               <td>{{batter.name}}</td>
               <td>{{batter.team}}</td>
               <td>{{batter.pos}}</td>
-              <td>{{batter.runs}}</td>
-              <td>{{batter.hrs}}</td>
-              <td>{{batter.rbis}}</td>
-              <td>{{batter.sbs}}</td>
-              <td>{{batter.ops}}</td>
+              <td>{{'%0.0f' % batter.runs}}</td>
+              <td>{{'%0.0f' % batter.hrs}}</td>
+              <td>{{'%0.0f' % batter.rbis}}</td>
+              <td>{{'%0.0f' % batter.sbs}}</td>
+              <td>{{'%0.3f' % batter.ops}}</td>
             </tr>
           {%- endfor %}
         </tbody>

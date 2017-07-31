@@ -35,19 +35,19 @@
           <td>{{player.pos}}</td>
           <!-- <td>{{player.sgp}}</td> -->
         {%- if cat == "batter" %}
-          <td>{{player.atbats}}</td>
-          <td>{{player.runs}}</td>
-          <td>{{player.hrs}}</td>
-          <td>{{player.rbis}}</td>
-          <td>{{player.sbs}}</td>
-          <td>{{player.ops}}</td>
+          <td>{{'%0.0f' % player.atbats}}</td>
+          <td>{{'%0.0f' % player.runs}}</td>
+          <td>{{'%0.0f' % player.hrs}}</td>
+          <td>{{'%0.0f' % player.rbis}}</td>
+          <td>{{'%0.0f' % player.sbs}}</td>
+          <td>{{'%0.3f' % player.ops}}</td>
         {%- elif cat == "pitcher" %}
-          <td>{{player.ips}}</td>
-          <td>{{player.wins}}</td>
-          <td>{{player.svs}}</td>
-          <td>{{player.sos}}</td>
-          <td>{{player.era}}</td>
-          <td>{{player.whip}}</td>
+          <td>{{'%0.0f' % player.ips}}</td>
+          <td>{{'%0.0f' % player.wins}}</td>
+          <td>{{'%0.0f' % player.svs}}</td>
+          <td>{{'%0.0f' % player.sos}}</td>
+          <td>{{'%0.2f' % player.era}}</td>
+          <td>{{'%0.2f' % player.whip}}</td>
           <td>{{'%0.2f' % player.kip}}</td>          
         {%- endif %}
         </tr>

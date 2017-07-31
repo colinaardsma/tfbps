@@ -71,14 +71,17 @@ def fant_pro_player_dict_creator(single_player_html, headings_list_html):
             if name_team_pos[0] is None or name_team_pos[0] == " ()":
                 counter = len(single_player_html)
                 continue
-            # norm_name = normalizer.name_normalizer(name_team_pos[0])
             single_player["NAME"] = name_team_pos[0]
-            # single_player["NORMALIZED_FIRST_NAME"] = norm_name['First']
-            # single_player["LAST_NAME"] = norm_name['Last']
-            single_player["TEAM"] = name_team_pos[2]
-            name_team_pos[3] = name_team_pos[3].strip(" - ")
-            name_team_pos[3] = name_team_pos[3].strip(")")
-            single_player["POS"] = name_team_pos[3]
+            if len(name_team_pos) >= 3:
+                single_player["TEAM"] = name_team_pos[2].replace(u'\xa0', u' ')
+            else:
+                single_player["TEAM"] = "NONE"
+            if len(name_team_pos) >= 4:
+                name_team_pos[3] = name_team_pos[3].strip(" - ")
+                name_team_pos[3] = name_team_pos[3].strip(")")
+                single_player["POS"] = name_team_pos[3].replace(u'\xa0', u' ')
+            else:
+                single_player["POS"] = "NONE"
         else:
             stat = single_player_html[counter].xpath("self::*/text()")
             if len(stat) != 0:
