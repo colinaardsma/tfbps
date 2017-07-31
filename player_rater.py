@@ -431,11 +431,16 @@ def single_player_rater(player_name, ros_batter_projection_list, ros_pitcher_pro
     player = None
     player_name = player_name.lower()
     for player_proj in ros_pitcher_projection_list:
-        norm_name = player_proj.normalized_first_name + " " + player_proj.last_name
+        norm_name = str("{player_proj.normalized_first_name} {player_proj.last_name}".format(player_proj=player_proj))
+        print "################"
+        print norm_name
         if player_name == player_proj.name or player_name == norm_name:
             player = player_proj
     if player is None:
         for player_proj in ros_batter_projection_list:
+            norm_name = str("{player_proj.normalized_first_name} {player_proj.last_name}".format(player_proj=player_proj))
+            print "################"
+            print norm_name
             if player_name == player_proj.name or player_name == norm_name:
                 player = player_proj
     return player

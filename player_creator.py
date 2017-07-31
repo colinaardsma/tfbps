@@ -15,9 +15,9 @@ def create_full_batter(url):
                 (raw_batter.get("AVG") is not None and float(raw_batter.get("AVG")) == .000)):
             continue
         else:
-            batter = player_models.Batter(name=raw_batter.get("NAME"),
+            batter = player_models.BatterHTML(name=raw_batter.get("NAME"),
                                           team=raw_batter.get("TEAM"),
-                                          pos=raw_batter.get("POS"), category="FantProBatter",
+                                          pos=raw_batter.get("POS"), category="batter",
                                           atbats=raw_batter.get("AB"), runs=raw_batter.get("R"),
                                           hrs=raw_batter.get("HR"), rbis=raw_batter.get("RBI"),
                                           sbs=raw_batter.get("SB"), avg=raw_batter.get("AVG"),
@@ -127,9 +127,9 @@ def calc_batter_z_score(batter_list, players_over_zero_dollars, one_dollar_playe
         if batter.fvaaz >= fvaaz_list_over_one[players_over_one_dollar - 1]:
             batter.dollarValue = batter.fvaaz * dollar_per_fvaaz
         elif batter.fvaaz >= fvaaz_list_over_zero[players_over_zero_dollars - 1]:
-            batter.dollarValue = 1
+            batter.dollarValue = 1.0
         else:
-            batter.dollarValue = 0
+            batter.dollarValue = 0.0
     # print ("Run Avg: " + str(r_avg) + "\nRun StDev: " + str(r_std_dev) + "\nHr Avg: " +
     #        str(hr_avg) + "\nHr StDev: " + str(hr_std_dev) + "\nRBI Avg: " + str(rbi_avg) +
     #        "\nRBI StDev: " + str(rbi_std_dev) + "\nsb Avg: " + str(sb_avg) + "\nsb StDev: " +
@@ -155,9 +155,9 @@ def create_full_pitcher(url):
                 (raw_pitcher.get("WHIP") is not None and float(raw_pitcher.get("WHIP")) == 0.0)):
             continue
         else:
-            pitcher = player_models.Pitcher(name=raw_pitcher.get("NAME"),
+            pitcher = player_models.PitcherHTML(name=raw_pitcher.get("NAME"),
                                             team=raw_pitcher.get("TEAM"),
-                                            pos=raw_pitcher.get("POS"), category="FantProPitcher",
+                                            pos=raw_pitcher.get("POS"), category="pitcher",
                                             ips=raw_pitcher.get("IP"), wins=raw_pitcher.get("W"),
                                             svs=raw_pitcher.get("SV"), sos=raw_pitcher.get("K"),
                                             era=raw_pitcher.get("ERA"),
@@ -275,9 +275,9 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
         if pitcher.fvaaz >= fvaaz_list_over_one[players_over_one_dollar - 1]:
             pitcher.dollarValue = pitcher.fvaaz * dollar_per_fvaaz
         elif pitcher.fvaaz >= fvaaz_list_over_zero[players_over_zero_dollars - 1]:
-            pitcher.dollarValue = 1
+            pitcher.dollarValue = 1.0
         else:
-            pitcher.dollarValue = 0
+            pitcher.dollarValue = 0.0
     # print ("win Avg: " + str(w_avg) + "\nwin StDev: " + str(w_std_dev) + "\nsv Avg: " +
     #        str(sv_avg) + "\nsv StDev: " + str(sv_std_dev) + "\nk Avg: " + str(k_avg) +
     #        "\nk StDev: " + str(k_std_dev) + "\nera Avg: " + str(era_avg) + "\nera StDev: " +

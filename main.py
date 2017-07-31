@@ -71,8 +71,8 @@ class MainHandler(Handler):
 
 class BattingProjections(Handler):
     def render_batting_projections(self):
-        import team_tools_html
-        players = team_tools_html.batter_projections()
+        import team_tools_db
+        players = team_tools_db.batter_projections()
         self.render("spreadsheet.html", players=players, cat="batter")
 
     def get(self):
@@ -80,14 +80,14 @@ class BattingProjections(Handler):
 
 class PitchingProjections(Handler):
     def render_pitching_projections(self):
-        import team_tools_html
-        players = team_tools_html.pitcher_projections()
+        import team_tools_db
+        players = team_tools_db.pitcher_projections()
         self.render("spreadsheet.html", players=players, cat="pitcher")
 
     def get(self):
         self.render_pitching_projections()
 
-class TeamToolsHandler(Handler):
+class TeamToolsHTML(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name=""):
         import team_tools_html
         # fa rater
@@ -106,8 +106,8 @@ class TeamToolsHandler(Handler):
             projected_standings = None
         else:
             projected_standings = team_tools_html.final_standing_projection(league_no)
-             
-        self.render("team_tools.html", top_fa=top_fa, single_player=single_player,
+
+        self.render("team_tools_html.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name)
 
     def get(self):
@@ -119,6 +119,46 @@ class TeamToolsHandler(Handler):
         player_name = self.request.get("player_name")
         self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name)
 
+class TeamToolsDB(Handler):
+    def render_fa_rater(self, league_no="", team_name="", player_name=""):
+        import team_tools_db
+        # fa rater
+        if league_no == "" or team_name == "":
+            top_fa = None
+        else:
+            top_fa = team_tools_db.fa_finder(league_no, team_name)
+            team_name = top_fa['Team Name']
+        # single player lookup
+        if player_name == "":
+            single_player = None
+        else:
+            single_player = team_tools_db.single_player_rater(player_name)
+        # final stanings projection
+        if league_no == "" or (league_no != "" and team_name != ""):
+            projected_standings = None
+        else:
+            projected_standings = team_tools_db.final_standing_projection(league_no)
+        # update db projections
+
+        self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
+                    projected_standings=projected_standings, team_name=team_name)
+
+    def get(self):
+        self.render_fa_rater()
+
+    def post(self):
+        league_no = self.request.get("league_no")
+        team_name = self.request.get("team_name")
+        player_name = self.request.get("player_name")
+        self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name)
+
+class UpdateProjections(Handler):
+    def get(self):
+        import team_tools_db
+        team_tools_db.pull_batters()
+        team_tools_db.pull_pitchers()
+        self.redirect("/team_tools_db")
+
 class Oauth(Handler):
     def get(self):
         self.redirect(api_connector.request_auth())
@@ -129,6 +169,7 @@ class Redirect(Handler):
 
     def get(self):
         self.render_redirect()
+
 # routing
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
@@ -138,6 +179,8 @@ app = webapp2.WSGIApplication([
     ('/redirect/?', Redirect),
     ('/batting_projections/?', BattingProjections),
     ('/pitching_projections/?', PitchingProjections),
-    ('/team_tools/?', TeamToolsHandler)
+    ('/team_tools_html/?', TeamToolsHTML),
+    ('/team_tools_db/?', TeamToolsDB),
+    ('/update_projections/?', UpdateProjections)
     ], debug=True)
     

@@ -1,9 +1,16 @@
 """Interface with program here"""
 # import operator
 import time
+# next 3 lines are for running locally
+import sys
+sys.path.append('/usr/local/google_appengine/')
+sys.path.append('/usr/local/google_appengine/lib/yaml/lib/')
+from google.appengine.ext import db
 import html_parser
 import player_rater
 import player_creator
+import player_models
+import queries
 
 # https://developer.yahoo.com/fantasysports/guide/players-collection.html
 # https://www.mysportsfeeds.com
@@ -27,14 +34,9 @@ SGP_DICT = {'R SGP': 19.16666667, 'HR SGP': 11.5, 'RBI SGP': 20.83333333, 'SB SG
             'ERA SGP': -0.08444444444, 'WHIP SGP': -0.01666666667}
 
 # dynamic variables
-BATTER_LIST = player_creator.create_full_batter(ROS_BATTER_URL)
-PITCHER_LIST = player_creator.create_full_pitcher(ROS_PITCHER_URL)
-ROS_PROJ_B_LIST = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
-                                                     ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
-                                                     B_PLAYER_POOL_MULT)
-ROS_PROJ_P_LIST = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
-                                                      ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
-                                                      P_PLAYER_POOL_MULT)
+ROS_PROJ_B_LIST = queries.get_batters()
+ROS_PROJ_P_LIST = queries.get_pitchers()
+
 # variable defined within methods
 # BATTER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "B")
 # PITCHER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "P")
@@ -80,6 +82,8 @@ def single_player_rater(player_name):
         None.
     """
     player = player_rater.single_player_rater(player_name, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST)
+    print "*****************"
+    print ROS_PROJ_P_LIST[0].name
     player_stats = ""
     if any("P" in pos for pos in player.pos):
         player_stats = ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
@@ -114,22 +118,46 @@ def final_standing_projection(league_no):
     return ranked_standings
 
 def batter_projections():
-    projections = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
-                                                     ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
-                                                     B_PLAYER_POOL_MULT)
-    sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
-    return sorted_proj
+    projections = ROS_PROJ_B_LIST
+    # sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
+    return projections
 
 def pitcher_projections():
-    projections = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
-                                                      ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
-                                                      P_PLAYER_POOL_MULT)
-    sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
-    return sorted_proj
+    projections = ROS_PROJ_P_LIST
+    # sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
+    return projections
 
-print batter_projections()
+def pull_batters():
+    batter_list = player_creator.create_full_batter(ROS_BATTER_URL)
+    #delete all records from database before rebuidling
+    if player_models.BatterDB:
+        batter_query = player_models.BatterDB.all() # .all() = "SELECT *"
+        db.delete(batter_query)
+    batters = player_creator.calc_batter_z_score(batter_list, BATTERS_OVER_ZERO_DOLLARS,
+                                                 ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
+                                                 B_PLAYER_POOL_MULT)
+    for batter in batters:
+        player_models.store_batter(batter)
+
+
+
+def pull_pitchers():
+    pitcher_list = player_creator.create_full_pitcher(ROS_PITCHER_URL)
+    #delete all records from database before rebuidling
+    if player_models.PitcherDB:
+        pitcher_query = player_models.PitcherDB.all() # .all() = "SELECT *"
+        db.delete(pitcher_query)
+    pitchers = player_creator.calc_pitcher_z_score(pitcher_list, PITCHERS_OVER_ZERO_DOLLARS,
+                                                   ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
+                                                   P_PLAYER_POOL_MULT)
+    for pitcher in pitchers:
+        player_models.store_pitcher(pitcher)
+
+
+# print pull_batters()
 # start = time.time()
-# print fa_finder(5091, "MachadoAboutNothing") #42sec #29sec
+# print single_player_rater("mike trout")
+# # print fa_finder(5091, "MachadoAboutNothing") #42sec #29sec
 # # print final_standing_projection(5091) #21sec #5sec
 # end = time.time()
 # elapsed = end - start

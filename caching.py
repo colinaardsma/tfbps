@@ -4,6 +4,27 @@ from dbmodels import Users, FPProjB, FPProjP #import classes from python file na
 from google.appengine.api import memcache
 
 # stat retrieval methods
+def get_cached_batter(update=False):
+    key = "batter" # create key
+    sheet = memcache.get(key) # search memcache for data at key, set data to sheet
+    if sheet is None or update: # if nothing in memcache (or if update is called) run gql query and set memcache
+        sheet = gqlqueries.get_fpprojb()
+        memcache.set(key, sheet)
+    return sheet
+
+def get_cached_pitcher(update=False):
+    key = "pitcher" # create key
+    sheet = memcache.get(key) # search memcache for data at key, set data to sheet
+    if sheet is None or update: # if nothing in memcache (or if update is called) run gql query and set memcache
+        sheet = gqlqueries.get_fpprojp()
+        memcache.set(key, sheet)
+    return sheet
+
+
+
+
+
+# stat retrieval methods
 def cached_get_fpprojb(update=False):
     key = "fpprojb" # create key
     sheet = memcache.get(key) # search memcache for data at key, set data to sheet

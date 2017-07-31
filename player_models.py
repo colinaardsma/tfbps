@@ -1,8 +1,15 @@
-"""Create player models"""
+"""Player models"""
+# next 3 lines are for running locally
+import sys
+sys.path.append('/usr/local/google_appengine/')
+sys.path.append('/usr/local/google_appengine/lib/yaml/lib/')
+from google.appengine.ext import db
 import normalizer
+# sys.path.insert(0, '//Users/colinaardsma/google_appengine')
+#define columns of database objects
 
-class Batter(object):
-    """The Batter Model"""
+class BatterHTML(object):
+    """The Batter HTML Model"""
     # Descriptive Properties
     name = ""
     normalized_first_name = ""
@@ -67,8 +74,8 @@ class Batter(object):
         self.avg = float(avg if avg != None else 0)
         self.ops = float(ops if ops != None else 0)
 
-class Pitcher(object):
-    """The Pitcher Model"""
+class PitcherHTML(object):
+    """The Pitcher HTML Model"""
     # Descriptive Properties
     name = ""
     normalized_first_name = ""
@@ -133,4 +140,130 @@ class Pitcher(object):
         # SP Status
         self.is_sp = (False if 'SP' not in str(pos) or int(svs) > 0 or
                       float(wins) / float(ips) < 0.05 else True)
-    
+
+class BatterDB(db.Model):
+    """The Batter Database Model"""
+    # Descriptive Properties
+    name = db.StringProperty(required=True)
+    normalized_first_name = db.StringProperty()
+    last_name = db.StringProperty()
+    team = db.StringProperty(required=True)
+    pos = db.ListProperty(str, required=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
+    category = db.StringProperty(required=True)
+    # Raw Stat Properties
+    atbats = db.IntegerProperty(required=True)
+    runs = db.IntegerProperty(required=True)
+    hrs = db.IntegerProperty(required=True)
+    rbis = db.IntegerProperty(required=True)
+    sbs = db.IntegerProperty(required=True)
+    avg = db.FloatProperty(required=True)
+    ops = db.FloatProperty(required=True)
+    # Initial zScore Properties
+    zScoreR = db.FloatProperty()
+    zScoreHr = db.FloatProperty()
+    zScoreRbi = db.FloatProperty()
+    zScoreSb = db.FloatProperty()
+    zScoreAvg = db.FloatProperty()
+    zScoreOps = db.FloatProperty()
+    # Weighted (Multiplied by AB) Properties
+    weightedR = db.FloatProperty()
+    weightedHr = db.FloatProperty()
+    weightedRbi = db.FloatProperty()
+    weightedSb = db.FloatProperty()
+    weightedAvg = db.FloatProperty()
+    weightedOps = db.FloatProperty()
+    # Weighted and RezScored Properties
+    weightedZscoreR = db.FloatProperty()
+    weightedZscoreHr = db.FloatProperty()
+    weightedZscoreRbi = db.FloatProperty()
+    weightedZscoreSb = db.FloatProperty()
+    weightedZscoreAvg = db.FloatProperty()
+    weightedZscoreOps = db.FloatProperty()
+    # Values
+    fvaaz = db.FloatProperty()
+    dollarValue = db.FloatProperty()
+    keeper = db.FloatProperty()
+    # FA Status
+    isFA = db.BooleanProperty()
+
+class PitcherDB(db.Model):
+    """The Pitcher Database Model"""
+    # Descriptive Properties
+    name = db.StringProperty(required=True)
+    normalized_first_name = db.StringProperty()
+    last_name = db.StringProperty()
+    team = db.StringProperty(required=True)
+    pos = db.ListProperty(str, required=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
+    category = db.StringProperty(required=True)
+    # Raw Stat Properties
+    ips = db.FloatProperty(required=True)
+    wins = db.IntegerProperty(required=True)
+    svs = db.IntegerProperty(required=True)
+    sos = db.IntegerProperty(required=True)
+    era = db.FloatProperty(required=True)
+    whip = db.FloatProperty(required=True)
+    # Initial zScore Properties
+    zScoreW = db.FloatProperty()
+    zScoreSv = db.FloatProperty()
+    zScoreK = db.FloatProperty()
+    zScoreEra = db.FloatProperty()
+    zScoreWhip = db.FloatProperty()
+    # Weighted (Multiplied by IP) Properties
+    weightedW = db.FloatProperty()
+    weightedSv = db.FloatProperty()
+    weightedK = db.FloatProperty()
+    weightedEra = db.FloatProperty()
+    weightedWhip = db.FloatProperty()
+    # Weighted and RezScored Properties
+    weightedZscoreW = db.FloatProperty()
+    weightedZscoreSv = db.FloatProperty()
+    weightedZscoreK = db.FloatProperty()
+    weightedZscoreEra = db.FloatProperty()
+    weightedZscoreWhip = db.FloatProperty()
+    # Values
+    fvaaz = db.FloatProperty()
+    dollarValue = db.FloatProperty()
+    keeper = db.FloatProperty()
+    # FA Status
+    isFA = db.BooleanProperty()
+
+def store_batter(batter):
+    batter = BatterDB(name=batter.name, normalized_first_name=batter.normalized_first_name,
+                      last_name=batter.last_name, team=batter.team, pos=batter.pos,
+                      category=batter.category, atbats=batter.atbats, runs=batter.runs,
+                      hrs=batter.hrs, rbis=batter.rbis, sbs=batter.sbs, avg=batter.avg,
+                      ops=batter.ops, zScoreR=batter.zScoreR, zScoreHr=batter.zScoreHr,
+                      zScoreRbi=batter.zScoreRbi, zScoreSb=batter.zScoreSb,
+                      zScoreAvg=batter.zScoreAvg, zScoreOps=batter.zScoreOps,
+                      weightedR=batter.weightedR, weightedHr=batter.weightedHr,
+                      weightedRbi=batter.weightedRbi, weightedSb=batter.weightedSb,
+                      weightedAvg=batter.weightedAvg, weightedOps=batter.weightedOps,
+                      weightedZscoreR=batter.weightedZscoreR,
+                      weightedZscoreHr=batter.weightedZscoreHr,
+                      weightedZscoreRbi=batter.weightedZscoreRbi,
+                      weightedZscoreSb=batter.weightedZscoreSb,
+                      weightedZscoreAvg=batter.weightedZscoreAvg,
+                      weightedZscoreOps=batter.weightedZscoreOps, fvaaz=batter.fvaaz,
+                      dollarValue=batter.dollarValue, keeper=batter.keeper, isFA=batter.isFA)
+    batter.put()
+
+def store_pitcher(pitcher):
+    pitcher = PitcherDB(name=pitcher.name, normalized_first_name=pitcher.normalized_first_name,
+                        last_name=pitcher.last_name, team=pitcher.team, pos=pitcher.pos,
+                        is_sp=pitcher.is_sp, category=pitcher.category, ips=pitcher.ips,
+                        wins=pitcher.wins, svs=pitcher.svs, sos=pitcher.sos, era=pitcher.era,
+                        whip=pitcher.whip, kip=pitcher.kip, zScoreW=pitcher.zScoreW,
+                        zScoreSv=pitcher.zScoreSv, zScoreK=pitcher.zScoreK,
+                        zScoreEra=pitcher.zScoreEra, zScoreWhip=pitcher.zScoreWhip,
+                        weightedW=pitcher.weightedW, weightedSv=pitcher.weightedSv,
+                        weightedK=pitcher.weightedK, weightedEra=pitcher.weightedEra,
+                        weightedWhip=pitcher.weightedWhip, weightedZscoreW=pitcher.weightedZscoreW,
+                        weightedZscoreSv=pitcher.weightedZscoreSv,
+                        weightedZscoreK=pitcher.weightedZscoreK,
+                        weightedZscoreEra=pitcher.weightedZscoreEra,
+                        weightedZscoreWhip=pitcher.weightedZscoreWhip,
+                        fvaaz=pitcher.fvaaz, dollarValue=pitcher.dollarValue, keeper=pitcher.keeper,
+                        isFA=pitcher.isFA)
+    pitcher.put()

@@ -2,11 +2,11 @@
 import unicodedata
 from lxml import html
 URL_FETCH = False
-try:
-    from google.appengine.api import urlfetch
-    URL_FETCH = True
-except ImportError:
-    import urllib2
+# try:
+#     from google.appengine.api import urlfetch
+#     URL_FETCH = True
+# except ImportError:
+import urllib2
     # pass
 import normalizer
 
@@ -19,17 +19,12 @@ def html_to_document(url):
     Raises:\n
         None.
     """
-    # headers = {'':''}
     if URL_FETCH:
         request = urlfetch.fetch(url)
         content = request.content.decode('utf-8')
     else:
         request = urllib2.Request(url)
         content = urllib2.urlopen(request).read().decode('utf-8')
-    # request.headers.pop('Host', None)
-    # request.unredirected_hdrs.pop('Host', None)
-    # request.has_header = lambda header_name: (True if header_name == 'Host' else
-    #                                   urllib2.Request.has_header(request, header_name))
     decoded_content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
     document = html.document_fromstring(decoded_content)
     return document
