@@ -81,7 +81,8 @@ def single_player_rater(player_name):
     Raises:\n
         None.
     """
-    player = player_rater.single_player_rater(player_name, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST)
+    player_list = player_rater.single_player_rater_db(player_name, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST)
+    player = player_list[0]
     player_stats = ""
     if any("P" in pos for pos in player.pos):
         player_stats = ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +

@@ -79,7 +79,7 @@ def single_player_rater(player_name):
     Raises:\n
         None.
     """
-    player = player_rater.single_player_rater(player_name, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST)
+    player = player_rater.single_player_rater_html(player_name, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST)
     player_stats = ""
     if any("P" in pos for pos in player.pos):
         player_stats = ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
@@ -127,7 +127,6 @@ def pitcher_projections():
     sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
     return sorted_proj
 
-print batter_projections()
 # start = time.time()
 # print fa_finder(5091, "MachadoAboutNothing") #42sec #29sec
 # # print final_standing_projection(5091) #21sec #5sec

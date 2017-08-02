@@ -2,11 +2,11 @@
 import unicodedata
 from lxml import html
 URL_FETCH = False
-# try:
-#     from google.appengine.api import urlfetch
-#     URL_FETCH = True
-# except ImportError:
-import urllib2
+try:
+    from google.appengine.api import urlfetch
+    URL_FETCH = True
+except ImportError:
+    import urllib2
     # pass
 import normalizer
 
@@ -367,10 +367,3 @@ def split_league_pos_types(league_roster_pos):
     league_roster_pos_dict["DL POS"] = dl_pos
     league_roster_pos_dict["NA POS"] = na_pos
     return league_roster_pos_dict
-
-# print split_leauge_pos_types(get_league_settings(5091)["Roster Positions:"])
-
-
-
-# print single_team_standing_dict(LEAGUE_NO, CURRENT_STANDINGS)
-# print yahoo_fa(5091, "b")

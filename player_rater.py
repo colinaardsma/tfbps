@@ -418,7 +418,32 @@ def bench_batter(player):
     batter.sbs *= stat_pct
     return batter
 
-def single_player_rater(player_name, ros_batter_projection_list, ros_pitcher_projection_list):
+def single_player_rater_html(player_name, ros_batter_projection_list, ros_pitcher_projection_list):
+    """Searches for and returns rating of and individual player\n
+    Args:\n
+        player_name: name of the player to search for.\n
+        ros_batter_projection_list: Rest of Season batter projection list.\n
+        ros_pitcher_projection_list: Rest of Season pitcher projection list.\n
+    Returns:\n
+        rated player object.\n
+    Raises:\n
+        None.
+    """
+    player = None
+    norm_player_name = normalizer.name_normalizer(player_name)
+    player_name = player_name.lower()
+    for player_proj in ros_pitcher_projection_list:
+        if (norm_player_name['First'] == player_proj.normalized_first_name and
+                norm_player_name['Last'] == player_proj.last_name):
+            player = player_proj
+    if player is None:
+        for player_proj in ros_batter_projection_list:
+            if (norm_player_name['First'] == player_proj.normalized_first_name and
+                    norm_player_name['Last'] == player_proj.last_name):
+                player = player_proj
+    return player
+
+def single_player_rater_db(player_name, ros_batter_projection_list, ros_pitcher_projection_list):
     """Searches for and returns rating of and individual player\n
     Args:\n
         player_name: name of the player to search for.\n
@@ -433,16 +458,8 @@ def single_player_rater(player_name, ros_batter_projection_list, ros_pitcher_pro
     norm_player_name = normalizer.name_normalizer(player_name)
     player_name = player_name.lower()
     player = queries.get_single_batter(norm_player_name)
-    if player is None:
+    if not player:
         player = queries.get_single_pitcher(norm_player_name)
-    # for player_proj in ros_pitcher_projection_list:
-    #     if player_name == player_proj.name or player_name == norm_name:
-    #         player = player_proj
-    # if player is None:
-    #     for player_proj in ros_batter_projection_list:
-    #         norm_name = "{player_proj.normalized_first_name} {player_proj.last_name}".format(player_proj=player_proj)
-    #         if player_name == player_proj.name or player_name == norm_name:
-    #             player = player_proj
     return player
 
 def final_stats_projection(team_list, ros_proj_b_list, ros_proj_p_list,
