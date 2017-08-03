@@ -566,8 +566,8 @@ def league_volatility(sgp_dict, final_stats, factor=1):
     calc_volatility(sgp_dict, final_stats, "W", factor)
     calc_volatility(sgp_dict, final_stats, "SV", factor)
     calc_volatility(sgp_dict, final_stats, "K", factor)
-    calc_volatility(sgp_dict, final_stats, "ERA", factor, True)
-    calc_volatility(sgp_dict, final_stats, "WHIP", factor, True)
+    calc_volatility(sgp_dict, final_stats, "ERA", factor, False)
+    calc_volatility(sgp_dict, final_stats, "WHIP", factor, False)
     for team in final_stats:
         team['Total Upward Volatility'] = sum([value for key, value in team.iteritems() if 'UpVol' in key])
         team['Total Downward Volatility'] = sum([value for key, value in team.iteritems() if 'DownVol' in key])
