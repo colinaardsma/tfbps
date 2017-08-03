@@ -4,6 +4,7 @@ import api_connector
 import jinja2
 import hashing
 import caching
+import time
 
 # setup jinja2
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
@@ -120,7 +121,7 @@ class TeamToolsHTML(Handler):
         self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name)
 
 class TeamToolsDB(Handler):
-    def render_fa_rater(self, league_no="", team_name="", player_name=""):
+    def render_fa_rater(self, league_no="", team_name="", player_name="", update=""):
         import team_tools_db
         # fa rater
         if league_no == "" or team_name == "":
@@ -138,10 +139,18 @@ class TeamToolsDB(Handler):
             projected_standings = None
         else:
             projected_standings = team_tools_db.final_standing_projection(league_no)
-        # update db projections
+        # update projections
+        if update == "":
+            elapsed = None
+        else:
+            start = time.time()
+            team_tools_db.pull_batters()
+            team_tools_db.pull_pitchers()
+            end = time.time()
+            elapsed = end - start
 
         self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
-                    projected_standings=projected_standings, team_name=team_name)
+                    projected_standings=projected_standings, team_name=team_name, elapsed=elapsed)
 
     def get(self):
         self.render_fa_rater()
@@ -150,13 +159,21 @@ class TeamToolsDB(Handler):
         league_no = self.request.get("league_no")
         team_name = self.request.get("team_name")
         player_name = self.request.get("player_name")
-        self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name)
+        update = self.request.get("update")
+        self.render_fa_rater(league_no=league_no, team_name=team_name,
+                             player_name=player_name, update=update)
 
 class UpdateProjections(Handler):
+    def render_update_projections(self, elapsed=""):
+        self.render
+
     def get(self):
+        start = time.time()
         import team_tools_db
         team_tools_db.pull_batters()
         team_tools_db.pull_pitchers()
+        end = time.time()
+        elapsed = end - start
         self.redirect("/team_tools_db")
 
 class Oauth(Handler):

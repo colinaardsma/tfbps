@@ -5,9 +5,13 @@
     {%- if not single_player and not top_fa and not projected_standings%}
       <h2>Update Database Player Projections</h2>
       <td>
-        <form action="/update_projections">
+        <form method="post">
+          <input type="hidden" name="update" value="true">
           <button>Update Projections</button>
         </form>
+        {%- if elapsed%}
+        <h6>Updated in {{'%0.2f' % elapsed}} seconds</h6>
+        {%- endif %}
       </td>
     {%- endif %}
   </div>
