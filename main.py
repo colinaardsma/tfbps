@@ -146,6 +146,7 @@ class TeamToolsDB(Handler):
             start = time.time()
             team_tools_db.pull_batters()
             team_tools_db.pull_pitchers()
+            # team_tools_db.pull_players()
             end = time.time()
             elapsed = end - start
 

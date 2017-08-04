@@ -249,7 +249,8 @@ def store_batter(batter):
                       weightedZscoreAvg=batter.weightedZscoreAvg,
                       weightedZscoreOps=batter.weightedZscoreOps, fvaaz=batter.fvaaz,
                       dollarValue=batter.dollarValue, keeper=batter.keeper, isFA=batter.isFA)
-    batter.put()
+    return batter
+    # db.put_async(batter)
 
 def store_pitcher(pitcher):
     pitcher = PitcherDB(name=pitcher.name, normalized_first_name=pitcher.normalized_first_name,
@@ -268,4 +269,5 @@ def store_pitcher(pitcher):
                         weightedZscoreWhip=pitcher.weightedZscoreWhip,
                         fvaaz=pitcher.fvaaz, dollarValue=pitcher.dollarValue, keeper=pitcher.keeper,
                         isFA=pitcher.isFA)
-    pitcher.put()
+    return pitcher
+    # db.put_async(pitcher)

@@ -11,6 +11,7 @@ import player_rater
 import player_creator
 import player_models
 import queries
+import logging
 
 # https://developer.yahoo.com/fantasysports/guide/players-collection.html
 # https://www.mysportsfeeds.com
@@ -33,9 +34,9 @@ SGP_DICT = {'R SGP': 19.16666667, 'HR SGP': 11.5, 'RBI SGP': 20.83333333, 'SB SG
             'OPS SGP': 0.005055555556, 'W SGP': 3.277777778, 'SV SGP': 10.44444444, 'K SGP': 42.5,
             'ERA SGP': -0.08444444444, 'WHIP SGP': -0.01666666667}
 
-# dynamic variables
-ROS_PROJ_B_LIST = queries.get_batters()
-ROS_PROJ_P_LIST = queries.get_pitchers()
+# # dynamic variables
+# ROS_PROJ_B_LIST = queries.get_batters()
+# ROS_PROJ_P_LIST = queries.get_pitchers()
 
 # variable defined within methods
 # BATTER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "B")
@@ -55,14 +56,17 @@ def fa_finder(league_no, team_name):
     Raises:\n
         None.
     """
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
+
     player_comp = {}
     pitching_fa_list = html_parser.yahoo_fa(league_no, "P")
     batting_fa_list = html_parser.yahoo_fa(LEAGUE_NO, "B")
-    avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ROS_PROJ_P_LIST)
+    avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ros_proj_p_list)
     yahoo_team = html_parser.get_single_yahoo_team(league_no, team_name)
-    team_pitching_values = player_rater.rate_team(yahoo_team, ROS_PROJ_P_LIST)
-    avail_batting_fas = player_rater.rate_fa(batting_fa_list, ROS_PROJ_B_LIST)
-    team_batting_values = player_rater.rate_team(yahoo_team, ROS_PROJ_B_LIST)
+    team_pitching_values = player_rater.rate_team(yahoo_team, ros_proj_p_list)
+    avail_batting_fas = player_rater.rate_fa(batting_fa_list, ros_proj_b_list)
+    team_batting_values = player_rater.rate_team(yahoo_team, ros_proj_b_list)
 
     player_comp['Team Name'] = yahoo_team['TEAM_NAME']
     player_comp['Pitching FAs'] = avail_pitching_fas
@@ -81,7 +85,10 @@ def single_player_rater(player_name):
     Raises:\n
         None.
     """
-    player_list = player_rater.single_player_rater_db(player_name, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST)
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
+
+    player_list = player_rater.single_player_rater_db(player_name, ros_proj_b_list, ros_proj_p_list)
     player = player_list[0]
     player_stats = ""
     if any("P" in pos for pos in player.pos):
@@ -105,12 +112,15 @@ def final_standing_projection(league_no):
     Raises:\n
         None.
     """
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
+
     league_settings = html_parser.get_league_settings(league_no)
     current_standings = html_parser.get_standings(league_no, int(league_settings['Max Teams:']))
     team_list = html_parser.yahoo_teams(league_no)
     league_post_dict = html_parser.split_league_pos_types(league_settings["Roster Positions:"])
-    final_stats = player_rater.final_stats_projection(team_list, ROS_PROJ_B_LIST,
-                                                      ROS_PROJ_P_LIST, league_post_dict,
+    final_stats = player_rater.final_stats_projection(team_list, ros_proj_b_list,
+                                                      ros_proj_p_list, league_post_dict,
                                                       current_standings, league_settings)
     volatility_standings = player_rater.league_volatility(SGP_DICT, final_stats)
     ranked_standings = player_rater.rank_list(volatility_standings)
@@ -129,30 +139,103 @@ def pitcher_projections():
     return projections
 
 def pull_batters():
+    start = time.time()
     batter_list = player_creator.create_full_batter(ROS_BATTER_URL)
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\nBatter Creation in %f seconds", elapsed)
+
     #delete all records from database before rebuidling
-    if player_models.BatterDB:
-        batter_query = player_models.BatterDB.all() # .all() = "SELECT *"
-        db.delete(batter_query)
+    # if player_models.BatterDB:
+    start = time.time()
+    batter_query = player_models.BatterDB.all(keys_only=True) #.run() #.fetch(limit=1000) # .all() = "SELECT *"
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\nBatter Get for Deletion in %f seconds", elapsed)
+
+    start = time.time()
+    db.delete_async(batter_query)
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\nBatter Deletion in %f seconds", elapsed)
+
+    start = time.time()
     batters = player_creator.calc_batter_z_score(batter_list, BATTERS_OVER_ZERO_DOLLARS,
                                                  ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
                                                  B_PLAYER_POOL_MULT)
+    batter_models = []
     for batter in batters:
-        player_models.store_batter(batter)
-
+        batter_model = player_models.store_batter(batter)
+        batter_models.append(batter_model)
+    db.put_async(batter_models)
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\nBatter DB in %f seconds", elapsed)
 
 
 def pull_pitchers():
+    start = time.time()
     pitcher_list = player_creator.create_full_pitcher(ROS_PITCHER_URL)
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\nPitcher Creation in %f seconds", elapsed)
+
     #delete all records from database before rebuidling
-    if player_models.PitcherDB:
-        pitcher_query = player_models.PitcherDB.all() # .all() = "SELECT *"
-        db.delete(pitcher_query)
+    # if player_models.PitcherDB:
+    start = time.time()
+    pitcher_query = player_models.PitcherDB.all(keys_only=True) #.run() #.fetch(limit=1000) # .all() = "SELECT *"
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\nPitcher Get for Deletion in %f seconds", elapsed)
+
+    start = time.time()
+    db.delete_async(pitcher_query)
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\nPitcher Deletion in %f seconds", elapsed)
+
+    start = time.time()
     pitchers = player_creator.calc_pitcher_z_score(pitcher_list, PITCHERS_OVER_ZERO_DOLLARS,
                                                    ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
                                                    P_PLAYER_POOL_MULT)
+    pitcher_models = []
     for pitcher in pitchers:
-        player_models.store_pitcher(pitcher)
+        pitcher_model = player_models.store_pitcher(pitcher)
+        pitcher_models.append(pitcher_model)
+    db.put_async(pitcher_models)
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\nPitcher DB in %f seconds", elapsed)
+
+    
+def pull_players():
+    pitcher_list = player_creator.create_full_pitcher(ROS_PITCHER_URL)
+    batter_list = player_creator.create_full_batter(ROS_BATTER_URL)
+    #delete all records from database before rebuidling
+    # if player_models.PitcherDB:
+    pitcher_query = player_models.PitcherDB.all() # .all() = "SELECT *"
+    # if player_models.BatterDB:
+    batter_query = player_models.BatterDB.all() # .all() = "SELECT *"
+    pitchers = player_creator.calc_pitcher_z_score(pitcher_list, PITCHERS_OVER_ZERO_DOLLARS,
+                                                   ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
+                                                   P_PLAYER_POOL_MULT)
+    batters = player_creator.calc_batter_z_score(batter_list, BATTERS_OVER_ZERO_DOLLARS,
+                                                 ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
+                                                 B_PLAYER_POOL_MULT)
+    pitcher_models = []
+    for pitcher in pitchers:
+        pitcher_model = player_models.store_pitcher(pitcher)
+        pitcher_models.append(pitcher_model)
+    batter_models = []
+    for batter in batters:
+        batter_model = player_models.store_batter(batter)
+        batter_models.append(batter_model)
+    
+    db.delete_async(pitcher_query)
+    db.delete_async(batter_query)
+    db.put_async(pitcher_models)
+    db.put_async(batter_models)
+
 
 
 # print pull_batters()
