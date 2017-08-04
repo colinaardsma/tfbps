@@ -250,8 +250,7 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
     # Calculate Values
     fvaaz_list = []
     for pitcher in pitcher_list:
-        # TODO: fix win threshold
-        if u"SP" not in pitcher.pos or (u"RP" in pitcher.pos and pitcher.winsip < 0.06):
+        if "SP" not in pitcher.pos or ("RP" in pitcher.pos and pitcher.winsip < 0.06):
             pitcher.fvaaz = (pitcher.weightedZscoreSv + pitcher.weightedZscoreK +
                              pitcher.weightedZscoreEra + pitcher.weightedZscoreWhip)
         else:
