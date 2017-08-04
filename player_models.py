@@ -91,8 +91,9 @@ class PitcherHTML(object):
     svs = 0.0
     sos = 0.0
     era = 0.0
-    whip = 0.000
-    kip = 0.000
+    whip = 0.00
+    kip = 0.00
+    winsip = 0.000
     # Initial zScore Properties
     zScoreW = 0.000
     zScoreSv = 0.000
@@ -137,6 +138,7 @@ class PitcherHTML(object):
         self.era = float(era if era != None else 0.0)
         self.whip = float(whip if whip != None else 0.0)
         self.kip = float(sos) / float(ips) if sos != None and ips != None else 0.0
+        self.winsip = float(wins) / float(ips) if wins != None and ips != None else 0.0
         # SP Status
         self.is_sp = (False if 'SP' not in str(pos) or int(svs) > 0 or
                       float(wins) / float(ips) < 0.05 else True)
@@ -206,6 +208,7 @@ class PitcherDB(db.Model):
     era = db.FloatProperty(required=True)
     whip = db.FloatProperty(required=True)
     kip = db.FloatProperty()
+    winsip = db.FloatProperty()
     # Initial zScore Properties
     zScoreW = db.FloatProperty()
     zScoreSv = db.FloatProperty()
@@ -257,12 +260,13 @@ def store_pitcher(pitcher):
                         last_name=pitcher.last_name, team=pitcher.team, pos=pitcher.pos,
                         is_sp=pitcher.is_sp, category=pitcher.category, ips=pitcher.ips,
                         wins=pitcher.wins, svs=pitcher.svs, sos=pitcher.sos, era=pitcher.era,
-                        whip=pitcher.whip, kip=pitcher.kip, zScoreW=pitcher.zScoreW,
-                        zScoreSv=pitcher.zScoreSv, zScoreK=pitcher.zScoreK,
-                        zScoreEra=pitcher.zScoreEra, zScoreWhip=pitcher.zScoreWhip,
-                        weightedW=pitcher.weightedW, weightedSv=pitcher.weightedSv,
-                        weightedK=pitcher.weightedK, weightedEra=pitcher.weightedEra,
-                        weightedWhip=pitcher.weightedWhip, weightedZscoreW=pitcher.weightedZscoreW,
+                        whip=pitcher.whip, kip=pitcher.kip, winsip=pitcher.winsip, 
+                        zScoreW=pitcher.zScoreW, zScoreSv=pitcher.zScoreSv,
+                        zScoreK=pitcher.zScoreK, zScoreEra=pitcher.zScoreEra,
+                        zScoreWhip=pitcher.zScoreWhip, weightedW=pitcher.weightedW,
+                        weightedSv=pitcher.weightedSv, weightedK=pitcher.weightedK,
+                        weightedEra=pitcher.weightedEra, weightedWhip=pitcher.weightedWhip,
+                        weightedZscoreW=pitcher.weightedZscoreW,
                         weightedZscoreSv=pitcher.weightedZscoreSv,
                         weightedZscoreK=pitcher.weightedZscoreK,
                         weightedZscoreEra=pitcher.weightedZscoreEra,

@@ -17,12 +17,12 @@ def create_full_batter(url):
             continue
         else:
             batter = player_models.BatterHTML(name=raw_batter.get("NAME"),
-                                          team=raw_batter.get("TEAM"),
-                                          pos=raw_batter.get("POS"), category="batter",
-                                          atbats=float(raw_batter.get("AB")), runs=float(raw_batter.get("R")),
-                                          hrs=float(raw_batter.get("HR")), rbis=float(raw_batter.get("RBI")),
-                                          sbs=float(raw_batter.get("SB")), avg=raw_batter.get("AVG"),
-                                          ops=raw_batter.get("OPS"))
+                                              team=raw_batter.get("TEAM"),
+                                              pos=raw_batter.get("POS"), category="batter",
+                                              atbats=float(raw_batter.get("AB")), runs=float(raw_batter.get("R")),
+                                              hrs=float(raw_batter.get("HR")), rbis=float(raw_batter.get("RBI")),
+                                              sbs=float(raw_batter.get("SB")), avg=raw_batter.get("AVG"),
+                                              ops=raw_batter.get("OPS"))
             batter_model_list.append(batter)
     return batter_model_list
 
@@ -131,18 +131,6 @@ def calc_batter_z_score(batter_list, players_over_zero_dollars, one_dollar_playe
             batter.dollarValue = 1.0
         else:
             batter.dollarValue = 0.0
-    # print ("Run Avg: " + str(r_avg) + "\nRun StDev: " + str(r_std_dev) + "\nHr Avg: " +
-    #        str(hr_avg) + "\nHr StDev: " + str(hr_std_dev) + "\nRBI Avg: " + str(rbi_avg) +
-    #        "\nRBI StDev: " + str(rbi_std_dev) + "\nsb Avg: " + str(sb_avg) + "\nsb StDev: " +
-    #        str(sb_std_dev) + "\nops Avg: " + str(ops_avg) + "\nops StDev: " + str(ops_std_dev) +
-    #        "\nweighted_Run Avg: " + str(weighted_r_avg) + "\nweighted_Run StDev: " +
-    #        str(weighted_r_std_dev) + "\nweighted_Hr Avg: " + str(weighted_hr_avg) +
-    #        "\nweighted_Hr StDev: " + str(weighted_hr_std_dev) + "\nweighted_RBI Avg: " +
-    #        str(weighted_rbi_avg) + "\nweighted_RBI StDev: " + str(weighted_rbi_std_dev) +
-    #        "\nweighted_sb Avg: " + str(weighted_sb_avg) + "\nweighted_sb StDev: " +
-    #        str(weighted_sb_std_dev) + "\nweighted_ops Avg: " + str(weighted_ops_avg) +
-    #        "\nweighted_ops StDev: " + str(weighted_ops_std_dev))
-    # return batter_list.sort(key=player_models.Batter.get_dollar_value)
     return sorted(batter_list, key=operator.attrgetter('fvaaz'), reverse=True)
         # sorts by fvaaz (largest to smallest)
 
@@ -158,12 +146,12 @@ def create_full_pitcher(url):
             continue
         else:
             pitcher = player_models.PitcherHTML(name=raw_pitcher.get("NAME"),
-                                            team=raw_pitcher.get("TEAM"),
-                                            pos=raw_pitcher.get("POS"), category="pitcher",
-                                            ips=float(raw_pitcher.get("IP")), wins=float(raw_pitcher.get("W")),
-                                            svs=float(raw_pitcher.get("SV")), sos=float(raw_pitcher.get("K")),
-                                            era=raw_pitcher.get("ERA"),
-                                            whip=raw_pitcher.get("WHIP"))
+                                                team=raw_pitcher.get("TEAM"),
+                                                pos=raw_pitcher.get("POS"), category="pitcher",
+                                                ips=float(raw_pitcher.get("IP")), wins=float(raw_pitcher.get("W")),
+                                                svs=float(raw_pitcher.get("SV")), sos=float(raw_pitcher.get("K")),
+                                                era=raw_pitcher.get("ERA"),
+                                                whip=raw_pitcher.get("WHIP"))
             pitcher_model_list.append(pitcher)
     return pitcher_model_list
 
@@ -262,7 +250,8 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
     # Calculate Values
     fvaaz_list = []
     for pitcher in pitcher_list:
-        if "SP" not in pitcher.pos or ("RP" in pitcher.pos and pitcher.wins < 8):
+        # TODO: fix win threshold
+        if u"SP" not in pitcher.pos or (u"RP" in pitcher.pos and pitcher.winsip < 0.06):
             pitcher.fvaaz = (pitcher.weightedZscoreSv + pitcher.weightedZscoreK +
                              pitcher.weightedZscoreEra + pitcher.weightedZscoreWhip)
         else:
@@ -280,18 +269,5 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
             pitcher.dollarValue = 1.0
         else:
             pitcher.dollarValue = 0.0
-    # print ("win Avg: " + str(w_avg) + "\nwin StDev: " + str(w_std_dev) + "\nsv Avg: " +
-    #        str(sv_avg) + "\nsv StDev: " + str(sv_std_dev) + "\nk Avg: " + str(k_avg) +
-    #        "\nk StDev: " + str(k_std_dev) + "\nera Avg: " + str(era_avg) + "\nera StDev: " +
-    #        str(era_std_dev) + "\nwhip Avg: " + str(whip_avg) + "\nwhip StDev: " +
-    #        str(whip_std_dev) +
-    #        "\nweighted_win Avg: " + str(weighted_w_avg) + "\nweighted_win StDev: " +
-    #        str(weighted_w_std_dev) + "\nweighted_sv Avg: " + str(weighted_sv_avg) +
-    #        "\nweighted_sv StDev: " + str(weighted_sv_std_dev) + "\nweighted_k Avg: " +
-    #        str(weighted_k_avg) + "\nweighted_k StDev: " + str(weighted_k_std_dev) +
-    #        "\nweighted_era Avg: " + str(weighted_era_avg) + "\nweighted_era StDev: " +
-    #        str(weighted_era_std_dev) + "\nweighted_whip Avg: " + str(weighted_whip_avg) +
-    #        "\nweighted_whip StDev: " + str(weighted_whip_std_dev))
-    # return pitcher_list.sort(key=player_models.pitcher.get_dollar_value)
     return sorted(pitcher_list, key=operator.attrgetter('fvaaz'), reverse=True)
         # sorts by fvaaz (largest to smallest)
