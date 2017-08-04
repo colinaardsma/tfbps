@@ -566,8 +566,8 @@ def league_volatility(sgp_dict, final_stats, factor=1):
     calc_volatility(sgp_dict, final_stats, "W", factor)
     calc_volatility(sgp_dict, final_stats, "SV", factor)
     calc_volatility(sgp_dict, final_stats, "K", factor)
-    calc_volatility(sgp_dict, final_stats, "ERA", factor, True)
-    calc_volatility(sgp_dict, final_stats, "WHIP", factor, True)
+    calc_volatility(sgp_dict, final_stats, "ERA", factor, False)
+    calc_volatility(sgp_dict, final_stats, "WHIP", factor, False)
     for team in final_stats:
         team['Total Upward Volatility'] = sum([value for key, value in team.iteritems() if 'UpVol' in key])
         team['Total Downward Volatility'] = sum([value for key, value in team.iteritems() if 'DownVol' in key])
@@ -602,12 +602,12 @@ def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
         j = i - 1
         k = i + 1
         current_team_stat = final_stats[i][stats_title]
-        while (j > 0 and (abs(final_stats[j][stats_title] - current_team_stat) <= sgp)):
+        while (j > 0 and (abs(final_stats[j][stats_title] - current_team_stat) <= abs(sgp))):
             if final_stats[j][stats_title] - current_team_stat == sgp:
                 up_counter -= .5
             j -= 1
             up_counter += 1
-        while (k < list_length and (abs(current_team_stat - final_stats[k][stats_title]) <= sgp)):
+        while (k < list_length and (abs(current_team_stat - final_stats[k][stats_title]) <= abs(sgp))):
             if current_team_stat - final_stats[k][stats_title] == sgp:
                 down_counter -= .5
             k += 1
