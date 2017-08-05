@@ -124,6 +124,16 @@ class TeamToolsHTML(Handler):
 class TeamToolsDB(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name="", update=""):
         import team_tools_db
+        # update projections
+        if update == "":
+            elapsed = None
+        else:
+            start = time.time()
+            team_tools_db.pull_batters()
+            team_tools_db.pull_pitchers()
+            # team_tools_db.pull_players()
+            end = time.time()
+            elapsed = end - start
         # fa rater
         if league_no == "" or team_name == "":
             top_fa = None
@@ -145,16 +155,6 @@ class TeamToolsDB(Handler):
             projected_standings = None
         else:
             projected_standings = team_tools_db.final_standing_projection(league_no)
-        # update projections
-        if update == "":
-            elapsed = None
-        else:
-            start = time.time()
-            team_tools_db.pull_batters()
-            team_tools_db.pull_pitchers()
-            # team_tools_db.pull_players()
-            end = time.time()
-            elapsed = end - start
 
         self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name, elapsed=elapsed)
