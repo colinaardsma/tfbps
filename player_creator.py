@@ -171,8 +171,9 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
         win_list.append(pitcher.wins)
         sv_list.append(pitcher.svs)
         k_list.append(pitcher.sos)
-        era_list.append(pitcher.era)
-        whip_list.append(pitcher.whip)
+        # TODO: is dividing by 15 the best route here?
+        era_list.append(pitcher.era * (pitcher.ips / 15))
+        whip_list.append(pitcher.whip * (pitcher.ips / 15))
     win_list_nlargest = heapq.nlargest(player_pool, win_list)
     sv_list_nlargest = heapq.nlargest(player_pool, sv_list)
     k_list_nlargest = heapq.nlargest(player_pool, k_list)
@@ -251,6 +252,7 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
     # Calculate Values
     fvaaz_list = []
     for pitcher in pitcher_list:
+        # TODO: is 0.06 the best cutoff?
         if "SP" not in pitcher.pos or ("RP" in pitcher.pos and pitcher.winsip < 0.06):
             pitcher.fvaaz = (pitcher.weightedZscoreSv + pitcher.weightedZscoreK +
                              pitcher.weightedZscoreEra + pitcher.weightedZscoreWhip)
@@ -258,9 +260,6 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
             pitcher.fvaaz = (pitcher.weightedZscoreW + pitcher.weightedZscoreSv +
                              pitcher.weightedZscoreK + pitcher.weightedZscoreEra +
                              pitcher.weightedZscoreWhip)
-        # TODO: there must be a smarter way of devaluing low IP pitchers
-        if pitcher.ips / max_ip < 0.1:
-            pitcher.fvaaz *= 0.1
         fvaaz_list.append(pitcher.fvaaz)
     players_over_one_dollar = players_over_zero_dollars - one_dollar_players
     fvaaz_list_over_zero = heapq.nlargest(players_over_zero_dollars, fvaaz_list)
