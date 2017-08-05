@@ -259,8 +259,8 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
                              pitcher.weightedZscoreK + pitcher.weightedZscoreEra +
                              pitcher.weightedZscoreWhip)
         # TODO: there must be a smarter way of devaluing low IP pitchers
-        # if pitcher.ips / max_ip > 0.2:
-        #     pitcher.fvaaz -= 
+        if pitcher.ips / max_ip < 0.1:
+            pitcher.fvaaz *= 0.1
         fvaaz_list.append(pitcher.fvaaz)
     players_over_one_dollar = players_over_zero_dollars - one_dollar_players
     fvaaz_list_over_zero = heapq.nlargest(players_over_zero_dollars, fvaaz_list)
