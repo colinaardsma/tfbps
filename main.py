@@ -5,6 +5,7 @@ import jinja2
 import hashing
 import caching
 import time
+import logging
 
 # setup jinja2
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
@@ -133,7 +134,12 @@ class TeamToolsDB(Handler):
         if player_name == "":
             single_player = None
         else:
+            start = time.time()
             single_player = team_tools_db.single_player_rater(player_name)
+            end = time.time()
+            elapsed = end - start
+            logging.info("\r\n***************\r\nBatter Creation in %f seconds", elapsed)
+
         # final stanings projection
         if league_no == "" or (league_no != "" and team_name != ""):
             projected_standings = None

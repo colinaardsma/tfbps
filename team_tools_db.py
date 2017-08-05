@@ -128,13 +128,23 @@ def final_standing_projection(league_no):
 
 def batter_projections():
     # projections = ROS_PROJ_B_LIST
+    start = time.time()
     projections = queries.get_batters()
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\Get Batter in %f seconds", elapsed)
+
     # sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
     return projections
 
 def pitcher_projections():
     # projections = ROS_PROJ_P_LIST
+    start = time.time()
     projections = queries.get_pitchers()
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\Get Pitcher in %f seconds", elapsed)
+
     # sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
     return projections
 
