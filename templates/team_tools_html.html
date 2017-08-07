@@ -132,25 +132,28 @@
     {%- else %}
       <h2>FA Rater by Team/League</h2>
       <form method="post">
-      <table>
-        <tr>
-          <td>League Number:</td>
-          <td>
-            <input class="regform" type="text" name="league_no" value="{{league_no}}" placeholder="5091" />
-          </td>
-        </tr>
-        <tr>
-          <td>Team Name:</td>
-          <td>
-            <input class="regform" type="text" name="team_name" value="{{team_name}}" placeholder="MachadoAboutNothing" />
-          </td>
-        </tr>
-      </table>
-      <!--<div style="color: red">{{error}}</div>-->
-      <table>
-        <tr>
-          <td>
-            <input type = "submit" />
+        <table>
+          <tr>
+            <td>League Number:</td>
+            <td>
+              <input class="regform" type="text" name="league_no" value="{{league_no}}" placeholder="5091" />
+            </td>
+          </tr>
+          <tr>
+            <td>Team Name:</td>
+            <td>
+              <input class="regform" type="text" name="team_name" value="{{team_name}}" placeholder="MachadoAboutNothing" />
+            </td>
+          </tr>
+        </table>
+        <!--<div style="color: red">{{error}}</div>-->
+        <table>
+          <tr>
+            <td>
+              <input type = "submit" />
+            </td>
+          </tr>
+        </table>
       </form>
     {%- endif %}
   </div>
@@ -163,19 +166,22 @@
       <br/>
       <h2>Single Player Search</h2>
       <form method="post">
-      <table>
-        <tr>
-          <td>Player Name:</td>
-          <td>
-            <input class="regform" type="text" name="player_name" value="{{player_name}}" placeholder="Mike Trout" />
-          </td>
-        </tr>
-      </table>
-      <!--<div style="color: red">{{error}}</div>-->
-      <table>
-        <tr>
-          <td>
-            <input type = "submit" />
+        <table>
+          <tr>
+            <td>Player Name:</td>
+            <td>
+              <input class="regform" type="text" name="player_name" value="{{player_name}}" placeholder="Mike Trout" />
+            </td>
+          </tr>
+        </table>
+        <!--<div style="color: red">{{error}}</div>-->
+        <table>
+          <tr>
+            <td>
+              <input type = "submit" />
+            </td>
+          </tr>
+        </table>
       </form>
     {%- endif %}
   </div>
@@ -292,19 +298,181 @@
     {%- else %}
       <h2>Projected Final Standings</h2>
       <form method="post">
+        <table>
+          <tr>
+            <td>League Number:</td>
+            <td>
+              <input class="regform" type="text" name="league_no" value="{{league_no}}" placeholder="5091" />
+            </td>
+          </tr>
+        </table>
+        <!--<div style="color: red">{{error}}</div>-->
+        <table>
+          <tr>
+            <td>
+              <input type = "submit" />
+            </td>
+          </tr>
+        </table>
+      </form>
+    {%- endif %}
+  </div>
+  <div>
+    {%- if single_player or top_fa or projected_standings %}
+    {%- elif trade %}
+      <h2>Projected Final Standings</h2>
       <table>
         <tr>
-          <td>League Number:</td>
-          <td>
-            <input class="regform" type="text" name="league_no" value="{{league_no}}" placeholder="5091" />
-          </td>
+          <th>Total Points</th>
+          <th>Team Name</th>
+          <th>R</th>
+          <th>HR</th>
+          <th>RBI</th>
+          <th>SB</th>
+          <th>OPS</th>
+          <th>W</th>
+          <th>SV</th>
+          <th>K</th>
+          <th>ERA</th>
+          <th>WHIP</th>
+          <th>IP</th>
         </tr>
+        <tbody>
+          {%- for team in trade %}
+            <tr>
+              <td>{{team['PointsTotal']}}</td>
+              <td>{{team['TEAM_NAME']}}</td>
+              <td>{{team['PointsR']}}</td>
+              <td>{{team['PointsHR']}}</td>
+              <td>{{team['PointsRBI']}}</td>
+              <td>{{team['PointsSB']}}</td>
+              <td>{{team['PointsOPS']}}</td>
+              <td>{{team['PointsW']}}</td>
+              <td>{{team['PointsSV']}}</td>
+              <td>{{team['PointsK']}}</td>
+              <td>{{team['PointsERA']}}</td>
+              <td>{{team['PointsWHIP']}}</td>
+              <td>{{team['StatsIP']}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
       </table>
-      <!--<div style="color: red">{{error}}</div>-->
+      <h2>Projected Final Stats</h2>
       <table>
         <tr>
-          <td>
-            <input type = "submit" />
+          <th>Team Name</th>
+          <th>R</th>
+          <th>HR</th>
+          <th>RBI</th>
+          <th>SB</th>
+          <th>OPS</th>
+          <th>W</th>
+          <th>SV</th>
+          <th>K</th>
+          <th>ERA</th>
+          <th>WHIP</th>
+          <th>IP</th>
+        </tr>
+        <tbody>
+          {%- for team in trade %}
+            <tr>
+              <td>{{team['TEAM_NAME']}}</td>
+              <td>{{team['StatsR']}}</td>
+              <td>{{team['StatsHR']}}</td>
+              <td>{{team['StatsRBI']}}</td>
+              <td>{{team['StatsSB']}}</td>
+              <td>{{'%0.3f' % team['StatsOPS']}}</td>
+              <td>{{team['StatsW']}}</td>
+              <td>{{team['StatsSV']}}</td>
+              <td>{{team['StatsK']}}</td>
+              <td>{{'%0.2f' % team['StatsERA']}}</td>
+              <td>{{'%0.2f' % team['StatsWHIP']}}</td>
+              <td>{{team['StatsIP']}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <h2>Projected Final Volatility</h2>
+      <table>
+        <tr>
+          <th>Volatility(<small>Down</small> Up)</th>
+          <th>Team Name</th>
+          <th>R</th>
+          <th>HR</th>
+          <th>RBI</th>
+          <th>SB</th>
+          <th>OPS</th>
+          <th>W</th>
+          <th>SV</th>
+          <th>K</th>
+          <th>ERA</th>
+          <th>WHIP</th>
+        </tr>
+        <tbody>
+          {%- for team in trade %}
+            <tr>
+              <td><small>{{team['Total Downward Volatility']}} </small>{{team['Total Upward Volatility']}}</td>
+              <td>{{team['TEAM_NAME']}}</td>
+              <td><small>{{team['DownVol R']}} </small>{{team['UpVol R']}}</td>
+              <td><small>{{team['DownVol HR']}} </small>{{team['UpVol HR']}}</td>
+              <td><small>{{team['DownVol RBI']}} </small>{{team['UpVol RBI']}}</td>
+              <td><small>{{team['DownVol SB']}} </small>{{team['UpVol SB']}}</td>
+              <td><small>{{team['DownVol OPS']}} </small>{{team['UpVol OPS']}}</td>
+              <td><small>{{team['DownVol W']}} </small>{{team['UpVol W']}}</td>
+              <td><small>{{team['DownVol SV']}} </small>{{team['UpVol SV']}}</td>
+              <td><small>{{team['DownVol K']}} </small>{{team['UpVol K']}}</td>
+              <td><small>{{team['DownVol ERA']}} </small>{{team['UpVol ERA']}}</td>
+              <td><small>{{team['DownVol WHIP']}} </small>{{team['UpVol WHIP']}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {%- elif team_a and team_b %}
+      <form amethod="post">
+        <select name="team_a_players" multiple>
+          {% for player in team_a['ROSTER'] %}
+            <option value="{{player}}">{{player}}</option>
+          {% endfor %}
+        </select>
+        <select name="team_b_players" multiple>
+          {% for player in team_b['ROSTER'] %}
+            <option value="{{player}}">{{player}}</option>
+          {% endfor %}
+        </select>
+        <input type="submit">
+      </form>
+      <p>Hold down the Ctrl (windows) / Command (Mac) button to select multiple options.</p>
+    {%- else %}
+      <h2>Trade Analyzer</h2>
+      <form method="post">
+        <table>
+          <tr>
+            <td>League Number:</td>
+            <td>
+              <input class="regform" type="text" name="league_no" value="{{league_no}}" placeholder="5091" />
+            </td>
+          </tr>
+          <tr>
+            <td>Team A:</td>
+            <td>
+              <input class="regform" type="text" name="team_a" value="{{team_a}}" placeholder="MachadoAboutNothing" />
+            </td>
+          </tr>
+          <tr>
+            <td>Team B:</td>
+            <td>
+              <input class="regform" type="text" name="team_a" value="{{team_b}}" placeholder="Big Sack" />
+            </td>
+          </tr>
+        </table>
+        <!--<div style="color: red">{{error}}</div>-->
+        <table>
+          <tr>
+            <td>
+              <input type = "submit" />
+            </td>
+          </tr>
+        </table>
       </form>
     {%- endif %}
   </div>

@@ -62,10 +62,6 @@ def rate_team(team_dict, ros_projection_list):
     team_player_list = []
     for player_proj, roster_player in itertools.product(ros_projection_list, team_dict['ROSTER']):
         if normalizer.player_comparer(roster_player, player_proj):
-    # for player_proj in ros_projection_list:
-    #     if any(normalizer.team_comparer(player_proj.team, roster_player['TEAM']) and
-    #            normalizer.name_comparer(player_proj.name, roster_player['NAME'])
-    #            for roster_player in team_dict['ROSTER']):
             team_player_list.append(player_proj)
     return team_player_list
 
@@ -615,7 +611,7 @@ def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
         final_stats[i][up_vol_title] = up_counter
         final_stats[i][down_vol_title] = down_counter
 
-def trade_analyzer(projected_volatility, team_a, team_a_players, team_b, team_b_players, team_list,
+def trade_analyzer(team_a, team_a_players, team_b, team_b_players, team_list,
                    league_pos_dict, ros_proj_b_list, ros_proj_p_list, current_standings,
                    league_settings, sgp_dict):
     """Analyzes value of trade for 2 teams\n
@@ -644,26 +640,28 @@ def trade_analyzer(projected_volatility, team_a, team_a_players, team_b, team_b_
         team_a['ROSTER'].append(player)
         team_b['ROSTER'].remove(player)
     for team in team_list:
-        if (team['TEAM_NUMBER'] == team_a['TEAM_NUMBER'] or
-                team['TEAM_NUMBER'] == team_b['TEAM_NUMBER']):
-            team.update()
+        if team['TEAM_NUMBER'] == team_a['TEAM_NUMBER']:
             team_list.remove(team)
+            team_list.append(team_a)
+        if team['TEAM_NUMBER'] == team_b['TEAM_NUMBER']:
+            team_list.remove(team)
+            team_list.append(team_b)
 
-    for team in team_list:
-        if (team['TEAM_NUMBER'] == team_a['TEAM_NUMBER'] or
-                team['TEAM_NUMBER'] == team_b['TEAM_NUMBER']):
-            team.update((k, "new") for k, v in team.iteritems() if v == "value2")
+    # for team in team_list:
+    #     if (team['TEAM_NUMBER'] == team_a['TEAM_NUMBER'] or
+    #             team['TEAM_NUMBER'] == team_b['TEAM_NUMBER']):
+    #         team.update((k, "new") for k, v in team.iteritems() if v == "value2")
     
     # for team in team_list:
     #     if team['TEAM_NUMBER'] == team_a['TEAM_NUMBER']:
     #         team_listteam = team_a
 
-    for key, value in enumerate(team_list):
-        if team_a['TEAM_NUMBER'] in key:
-            value = team_a['ROSTER']
+    # for key, value in enumerate(team_list):
+    #     if team_a['TEAM_NUMBER'] in key:
+    #         value = team_a['ROSTER']
 
-    [team_a if x['TEAM_NUMBER'] == team_a['TEAM_NUMBER'] else x for x in team_list]
-    [team_b if x['TEAM_NUMBER'] == team_b['TEAM_NUMBER'] else x for x in team_list]
+    # [x = team_a if x['TEAM_NUMBER'] == team_a['TEAM_NUMBER'] else x for x in team_list]
+    # [x = team_b if x['TEAM_NUMBER'] == team_b['TEAM_NUMBER'] else x for x in team_list]
 
     final_stats = final_stats_projection(team_list, ros_proj_b_list,
                                          ros_proj_p_list, league_pos_dict,
@@ -672,4 +670,4 @@ def trade_analyzer(projected_volatility, team_a, team_a_players, team_b, team_b_
     ranked_standings = rank_list(volatility_standings)
     return ranked_standings
 
-    post_trade_standings = dict(projected_volatility)
+    # post_trade_standings = dict(projected_volatility)

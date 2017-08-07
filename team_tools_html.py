@@ -105,9 +105,9 @@ def final_standing_projection(league_no):
     league_settings = html_parser.get_league_settings(league_no)
     current_standings = html_parser.get_standings(league_no, int(league_settings['Max Teams:']))
     team_list = html_parser.yahoo_teams(league_no)
-    league_post_dict = html_parser.split_league_pos_types(league_settings["Roster Positions:"])
+    league_pos_dict = html_parser.split_league_pos_types(league_settings["Roster Positions:"])
     final_stats = player_rater.final_stats_projection(team_list, ROS_PROJ_B_LIST,
-                                                      ROS_PROJ_P_LIST, league_post_dict,
+                                                      ROS_PROJ_P_LIST, league_pos_dict,
                                                       current_standings, league_settings)
     volatility_standings = player_rater.league_volatility(SGP_DICT, final_stats)
     ranked_standings = player_rater.rank_list(volatility_standings)
@@ -126,6 +126,17 @@ def pitcher_projections():
                                                       P_PLAYER_POOL_MULT)
     sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
     return sorted_proj
+
+def trade_analyzer(league_no, team_a, team_a_players, team_b, team_b_players):
+    league_settings = html_parser.get_league_settings(league_no)
+    current_standings = html_parser.get_standings(league_no, int(league_settings['Max Teams:']))
+    team_list = html_parser.yahoo_teams(league_no)
+    league_pos_dict = html_parser.split_league_pos_types(league_settings["Roster Positions:"])
+    new_standings = player_rater.trade_analyzer(team_a, team_a_players, team_b, team_b_players,
+                                                team_list, league_pos_dict, ROS_PROJ_B_LIST,
+                                                ROS_PROJ_P_LIST, current_standings,
+                                                league_settings, SGP_DICT)
+    return new_standings
 
 # start = time.time()
 # print fa_finder(5091, "MachadoAboutNothing") #42sec #29sec
