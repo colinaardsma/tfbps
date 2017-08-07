@@ -117,7 +117,6 @@ class TeamToolsHTML(Handler):
                 and not team_b_players):
             team_a = None
             team_b = None
-            trade_select = None
             trade_result = None
         elif league_no != "" and team_a_name != "" and team_b_name != "":
             team_a = html_parser.get_single_yahoo_team(league_no, team_a)
@@ -129,8 +128,7 @@ class TeamToolsHTML(Handler):
 
         self.render("team_tools_html.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name,
-                    trade_select=trade_select, team_a=team_a, team_b=team_b,
-                    trade_result=trade_result)
+                    team_a=team_a, team_b=team_b, trade_result=trade_result)
 
     def get(self):
         self.render_fa_rater()
