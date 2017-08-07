@@ -428,18 +428,36 @@
         </tbody>
       </table>
     {%- elif team_a and team_b %}
+      <h2>Trade Analyzer</h2>
       <form amethod="post">
-        <select name="team_a_players" multiple>
-          {% for player in team_a['ROSTER'] %}
-            <option value="{{player}}">{{player}}</option>
-          {% endfor %}
-        </select>
-        <select name="team_b_players" multiple>
-          {% for player in team_b['ROSTER'] %}
-            <option value="{{player}}">{{player}}</option>
-          {% endfor %}
-        </select>
-        <input type="submit">
+        <table>
+          <tr>
+            <td>{{team_a}} Players to Trade:</td>
+            <td>
+              <select name="team_a_players" multiple>
+                {% for player in team_a['ROSTER'] %}
+                  <option value="{{player}}">{{player}}</option>
+                {% endfor %}
+              </select>
+            </td>
+            <td>{{team_a}} Players to Trade:</td>
+            <td>
+              <select name="team_b_players" multiple>
+                {% for player in team_b['ROSTER'] %}
+                  <option value="{{player}}">{{player}}</option>
+                {% endfor %}
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input type="hidden" name="team_a" value="{{team_a}}">
+              <input type="hidden" name="team_b" value="{{team_b}}">
+              <input type="hidden" name="league_no" value="{{league_no}}">
+              <input type="submit">
+            </td>
+          </tr>
+        </table>
       </form>
       <p>Hold down the Ctrl (windows) / Command (Mac) button to select multiple options.</p>
     {%- else %}
@@ -455,13 +473,13 @@
           <tr>
             <td>Team A:</td>
             <td>
-              <input class="regform" type="text" name="team_a" value="{{team_a}}" placeholder="MachadoAboutNothing" />
+              <input class="regform" type="text" name="team_a_name" value="{{team_a_name}}" placeholder="MachadoAboutNothing" />
             </td>
           </tr>
           <tr>
             <td>Team B:</td>
             <td>
-              <input class="regform" type="text" name="team_a" value="{{team_b}}" placeholder="Big Sack" />
+              <input class="regform" type="text" name="team_b_name" value="{{team_b_name}}" placeholder="Big Sack" />
             </td>
           </tr>
         </table>
