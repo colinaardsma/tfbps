@@ -121,6 +121,7 @@ class TeamToolsHTML(Handler):
         elif league_no != "" and team_a_name != "" and team_b_name != "":
             team_a = html_parser.get_single_yahoo_team(league_no, team_a)
             team_b = html_parser.get_single_yahoo_team(league_no, team_b)
+            trade_result = None
         elif (league_no != "" and team_a != "" and team_b != ""
               and team_a_players and team_b_players):
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
