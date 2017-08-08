@@ -427,9 +427,10 @@
           {% endfor %}
         </tbody>
       </table>
-    {%- elif team_a and team_b and not trade_result %}
+    {%- elif team_a and team_b and league_no and not trade_result %}
       <h2>Trade Analyzer</h2>
       <form method="post">
+        <p>League No: {{league_no}}</p>
         <table>
           <thead>
             <tr>
