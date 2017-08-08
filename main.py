@@ -93,7 +93,7 @@ class PitchingProjections(Handler):
 class TeamToolsHTML(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name="", team_a={},
                         team_a_name="", team_a_players=[], team_b={}, team_b_name="",
-                        team_b_players=[]):
+                        team_b_players=[], trade_result={}):
         import team_tools_html
         # fa rater
         if league_no == "" or team_name == "":
