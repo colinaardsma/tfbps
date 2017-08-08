@@ -120,7 +120,7 @@ class TeamToolsHTML(Handler):
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
                                                           team_b, team_b_players)
         # final stanings projection
-        if league_no == "" or (league_no != "" and team_name != ""):
+        if league_no == "" or (league_no != "" and team_name != "") or (team_a and team_b):
             projected_standings = None
         else:
             projected_standings = team_tools_html.final_standing_projection(league_no)
