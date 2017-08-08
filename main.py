@@ -137,7 +137,17 @@ class TeamToolsHTML(Handler):
         league_no = self.request.get("league_no")
         team_name = self.request.get("team_name")
         player_name = self.request.get("player_name")
-        self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name)
+        team_a = self.request.get("team_a")
+        team_a_name = self.request.get("team_a_name")
+        team_a_players = self.request.get("team_a_players")
+        team_b = self.request.get("team_b")
+        team_b_name = self.request.get("team_b_name")
+        team_b_players = self.request.get("team_b_players")
+        trade_result = self.request.get("trade_result")
+        self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name,
+                             team_a=team_a, team_a_name=team_a_name, team_a_players=team_a_players,
+                             team_b=team_b, team_b_name=team_b_name, team_b_players=team_b_players,
+                             trade_result=trade_result)
 
 class TeamToolsDB(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name="", update=""):

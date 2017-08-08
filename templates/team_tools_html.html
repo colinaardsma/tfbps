@@ -338,7 +338,7 @@
           <th>IP</th>
         </tr>
         <tbody>
-          {%- for team in trade %}
+          {%- for team in trade_result %}
             <tr>
               <td>{{team['PointsTotal']}}</td>
               <td>{{team['TEAM_NAME']}}</td>
@@ -374,7 +374,7 @@
           <th>IP</th>
         </tr>
         <tbody>
-          {%- for team in trade %}
+          {%- for team in trade_result %}
             <tr>
               <td>{{team['TEAM_NAME']}}</td>
               <td>{{team['StatsR']}}</td>
@@ -409,7 +409,7 @@
           <th>WHIP</th>
         </tr>
         <tbody>
-          {%- for team in trade %}
+          {%- for team in trade_result %}
             <tr>
               <td><small>{{team['Total Downward Volatility']}} </small>{{team['Total Upward Volatility']}}</td>
               <td>{{team['TEAM_NAME']}}</td>
