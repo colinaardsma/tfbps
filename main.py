@@ -93,7 +93,7 @@ class PitchingProjections(Handler):
 class TeamToolsHTML(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name="", team_a="",
                         team_a_name="", team_a_players=[], team_b="", team_b_name="",
-                        team_b_players=[]):
+                        team_b_players=[], trade_result=None):
         import team_tools_html
         # fa rater
         if league_no == "" or team_name == "":
@@ -106,12 +106,6 @@ class TeamToolsHTML(Handler):
             single_player = None
         else:
             single_player = team_tools_html.single_player_rater(player_name)
-        # final stanings projection
-        if league_no == "" or (league_no != "" and team_name != ""):
-            projected_standings = None
-        else:
-            projected_standings = team_tools_html.final_standing_projection(league_no)
-
         # trade analyzer
         if (league_no == "" and team_a == "" and not team_a_players and team_b == ""
                 and not team_b_players):
@@ -126,6 +120,11 @@ class TeamToolsHTML(Handler):
               and team_a_players and team_b_players):
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
                                                           team_b, team_b_players)
+        # final stanings projection
+        if league_no == "" or (league_no != "" and team_name != ""):
+            projected_standings = None
+        else:
+            projected_standings = team_tools_html.final_standing_projection(league_no)
 
         self.render("team_tools_html.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name,
