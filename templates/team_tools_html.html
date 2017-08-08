@@ -431,8 +431,13 @@
       <h2>Trade Analyzer</h2>
       <form method="post">
         <table>
+          <thead>
+            <tr>
+              <th>{{team_a['TEAM_NAME']}} Players to Trade:</td>
+              <th>{{team_b['TEAM_NAME']}} Players to Trade:</th>
+            </tr>
+          </thead>
           <tr>
-            <td>{{team_a['TEAM_NAME']}} Players to Trade:</td>
             <td>
               <select name="team_a_players" multiple>
                 {% for player in team_a['ROSTER'] %}
@@ -440,7 +445,6 @@
                 {% endfor %}
               </select>
             </td>
-            <td>{{team_b['TEAM_NAME']}} Players to Trade:</td>
             <td>
               <select name="team_b_players" multiple>
                 {% for player in team_b['ROSTER'] %}
