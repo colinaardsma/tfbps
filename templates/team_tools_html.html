@@ -432,19 +432,19 @@
       <form amethod="post">
         <table>
           <tr>
-            <td>{{team_a}} Players to Trade:</td>
+            <td>{{team_a['TEAM_NAME']}} Players to Trade:</td>
             <td>
               <select name="team_a_players" multiple>
                 {% for player in team_a['ROSTER'] %}
-                  <option value="{{player}}">{{player}}</option>
+                  <option value="{{player}}">{{player['NAME']}}</option>
                 {% endfor %}
               </select>
             </td>
-            <td>{{team_b}} Players to Trade:</td>
+            <td>{{team_b['TEAM_NAME']}} Players to Trade:</td>
             <td>
               <select name="team_b_players" multiple>
                 {% for player in team_b['ROSTER'] %}
-                  <option value="{{player}}">{{player}}</option>
+                  <option value="{{player}}">{{player['NAME']}}</option>
                 {% endfor %}
               </select>
             </td>
