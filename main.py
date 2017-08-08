@@ -135,14 +135,14 @@ class TeamToolsHTML(Handler):
         self.render_fa_rater()
 
     def post(self):
-        league_no = self.request.get("league_no")
-        team_name = self.request.get("team_name")
-        player_name = self.request.get("player_name")
-        team_a = self.request.get("team_a")
-        team_a_name = self.request.get("team_a_name")
+        league_no = self.request.POST.get("league_no")
+        team_name = self.request.POST.get("team_name")
+        player_name = self.request.POST.get("player_name")
+        team_a = self.request.POST.get("team_a")
+        team_a_name = self.request.POST.get("team_a_name")
         team_a_players = self.request.POST.getall("team_a_players")
-        team_b = self.request.get("team_b")
-        team_b_name = self.request.get("team_b_name")
+        team_b = self.request.POST.get("team_b")
+        team_b_name = self.request.POST.get("team_b_name")
         team_b_players = self.request.POST.getall("team_b_players")
         self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name,
                              team_a=team_a, team_a_name=team_a_name, team_a_players=team_a_players,
