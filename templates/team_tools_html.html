@@ -433,20 +433,20 @@
         <table>
           <thead>
             <tr>
-              <th>{{team_a['TEAM_NAME']}} Players to Trade:</td>
-              <th>{{team_b['TEAM_NAME']}} Players to Trade:</th>
+              <th>{{team_a['TEAM_NAME']}}</br>Players to Trade:</td>
+              <th>{{team_b['TEAM_NAME']}}</br>Players to Trade:</th>
             </tr>
           </thead>
           <tr>
             <td>
-              <select name="team_a_players" multiple>
+              <select name="team_a_players" name="team_b_players" multiple="multiple" size="30">
                 {% for player in team_a['ROSTER'] %}
                   <option value="{{player}}">{{player['NAME']}}</option>
                 {% endfor %}
               </select>
             </td>
             <td>
-              <select name="team_b_players" multiple>
+              <select name="team_b_players" id="team_b_players" multiple="multiple" size="30">
                 {% for player in team_b['ROSTER'] %}
                   <option value="{{player}}">{{player['NAME']}}</option>
                 {% endfor %}
