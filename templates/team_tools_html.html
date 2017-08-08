@@ -427,7 +427,7 @@
           {% endfor %}
         </tbody>
       </table>
-    {%- elif team_a and team_b %}
+    {%- elif team_a and team_b and not trade_result %}
       <h2>Trade Analyzer</h2>
       <form method="post">
         <table>

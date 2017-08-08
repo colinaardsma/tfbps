@@ -107,7 +107,7 @@ class TeamToolsHTML(Handler):
         else:
             single_player = team_tools_html.single_player_rater(player_name)
         # trade analyzer
-        if (league_no == "" and team_a == "" and not team_a_players and team_b == ""
+        if (league_no == "" and not team_a and not team_a_players and not team_b
                 and not team_b_players):
             team_a = None
             team_b = None
@@ -140,10 +140,10 @@ class TeamToolsHTML(Handler):
         player_name = self.request.get("player_name")
         team_a = self.request.get("team_a")
         team_a_name = self.request.get("team_a_name")
-        team_a_players = self.request.get("team_a_players")
+        team_a_players = self.request.getList("team_a_players")
         team_b = self.request.get("team_b")
         team_b_name = self.request.get("team_b_name")
-        team_b_players = self.request.get("team_b_players")
+        team_b_players = self.request.getList("team_b_players")
         self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name,
                              team_a=team_a, team_a_name=team_a_name, team_a_players=team_a_players,
                              team_b=team_b, team_b_name=team_b_name, team_b_players=team_b_players)
