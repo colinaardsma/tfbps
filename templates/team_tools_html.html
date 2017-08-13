@@ -427,22 +427,27 @@
           {% endfor %}
         </tbody>
       </table>
-    {%- elif team_a and team_b %}
+    {%- elif team_a and team_b and league_no and not trade_result %}
       <h2>Trade Analyzer</h2>
-      <form amethod="post">
+      <form method="post">
+        <p>League No: {{league_no}}</p>
         <table>
+          <thead>
+            <tr>
+              <th>{{team_a['TEAM_NAME']}}</br>Players to Trade:</td>
+              <th>{{team_b['TEAM_NAME']}}</br>Players to Trade:</th>
+            </tr>
+          </thead>
           <tr>
-            <td>{{team_a['TEAM_NAME']}} Players to Trade:</td>
             <td>
-              <select name="team_a_players" multiple>
+              <select name="team_a_players" name="team_b_players" multiple="multiple" size="30">
                 {% for player in team_a['ROSTER'] %}
                   <option value="{{player}}" id="{{player}}" name="{{player}}">{{player['NAME']}}</option>
                 {% endfor %}
               </select>
             </td>
-            <td>{{team_b['TEAM_NAME']}} Players to Trade:</td>
             <td>
-              <select name="team_b_players" multiple>
+              <select name="team_b_players" id="team_b_players" multiple="multiple" size="30">
                 {% for player in team_b['ROSTER'] %}
                   <option value="{{player}}" id="{{value}}" name="{{player}}">{{player['NAME']}}</option>
                 {% endfor %}
@@ -451,10 +456,10 @@
           </tr>
           <tr>
             <td>
-              <input type="hidden" name="team_a" value="{{team_a}}">
-              <input type="hidden" name="team_b" value="{{team_b}}">
-              <input type="hidden" name="league_no" value="{{league_no}}">
-              <input type="submit">
+              <input type="hidden" name="team_a" value="{{team_a}}" />
+              <input type="hidden" name="team_b" value="{{team_b}}" />
+              <input type="hidden" name="league_no" value="{{league_no}}" />
+              <input type="submit" />
             </td>
           </tr>
         </table>
