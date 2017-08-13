@@ -436,7 +436,7 @@
             <td>
               <select name="team_a_players" multiple>
                 {% for player in team_a['ROSTER'] %}
-                  <option value="{{player}}">{{player['NAME']}}</option>
+                  <option value="{{player}}" id="{{player}}" name="{{player}}">{{player['NAME']}}</option>
                 {% endfor %}
               </select>
             </td>
@@ -444,7 +444,7 @@
             <td>
               <select name="team_b_players" multiple>
                 {% for player in team_b['ROSTER'] %}
-                  <option value="{{player}}">{{player['NAME']}}</option>
+                  <option value="{{player}}" id="{{value}}" name="{{player}}">{{player['NAME']}}</option>
                 {% endfor %}
               </select>
             </td>
