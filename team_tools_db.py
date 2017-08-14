@@ -85,10 +85,7 @@ def single_player_rater(player_name):
     Raises:\n
         None.
     """
-    ros_proj_b_list = queries.get_batters()
-    ros_proj_p_list = queries.get_pitchers()
-
-    player_list = player_rater.single_player_rater_db(player_name, ros_proj_b_list, ros_proj_p_list)
+    player_list = player_rater.single_player_rater_db(player_name)
     player = player_list[0]
     player_stats = ""
     if any("P" in pos for pos in player.pos):

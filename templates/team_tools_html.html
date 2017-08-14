@@ -1,9 +1,9 @@
 {% extends "main.html" %}
 
 {%- block content %}
-  <div>
-    {%- if single_player or projected_standings or trade_result or team_a or team_b %}
-    {%- elif top_fa %}
+    <!-- {%- if single_player or projected_standings or trade_result or team_a or team_b %} -->
+  {%- if top_fa %}
+    <div>
       <h2>FA/Team Valuation for {{team_name}}</h2>
       <h4>Top FA Pitchers</h4>
       <table>
