@@ -1,4 +1,5 @@
 import os
+import ast
 import webapp2
 import api_connector
 import jinja2
@@ -111,14 +112,16 @@ class TeamToolsHTML(Handler):
                 and not team_b_players):
             team_a = None
             team_b = None
-            trade_result = None
         elif (league_no != "" and team_a_name != "" and team_b_name != ""
               and not team_a and not team_b):
             team_a = html_parser.get_single_yahoo_team(league_no, team_a_name)
             team_b = html_parser.get_single_yahoo_team(league_no, team_b_name)
-            trade_result = None
             league_no = league_no
         elif league_no != "" and team_a and team_b and team_a_players and team_b_players:
+            team_a = ast.literal_eval(team_a)
+            team_b = ast.literal_eval(team_b)
+            # team_a_players = ast.literal_eval(team_a_players)
+            # team_a_players = ast.literal_eval(team_b_players)
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
                                                           team_b, team_b_players)
         # final standings projection
@@ -129,13 +132,12 @@ class TeamToolsHTML(Handler):
 
         self.render("team_tools_html.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name,
-                    team_a=team_a, team_b=team_b, trade_result=trade_result)
+                    league_no=league_no, team_a=team_a, team_b=team_b, trade_result=trade_result)
 
     def get(self):
         self.render_fa_rater()
 
     def post(self):
-        
         league_no = self.request.get("league_no")
         team_name = self.request.get("team_name")
         player_name = self.request.get("player_name")
