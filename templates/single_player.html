@@ -1,0 +1,28 @@
+  <div>
+    {%- if top_fa or projected_standings or trade_result or team_a or team_b %}
+    {%- elif single_player %}
+      <h2>Single Player Search</h2>
+      <p>{{single_player|safe}}</p>
+    {%- else %}
+      <br/>
+      <h2>Single Player Search</h2>
+      <form method="post">
+        <table>
+          <tr>
+            <td>Player Name:</td>
+            <td>
+              <input class="regform" type="text" name="player_name" value="{{player_name}}" placeholder="Mike Trout" />
+            </td>
+          </tr>
+        </table>
+        <!--<div style="color: red">{{error}}</div>-->
+        <table>
+          <tr>
+            <td>
+              <input type = "submit" />
+            </td>
+          </tr>
+        </table>
+      </form>
+    {%- endif %}
+  </div>

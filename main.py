@@ -1,4 +1,5 @@
 import os
+import ast
 import webapp2
 import api_connector
 import jinja2
@@ -110,15 +111,21 @@ class TeamToolsHTML(Handler):
         if league_no != "" and team_a_name != "" and team_b_name != "":
             team_a = html_parser.get_single_yahoo_team(league_no, team_a_name)
             team_b = html_parser.get_single_yahoo_team(league_no, team_b_name)
-            # trade_result = None
-            # league_no = league_no
+            league_no = league_no
         elif league_no != "" and team_a and team_a_players and team_b and team_a_players:
+            team_a = ast.literal_eval(team_a)
+            team_b = ast.literal_eval(team_b)
+            # team_a_players = ast.literal_eval(team_a_players)
+            # team_a_players = ast.literal_eval(team_b_players)
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
                                                           team_b, team_b_players)
         else:
             team_a = None
             team_b = None
             trade_result = None
+        # final standings projection
+        if league_no == "" or (league_no != "" and team_name != "") or (team_a and team_b):
+            projected_standings = None
         # final stanings projection
         if league_no != "" and team_name == "" and not (team_a or team_b):
             projected_standings = team_tools_html.final_standing_projection(league_no)
@@ -127,20 +134,20 @@ class TeamToolsHTML(Handler):
 
         self.render("team_tools_html.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name,
-                    team_a=team_a, team_b=team_b, trade_result=trade_result)
+                    league_no=league_no, team_a=team_a, team_b=team_b, trade_result=trade_result)
 
     def get(self):
         self.render_fa_rater()
 
     def post(self):
-        league_no = self.request.POST.get("league_no")
-        team_name = self.request.POST.get("team_name")
-        player_name = self.request.POST.get("player_name")
-        team_a = self.request.POST.get("team_a")
-        team_a_name = self.request.POST.get("team_a_name")
+        league_no = self.request.get("league_no")
+        team_name = self.request.get("team_name")
+        player_name = self.request.get("player_name")
+        team_a = self.request.get("team_a")
+        team_a_name = self.request.get("team_a_name")
         team_a_players = self.request.POST.getall("team_a_players")
-        team_b = self.request.POST.get("team_b")
-        team_b_name = self.request.POST.get("team_b_name")
+        team_b = self.request.get("team_b")
+        team_b_name = self.request.get("team_b_name")
         team_b_players = self.request.POST.getall("team_b_players")
         self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name,
                              team_a=team_a, team_a_name=team_a_name, team_a_players=team_a_players,

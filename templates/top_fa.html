@@ -1,0 +1,156 @@
+  <div>
+    {%- if single_player or projected_standings or trade_result or team_a or team_b %}
+    {%- elif top_fa %}
+      <h2>FA/Team Valuation for {{team_name}}</h2>
+      <h4>Top FA Pitchers</h4>
+      <table>
+        <tr>
+          <th>Value</th>
+          <th>Player Name</th>
+          <th>Team</th>
+          <th>Position</th>
+          <th>W</th>
+          <th>SV</th>
+          <th>K</th>
+          <th>ERA</th>
+          <th>WHIP</th>
+          <th>IP</th>
+          <th>K/IP</th>
+        </tr>
+        <tbody>
+          {%- for pitcher in top_fa['Pitching FAs'] %}
+            <tr>
+              <td>{{'$%0.2f' % pitcher.dollarValue}}</td>
+              <td>{{pitcher.name}}</td>
+              <td>{{pitcher.team}}</td>
+              <td>{{pitcher.pos}}</td>
+              <td>{{'%0.0f' % pitcher.wins}}</td>
+              <td>{{'%0.0f' % pitcher.svs}}</td>
+              <td>{{'%0.0f' % pitcher.sos}}</td>
+              <td>{{'%0.2f' % pitcher.era}}</td>
+              <td>{{'%0.2f' % pitcher.whip}}</td>
+              <td>{{'%0.0f' % pitcher.ips}}</td>
+              <td>{{'%0.2f' % pitcher.kip}}</td>
+            </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+      <h4>Team Pitchers</h4>
+      <table>
+        <tr>
+          <th>Value</th>
+          <th>Player Name</th>
+          <th>Team</th>
+          <th>Position</th>
+          <th>W</th>
+          <th>SV</th>
+          <th>K</th>
+          <th>ERA</th>
+          <th>WHIP</th>
+          <th>IP</th>
+          <th>K/IP</th>
+        </tr>
+        <tbody>
+          {%- for pitcher in top_fa['Pitching Team'] %}
+            <tr>
+              <td>{{'$%0.2f' % pitcher.dollarValue}}</td>
+              <td>{{pitcher.name}}</td>
+              <td>{{pitcher.team}}</td>
+              <td>{{pitcher.pos}}</td>
+              <td>{{'%0.0f' % pitcher.wins}}</td>
+              <td>{{'%0.0f' % pitcher.svs}}</td>
+              <td>{{'%0.0f' % pitcher.sos}}</td>
+              <td>{{'%0.2f' % pitcher.era}}</td>
+              <td>{{'%0.2f' % pitcher.whip}}</td>
+              <td>{{'%0.0f' % pitcher.ips}}</td>
+              <td>{{'%0.2f' % pitcher.kip}}</td>
+            </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+      <h4>Top FA Batters</h4>
+      <table>
+        <tr>
+          <th>Value</th>
+          <th>Player Name</th>
+          <th>Team</th>
+          <th>Position</th>
+          <th>R</th>
+          <th>HR</th>
+          <th>RBI</th>
+          <th>SB</th>
+          <th>OPS</th>
+        </tr>
+        <tbody>
+          {%- for batter in top_fa['Batting FAs'] %}
+            <tr>
+              <td>{{'$%0.2f' % batter.dollarValue}}</td>
+              <td>{{batter.name}}</td>
+              <td>{{batter.team}}</td>
+              <td>{{batter.pos}}</td>
+              <td>{{'%0.0f' % batter.runs}}</td>
+              <td>{{'%0.0f' % batter.hrs}}</td>
+              <td>{{'%0.0f' % batter.rbis}}</td>
+              <td>{{'%0.0f' % batter.sbs}}</td>
+              <td>{{'%0.3f' % batter.ops}}</td>
+            </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+      <h4>Team Batters</h4>
+      <table>
+        <tr>
+          <th>Value</th>
+          <th>Player Name</th>
+          <th>Team</th>
+          <th>Position</th>
+          <th>R</th>
+          <th>HR</th>
+          <th>RBI</th>
+          <th>SB</th>
+          <th>OPS</th>
+        </tr>
+        <tbody>
+          {%- for batter in top_fa['Batting Team'] %}
+            <tr>
+              <td>{{'$%0.2f' % batter.dollarValue}}</td>
+              <td>{{batter.name}}</td>
+              <td>{{batter.team}}</td>
+              <td>{{batter.pos}}</td>
+              <td>{{'%0.0f' % batter.runs}}</td>
+              <td>{{'%0.0f' % batter.hrs}}</td>
+              <td>{{'%0.0f' % batter.rbis}}</td>
+              <td>{{'%0.0f' % batter.sbs}}</td>
+              <td>{{'%0.3f' % batter.ops}}</td>
+            </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    {%- else %}
+      <h2>FA Rater by Team/League</h2>
+      <form method="post">
+        <table>
+          <tr>
+            <td>League Number:</td>
+            <td>
+              <input class="regform" type="text" name="league_no" value="{{league_no}}" placeholder="5091" />
+            </td>
+          </tr>
+          <tr>
+            <td>Team Name:</td>
+            <td>
+              <input class="regform" type="text" name="team_name" value="{{team_name}}" placeholder="MachadoAboutNothing" />
+            </td>
+          </tr>
+        </table>
+        <!--<div style="color: red">{{error}}</div>-->
+        <table>
+          <tr>
+            <td>
+              <input type = "submit" />
+            </td>
+          </tr>
+        </table>
+      </form>
+    {%- endif %}
+  </div>
