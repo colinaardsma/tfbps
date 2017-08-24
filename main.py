@@ -97,26 +97,22 @@ class TeamToolsHTML(Handler):
                         team_b_players=[], trade_result={}):
         import team_tools_html
         # fa rater
-        if league_no == "" or team_name == "":
-            top_fa = None
-        else:
+        if league_no != "" and team_name != "":
             top_fa = team_tools_html.fa_finder(league_no, team_name)
             team_name = top_fa['Team Name']
-        # single player lookup
-        if player_name == "":
-            single_player = None
         else:
+            top_fa = None
+        # single player lookup
+        if player_name != "":
             single_player = team_tools_html.single_player_rater(player_name)
+        else:
+            single_player = None
         # trade analyzer
-        if (league_no == "" and not team_a and not team_a_players and not team_b
-                and not team_b_players):
-            team_a = None
-            team_b = None
-        elif (league_no != "" and team_a_name != "" and team_b_name != ""
-              and not team_a and not team_b):
+        if league_no != "" and team_a_name != "" and team_b_name != "":
             team_a = html_parser.get_single_yahoo_team(league_no, team_a_name)
             team_b = html_parser.get_single_yahoo_team(league_no, team_b_name)
             league_no = league_no
+<<<<<<< HEAD
         elif league_no != "" and team_a and team_b and team_a_players and team_b_players:
             # team_a = dict(team_a)
             # team_b = dict(team_b)
@@ -124,15 +120,27 @@ class TeamToolsHTML(Handler):
             # team_a = ast.literal_eval(team_a)
             # team_b = ast.literal_eval(team_b)
             # print "Post Conversion: " + team a
+=======
+        elif league_no != "" and team_a and team_a_players and team_b and team_a_players:
+            team_a = ast.literal_eval(team_a)
+            team_b = ast.literal_eval(team_b)
+>>>>>>> c6a62a5b34a20cdbaf9c940756baf604a17a59d9
             # team_a_players = ast.literal_eval(team_a_players)
             # team_a_players = ast.literal_eval(team_b_players)
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
                                                           team_b, team_b_players)
+        else:
+            team_a = None
+            team_b = None
+            trade_result = None
         # final standings projection
         if league_no == "" or (league_no != "" and team_name != "") or (team_a and team_b):
             projected_standings = None
-        else:
+        # final stanings projection
+        if league_no != "" and team_name == "" and not (team_a or team_b):
             projected_standings = team_tools_html.final_standing_projection(league_no)
+        else:
+            projected_standings = None
 
         self.render("team_tools_html.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name,

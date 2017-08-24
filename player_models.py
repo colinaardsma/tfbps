@@ -1,6 +1,7 @@
 """Player models"""
 # next 3 lines are for running locally
 import sys
+import datetime
 sys.path.append('/usr/local/google_appengine/')
 sys.path.append('/usr/local/google_appengine/lib/yaml/lib/')
 from google.appengine.ext import db
@@ -16,7 +17,7 @@ class BatterHTML(object):
     last_name = ""
     team = ""
     pos = ""
-    # last_modified =
+    last_modified = datetime.datetime.now()
     category = ""
     # Raw Stat Properties
     atbats = 0.0
@@ -63,7 +64,7 @@ class BatterHTML(object):
         self.last_name = str(norm_name['Last'])
         self.team = str(normalizer.team_normalizer(str(team)))
         self.pos = str(pos).split(",")
-        # self.last_modified = last_modified
+        self.last_modified = datetime.datetime.now()
         self.category = str(category)
         # Raw Stat Properties
         self.atbats = float(atbats if atbats != None else 0.0)
@@ -83,7 +84,7 @@ class PitcherHTML(object):
     team = ""
     pos = ""
     is_sp = False
-    # last_modified =
+    last_modified = datetime.datetime.now()
     category = ""
     # Raw Stat Properties
     ips = 0.0
@@ -128,7 +129,7 @@ class PitcherHTML(object):
         self.last_name = str(norm_name['Last'])
         self.team = str(normalizer.team_normalizer(team))
         self.pos = str(pos).split(",")
-        # self.last_modified = last_modified
+        self.last_modified = datetime.datetime.now()
         self.category = str(category)
         # Raw Stat Properties
         self.ips = float(ips if ips != None else 0.0)

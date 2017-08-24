@@ -159,7 +159,7 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
                          dollar_per_fvaaz, player_pool_multiplier):
     """Calculate zScores for pitchers"""
     player_pool = int(players_over_zero_dollars * player_pool_multiplier)
-    max_ip = max(pitcher.ips for pitcher in pitcher_list)
+    # max_ip = max(pitcher.ips for pitcher in pitcher_list)
     # Standard Calculations
     win_list = []
     sv_list = []
