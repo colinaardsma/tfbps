@@ -118,8 +118,12 @@ class TeamToolsHTML(Handler):
             team_b = html_parser.get_single_yahoo_team(league_no, team_b_name)
             league_no = league_no
         elif league_no != "" and team_a and team_b and team_a_players and team_b_players:
-            team_a = ast.literal_eval(team_a)
-            team_b = ast.literal_eval(team_b)
+            # team_a = dict(team_a)
+            # team_b = dict(team_b)
+            print team_a
+            # team_a = ast.literal_eval(team_a)
+            # team_b = ast.literal_eval(team_b)
+            # print "Post Conversion: " + team a
             # team_a_players = ast.literal_eval(team_a_players)
             # team_a_players = ast.literal_eval(team_b_players)
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
@@ -141,10 +145,10 @@ class TeamToolsHTML(Handler):
         league_no = self.request.get("league_no")
         team_name = self.request.get("team_name")
         player_name = self.request.get("player_name")
-        team_a = self.request.get("team_a")
+        team_a = self.request.POST.getall("team_a")
         team_a_name = self.request.get("team_a_name")
         team_a_players = self.request.POST.getall("team_a_players")
-        team_b = self.request.get("team_b")
+        team_b = self.request.POST.getall("team_b")
         team_b_name = self.request.get("team_b_name")
         team_b_players = self.request.POST.getall("team_b_players")
         self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name,
