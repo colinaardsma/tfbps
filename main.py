@@ -1,12 +1,12 @@
 import os
 import ast
+import time
+import logging
 import webapp2
 import api_connector
 import jinja2
 import hashing
 import caching
-import time
-import logging
 import html_parser
 
 # setup jinja2
@@ -17,22 +17,26 @@ JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
 
 # define some functions that will be used by all pages
 class Handler(webapp2.RequestHandler):
-    def write(self, *a, **kw): # simplifies self.response.out.write to self.write
+    def write(self, *a, **kw):
+        # simplifies self.response.out.write to self.write
         self.response.out.write(*a, **kw)
 
-    def render_str(self, template, **params): # creates the string that will render html using jinja2 with html template named template and parameters named params
-        t = JINJA_ENV.get_template(template)
-        return t.render(params)
+    def render_str(self, template, **params):
+        # creates the string that will render html using jinja2 with html template named template
+        # and parameters named params
+        template = JINJA_ENV.get_template(template)
+        return template.render(params)
 
-    def render(self, template, **kw): # writes the html string created in render_str to the page
+    def render(self, template, **kw):
+        # writes the html string created in render_str to the page
         self.write(self.render_str(template, **kw))
 
     def __init__(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
-        c = self.request.cookies.get('user') # pull cookie value
+        cookies = self.request.cookies.get('user') # pull cookie value
         uid = ""
-        if c:
-            uid = hashing.check_secure_val(c)
+        if cookies:
+            uid = hashing.check_secure_val(cookies)
 
         self.user = uid and caching.cached_get_user_by_id(uid)
         self.auth = self.user and caching.cached_get_authorization(self.user.username)
@@ -45,11 +49,14 @@ class Handler(webapp2.RequestHandler):
     # def get_auth(self, auth):
     #     if auth != "admin" and self.request.path in admin_auth_paths:
     #         self.redirect('/login')
-    #     elif (auth != "admin" and auth != "power_user") and self.request.path in power_user_auth_paths:
+    #     elif ((auth != "admin" and auth != "power_user") and
+    #           self.request.path in power_user_auth_paths):
     #         self.redirect('/login')
-    #     elif (auth != "admin" and auth != "power_user" and auth != "commissioner") and self.request.path in commissioner_auth_paths:
+    #     elif ((auth != "admin" and auth != "power_user" and auth != "commissioner") and
+    #           self.request.path in commissioner_auth_paths):
     #         self.redirect('/login')
-    #     elif (auth != "admin" and auth != "power_user" and auth != "commissioner" and auth != "basic") and self.request.path in basic_auth_paths:
+    #     elif ((auth != "admin" and auth != "power_user" and auth != "commissioner" and
+    #            auth != "basic") and self.request.path in basic_auth_paths):
     #         self.redirect('/login')
     #     else:
     #         self.request.path
@@ -67,7 +74,8 @@ class MainHandler(Handler):
         # yahooArticle = rssparsing.get_yahoo_rss_content(0)
 
         self.render("home.html", user=user)
-        # self.render("home.html", user=user, fakeBbArticle=fakeBbArticle, yahooArticle=yahooArticle)
+        # self.render("home.html", user=user, fakeBbArticle=fakeBbArticle,
+        #             yahooArticle=yahooArticle)
         # self.write(rssparsing.get_fakebb_rss_content(0))
 
     def get(self):
@@ -112,21 +120,9 @@ class TeamToolsHTML(Handler):
             team_a = html_parser.get_single_yahoo_team(league_no, team_a_name)
             team_b = html_parser.get_single_yahoo_team(league_no, team_b_name)
             league_no = league_no
-<<<<<<< HEAD
-        elif league_no != "" and team_a and team_b and team_a_players and team_b_players:
-            # team_a = dict(team_a)
-            # team_b = dict(team_b)
-            print team_a
-            # team_a = ast.literal_eval(team_a)
-            # team_b = ast.literal_eval(team_b)
-            # print "Post Conversion: " + team a
-=======
         elif league_no != "" and team_a and team_a_players and team_b and team_a_players:
             team_a = ast.literal_eval(team_a)
             team_b = ast.literal_eval(team_b)
->>>>>>> c6a62a5b34a20cdbaf9c940756baf604a17a59d9
-            # team_a_players = ast.literal_eval(team_a_players)
-            # team_a_players = ast.literal_eval(team_b_players)
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
                                                           team_b, team_b_players)
         else:
@@ -153,10 +149,10 @@ class TeamToolsHTML(Handler):
         league_no = self.request.get("league_no")
         team_name = self.request.get("team_name")
         player_name = self.request.get("player_name")
-        team_a = self.request.POST.getall("team_a")
+        team_a = self.request.get("team_a")
         team_a_name = self.request.get("team_a_name")
         team_a_players = self.request.POST.getall("team_a_players")
-        team_b = self.request.POST.getall("team_b")
+        team_b = self.request.get("team_b")
         team_b_name = self.request.get("team_b_name")
         team_b_players = self.request.POST.getall("team_b_players")
         self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name,
@@ -200,7 +196,7 @@ class TeamToolsDB(Handler):
 
         self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name, elapsed=elapsed)
-        
+
     def get(self):
         self.render_fa_rater()
 
