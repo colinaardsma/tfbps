@@ -632,8 +632,22 @@ def trade_analyzer(team_a, team_a_players, team_b, team_b_players, team_list,
         None.
     """
     for player in team_a_players:
-        team_a['ROSTER'].remove(player)
+        print player
+        print "***********"
+        print "PRE_TRANSFER"
+        print team_a['ROSTER']
+        print "***********"
+        print team_b['ROSTER']
+        print
+        # team_a['ROSTER'][:] = [p for p in team_a['ROSTER'] if p['NAME'] != player['NAME']]
+        
+        team_a['ROSTER'].del(player)
         team_b['ROSTER'].append(player)
+        print "***********"
+        print "POST_TRANSFER"
+        print team_a['ROSTER']
+        print "***********"
+        print team_b['ROSTER']
     for player in team_b_players:
         team_a['ROSTER'].append(player)
         team_b['ROSTER'].remove(player)
