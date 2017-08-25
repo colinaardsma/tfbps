@@ -19,9 +19,12 @@ def create_full_batter(url):
             batter = player_models.BatterHTML(name=raw_batter.get("NAME"),
                                               team=raw_batter.get("TEAM"),
                                               pos=raw_batter.get("POS"), category="batter",
-                                              atbats=float(raw_batter.get("AB")), runs=float(raw_batter.get("R")),
-                                              hrs=float(raw_batter.get("HR")), rbis=float(raw_batter.get("RBI")),
-                                              sbs=float(raw_batter.get("SB")), avg=raw_batter.get("AVG"),
+                                              atbats=float(raw_batter.get("AB")),
+                                              runs=float(raw_batter.get("R")),
+                                              hrs=float(raw_batter.get("HR")),
+                                              rbis=float(raw_batter.get("RBI")),
+                                              sbs=float(raw_batter.get("SB")),
+                                              avg=raw_batter.get("AVG"),
                                               ops=raw_batter.get("OPS"))
             batter_model_list.append(batter)
     return batter_model_list
@@ -148,8 +151,10 @@ def create_full_pitcher(url):
             pitcher = player_models.PitcherHTML(name=raw_pitcher.get("NAME"),
                                                 team=raw_pitcher.get("TEAM"),
                                                 pos=raw_pitcher.get("POS"), category="pitcher",
-                                                ips=float(raw_pitcher.get("IP")), wins=float(raw_pitcher.get("W")),
-                                                svs=float(raw_pitcher.get("SV")), sos=float(raw_pitcher.get("K")),
+                                                ips=float(raw_pitcher.get("IP")),
+                                                wins=float(raw_pitcher.get("W")),
+                                                svs=float(raw_pitcher.get("SV")),
+                                                sos=float(raw_pitcher.get("K")),
                                                 era=raw_pitcher.get("ERA"),
                                                 whip=raw_pitcher.get("WHIP"))
             pitcher_model_list.append(pitcher)

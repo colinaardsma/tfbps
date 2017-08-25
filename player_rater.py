@@ -21,32 +21,15 @@ def rate_fa(fa_list, ros_projection_list):
     fa_player_list = []
     for player_proj, fa_player in itertools.product(ros_projection_list, fa_list):
         if normalizer.player_comparer(fa_player, player_proj):
-    # for player_proj in ros_projection_list:
-    #     if any(normalizer.team_comparer(player_proj.team, fa_player['TEAM']) and
-    #            normalizer.name_comparer(player_proj.name, fa_player['NAME'])
-    #            for fa_player in fa_list):
             player_proj.isFA = True
             fa_player_list.append(player_proj)
     fa_above_repl = []
     dollar_value = 100.00
     player_number = 0
-    # team = ""
-    # if ("SP" in ros_projection_list[0].pos or "RP" in ros_projection_list[0].pos or
-    #         "P" in ros_projection_list[0].pos):
     while dollar_value > 1.0:
-    #         team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
-    #                  " - {player.wins:^3} - {player.svs:^2} - {player.sos:^3} - {player.era:^4}" +
-    #                  " - {player.whip:^4}\n").format(player=fa_player_list[player_number])
         fa_above_repl.append(fa_player_list[player_number])
         dollar_value = fa_player_list[player_number].dollarValue
         player_number += 1
-    # else:
-    #     while dollar_value > 1.0:
-    #         team += ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
-    #                  " - {player.runs:^3} - {player.hrs:^2} - {player.rbis:^3} - {player.sbs:^2}" +
-    #                  " - {player.ops:^5}\n").format(player=fa_player_list[player_number])
-    #         dollar_value = fa_player_list[player_number].dollarValue
-    #         player_number += 1
     return fa_above_repl
 
 def rate_team(team_dict, ros_projection_list):
@@ -333,18 +316,20 @@ def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_pr
     opt_pitchers = list(sum(optimized_pitchers.values(), []))
     for player in team_dict['ROSTER']:
         if (not any(normalizer.player_comparer(player, batter)
-                 for batter in opt_batters) and
+                    for batter in opt_batters) and
                 not any(normalizer.player_comparer(player, pitcher)
-                     for pitcher in opt_pitchers)):
+                        for pitcher in opt_pitchers)):
             bench_roster_list.append(player)
-    for player_proj, bench_player in itertools.product(ros_pitcher_projection_list, bench_roster_list):
+    for player_proj, bench_player in itertools.product(ros_pitcher_projection_list,
+                                                       bench_roster_list):
         if normalizer.player_comparer(bench_player, player_proj):
     # for player in ros_pitcher_projection_list:
     #     if any(normalizer.team_comparer(player.team, bench_player['TEAM']) and
     #            normalizer.name_comparer(player.name, bench_player['NAME'])
     #            for bench_player in bench_roster_list):
             team_player_list.append(player_proj)
-    for player_proj, bench_player in itertools.product(ros_batter_projection_list, bench_roster_list):
+    for player_proj, bench_player in itertools.product(ros_batter_projection_list,
+                                                       bench_roster_list):
         if normalizer.player_comparer(bench_player, player_proj):
     # for player in ros_batter_projection_list:
     #     if any(normalizer.team_comparer(player.team, bench_player['TEAM']) and
@@ -563,8 +548,10 @@ def league_volatility(sgp_dict, final_stats, factor=1):
     calc_volatility(sgp_dict, final_stats, "ERA", factor, False)
     calc_volatility(sgp_dict, final_stats, "WHIP", factor, False)
     for team in final_stats:
-        team['Total Upward Volatility'] = sum([value for key, value in team.iteritems() if 'UpVol' in key])
-        team['Total Downward Volatility'] = sum([value for key, value in team.iteritems() if 'DownVol' in key])
+        team['Total Upward Volatility'] = sum([value for key, value in team.iteritems()
+                                               if 'UpVol' in key])
+        team['Total Downward Volatility'] = sum([value for key, value in team.iteritems()
+                                                 if 'DownVol' in key])
     return final_stats
 
 def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
@@ -601,7 +588,8 @@ def calc_volatility(sgp_dict, final_stats, stat, factor, reverse=True):
                 up_counter -= .5
             j -= 1
             up_counter += 1
-        while k < list_length and (abs(current_team_stat - final_stats[k][stats_title]) <= abs(sgp)):
+        while (k < list_length and
+               (abs(current_team_stat - final_stats[k][stats_title]) <= abs(sgp))):
             if current_team_stat - final_stats[k][stats_title] == sgp:
                 down_counter -= .5
             k += 1
@@ -631,26 +619,31 @@ def trade_analyzer(team_a, team_a_players, team_b, team_b_players, team_list,
     Raises:\n
         None.
     """
+    print team_
     for player in team_a_players:
         print player
         print "***********"
         print "PRE_TRANSFER"
-        print team_a['ROSTER']
+        print team_a
         print "***********"
-        print team_b['ROSTER']
+        print team_b
         print
-        # team_a['ROSTER'][:] = [p for p in team_a['ROSTER'] if p['NAME'] != player['NAME']]
-        
-        team_a['ROSTER'].del(player)
-        team_b['ROSTER'].append(player)
+        for roster_player in team_a['ROSTER']:
+            if roster_player == player:
+                team_a['ROSTER'].remove(roster_player)
+                break
+        team_b['ROSTER'].append(copy.deepcopy(player))
         print "***********"
         print "POST_TRANSFER"
-        print team_a['ROSTER']
+        print team_a
         print "***********"
-        print team_b['ROSTER']
+        print team_b
     for player in team_b_players:
-        team_a['ROSTER'].append(player)
-        team_b['ROSTER'].remove(player)
+        team_a['ROSTER'].append(copy.deepcopy(player))
+        for roster_player in team_b['ROSTER']:
+            if roster_player == player:
+                team_b['ROSTER'].remove(roster_player)
+                break
     for team in team_list:
         if team['TEAM_NUMBER'] == team_a['TEAM_NUMBER']:
             team_list.remove(team)
@@ -659,27 +652,9 @@ def trade_analyzer(team_a, team_a_players, team_b, team_b_players, team_list,
             team_list.remove(team)
             team_list.append(team_b)
 
-    # for team in team_list:
-    #     if (team['TEAM_NUMBER'] == team_a['TEAM_NUMBER'] or
-    #             team['TEAM_NUMBER'] == team_b['TEAM_NUMBER']):
-    #         team.update((k, "new") for k, v in team.iteritems() if v == "value2")
-    
-    # for team in team_list:
-    #     if team['TEAM_NUMBER'] == team_a['TEAM_NUMBER']:
-    #         team_listteam = team_a
-
-    # for key, value in enumerate(team_list):
-    #     if team_a['TEAM_NUMBER'] in key:
-    #         value = team_a['ROSTER']
-
-    # [x = team_a if x['TEAM_NUMBER'] == team_a['TEAM_NUMBER'] else x for x in team_list]
-    # [x = team_b if x['TEAM_NUMBER'] == team_b['TEAM_NUMBER'] else x for x in team_list]
-
     final_stats = final_stats_projection(team_list, ros_proj_b_list,
                                          ros_proj_p_list, league_pos_dict,
                                          current_standings, league_settings)
     volatility_standings = league_volatility(sgp_dict, final_stats)
     ranked_standings = rank_list(volatility_standings)
     return ranked_standings
-
-    # post_trade_standings = dict(projected_volatility)
