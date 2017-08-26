@@ -122,11 +122,7 @@ class TeamToolsHTML(Handler):
             league_no = league_no
         elif league_no != "" and team_a and team_b and team_a_players and team_b_players:
             team_a = ast.literal_eval(team_a)
-            # print team_a
-            # print "$$$$$$$$$$$$$$$$$$$$"
             team_b = ast.literal_eval(team_b)
-            # print team_a_players
-            # print "$$$$$$$$$$$$$$$$$$$$"
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
                                                           team_b, team_b_players)
         else:

@@ -2,6 +2,7 @@
 import operator
 import math
 import re
+import ast
 import copy
 import collections
 import itertools
@@ -619,26 +620,15 @@ def trade_analyzer(team_a, team_a_players, team_b, team_b_players, team_list,
     Raises:\n
         None.
     """
-    print team_
     for player in team_a_players:
-        print player
-        print "***********"
-        print "PRE_TRANSFER"
-        print team_a
-        print "***********"
-        print team_b
-        print
+        player = ast.literal_eval(player)
         for roster_player in team_a['ROSTER']:
             if roster_player == player:
                 team_a['ROSTER'].remove(roster_player)
                 break
         team_b['ROSTER'].append(copy.deepcopy(player))
-        print "***********"
-        print "POST_TRANSFER"
-        print team_a
-        print "***********"
-        print team_b
     for player in team_b_players:
+        player = ast.literal_eval(player)
         team_a['ROSTER'].append(copy.deepcopy(player))
         for roster_player in team_b['ROSTER']:
             if roster_player == player:
@@ -651,7 +641,6 @@ def trade_analyzer(team_a, team_a_players, team_b, team_b_players, team_list,
         if team['TEAM_NUMBER'] == team_b['TEAM_NUMBER']:
             team_list.remove(team)
             team_list.append(team_b)
-
     final_stats = final_stats_projection(team_list, ros_proj_b_list,
                                          ros_proj_p_list, league_pos_dict,
                                          current_standings, league_settings)
