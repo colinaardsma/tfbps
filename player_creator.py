@@ -142,9 +142,12 @@ def create_full_pitcher(url):
     raw_pitcher_list = html_parser.fantasy_pro_players(url)
     pitcher_model_list = []
     for raw_pitcher in raw_pitcher_list:
-        if ((raw_pitcher.get("IP") is not None and int(raw_pitcher.get("IP")) == 0) or
-                (raw_pitcher.get("ERA") is not None and float(raw_pitcher.get("ERA")) == 0.0) or
-                (raw_pitcher.get("WHIP") is not None and float(raw_pitcher.get("WHIP")) == 0.0) or
+        if (raw_pitcher.get("IP") is None or float(raw_pitcher.get("IP")) <= 0.0 or
+                raw_pitcher.get("W") is None or float(raw_pitcher.get("W")) < 0.0 or
+                raw_pitcher.get("SV") is None or float(raw_pitcher.get("SV")) < 0.0 or
+                raw_pitcher.get("K") is None or float(raw_pitcher.get("K")) < 0.0 or
+                raw_pitcher.get("ERA") is None or float(raw_pitcher.get("ERA")) <= 0.0 or
+                raw_pitcher.get("WHIP") is None or float(raw_pitcher.get("WHIP")) <= 0.0 or
                 raw_pitcher.get("NAME") is None):
             continue
         else:
@@ -173,12 +176,17 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
     whip_list = []
     # weighted_pitcher_list = []
     for pitcher in pitcher_list:
+        if (pitcher.wins < 0 or pitcher.svs < 0 or pitcher.sos < 0 or
+                pitcher.era < 0 or pitcher.whip < 0):
+            continue
         win_list.append(pitcher.wins)
         sv_list.append(pitcher.svs)
         k_list.append(pitcher.sos)
         # TODO: is dividing by 15 the best route here?
-        era_list.append(pitcher.era * (pitcher.ips / 15))
-        whip_list.append(pitcher.whip * (pitcher.ips / 15))
+        era_list.append(pitcher.era)
+        whip_list.append(pitcher.whip)
+        # era_list.append(pitcher.era * (pitcher.ips / 15))
+        # whip_list.append(pitcher.whip * (pitcher.ips / 15))
     win_list_nlargest = heapq.nlargest(player_pool, win_list)
     sv_list_nlargest = heapq.nlargest(player_pool, sv_list)
     k_list_nlargest = heapq.nlargest(player_pool, k_list)
@@ -259,12 +267,18 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
     for pitcher in pitcher_list:
         # TODO: is 0.06 the best cutoff?
         if "SP" not in pitcher.pos or ("RP" in pitcher.pos and pitcher.winsip < 0.06):
-            pitcher.fvaaz = (pitcher.weightedZscoreSv + pitcher.weightedZscoreK +
-                             pitcher.weightedZscoreEra + pitcher.weightedZscoreWhip)
+            pitcher.fvaaz = (pitcher.zScoreSv + pitcher.zScoreK +
+                             pitcher.zScoreEra + pitcher.zScoreWhip)
         else:
-            pitcher.fvaaz = (pitcher.weightedZscoreW + pitcher.weightedZscoreSv +
-                             pitcher.weightedZscoreK + pitcher.weightedZscoreEra +
-                             pitcher.weightedZscoreWhip)
+            pitcher.fvaaz = (pitcher.zScoreW + pitcher.zScoreSv +
+                             pitcher.zScoreK + pitcher.zScoreEra +
+                             pitcher.zScoreWhip)
+        #     pitcher.fvaaz = (pitcher.weightedZscoreSv + pitcher.weightedZscoreK +
+        #                      pitcher.weightedZscoreEra + pitcher.weightedZscoreWhip)
+        # else:
+        #     pitcher.fvaaz = (pitcher.weightedZscoreW + pitcher.weightedZscoreSv +
+        #                      pitcher.weightedZscoreK + pitcher.weightedZscoreEra +
+        #                      pitcher.weightedZscoreWhip)
         fvaaz_list.append(pitcher.fvaaz)
     players_over_one_dollar = players_over_zero_dollars - one_dollar_players
     fvaaz_list_over_zero = heapq.nlargest(players_over_zero_dollars, fvaaz_list)
