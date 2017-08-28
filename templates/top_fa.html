@@ -21,7 +21,7 @@
           {%- for pitcher in top_fa['Pitching FAs'] %}
             <tr>
               <td>{{'$%0.2f' % pitcher.dollarValue}}</td>
-              <td><a href={{'https://baseball.fantasysports.yahoo.com/b1/5091/playersearch?&search=' ~ pitcher.name|replace(' ','%20')}}>{{pitcher.name}}</a></td>
+              <td><a href={{'https://baseball.fantasysports.yahoo.com/b1/5091/playersearch?&search=' ~ pitcher.name|replace(' ','%20')}} target="_blank">{{pitcher.name}}</a></td>
               <td>{{pitcher.team}}</td>
               <td>{{pitcher.pos}}</td>
               <td>{{'%0.0f' % pitcher.wins}}</td>
@@ -85,7 +85,7 @@
           {%- for batter in top_fa['Batting FAs'] %}
             <tr>
               <td>{{'$%0.2f' % batter.dollarValue}}</td>
-              <td><a href={{'https://baseball.fantasysports.yahoo.com/b1/5091/playersearch?&search=' ~ batter.name|replace(' ','%20')}}>{{batter.name}}</a></td>
+              <td><a href={{'https://baseball.fantasysports.yahoo.com/b1/5091/playersearch?&search=' ~ batter.name|replace(' ','%20')}} target="_blank">{{batter.name}}</a></td>
               <td>{{batter.team}}</td>
               <td>{{batter.pos}}</td>
               <td>{{'%0.0f' % batter.runs}}</td>

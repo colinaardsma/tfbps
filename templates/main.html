@@ -5,61 +5,23 @@
     <link type="text/css" rel="stylesheet" href="/styles/normalize.css" />
     <link type="text/css" rel="stylesheet" href="/styles/styles.css" />
     <!-- <script type="text/javascript" src="/scripts/scripts.js"></script> -->
-    <table>
-      <tr>
-        <td>
-          <form action="/">
-            <button>home</button>
-          </form>
-        </td>
-        <td>
-          <form action="/batting_projections">
-            <button>batting projections</button>
-          </form>
-        </td>
-        <td>
-          <form action="/pitching_projections">
-            <button>pitching projections</button>
-          </form>
-        </td>
-        <!-- <td>
-          <form action="/blog">
-            <button>blog</button>
-          </form>
-        </td>
-        <td>
-          <form action="/admin">
-            <button>admin</button>
-          </form>
-        </td> -->
-        <td>
-          <form action="/oauth">
-            <button>oauth</button>
-          </form>
-        </td>
-        <td>
-          <form action="/team_tools_html">
-            <button>team tools html</button>
-          </form>
-        </td>
-        <td>
-          <form action="/team_tools_db">
-            <button>team tools db</button>
-          </form>
-        </td>
-      <!-- {%- if user %}
-        <td>
-          <p>{{user}}<a href="/logout"> (logout)</a></p>
-        </td>
-      {%- else %}
-        <td>
-          <form action="/login">
-            <button>login</button>
-          </form>
-        </td>
-      {%- endif %} -->
-      </tr>
-    </table>
+    <nav>
+      <ul>
+        <li><a href="/">home</a></li>
+        <li><a href="/batting_projections">batting projections</a></li>
+        <li><a href="/pitching_projections">pitching projections</a></li>
+        <!-- <li><a href="/blog">blog</a></li>
+        <li><a href="/admin">admin</a></li>
+        <li><a href="/oauth">oauth</a></li> -->
+        <li><a href="/team_tools_html">team tools html</a></li>
+        <li><a href="/team_tools_db">team tools db</a></li>
+        {%- if user %}
+        <li>{{user}}<a href="/logout"> (logout)</a></li>
+        {%- else %}
+        <li><a href="/login">login</a></li>
+        {%- endif %}
+      </ul>
+    </nav>
     <table width="100%">
       <tr>
         <td>
