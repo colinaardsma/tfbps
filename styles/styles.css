@@ -55,11 +55,11 @@ li a {
 }
 
 li a:hover:not(.active) {
-    background-color: #8575C0;
+    background-color: #3409D7;
 }
 
 .active {
-    background-color: #3101A5;
+    background-color: #CB0F12;
 }
 
 /*input[type=text] {
