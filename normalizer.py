@@ -177,16 +177,16 @@ def name_comparer(name_a, name_b):
                  'vince':['vince', 'vincent']}
     name_a = name_a.replace(".", "").lower()
     name_b = name_b.replace(".", "").lower()
-    name_a_groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', name_a)
-    name_a_first = name_a_groups.group(1)
-    name_a_last = name_a_groups.group(2)
-    name_a_norm = "a"
-    name_b_groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', name_b)
-    name_b_first = name_b_groups.group(1)
-    name_b_last = name_b_groups.group(2)
-    name_b_norm = "b"
     if name_a == name_b:
         return True
+    name_a_groups = re.search(r'^(\w*)(.*?(?=\sjr)|.*)(\sjr)?', name_a)
+    name_a_first = name_a_groups.group(1)
+    name_a_last = name_a_groups.group(2)
+    name_a_norm = name_a_first
+    name_b_groups = re.search(r'^(\w*)(.*?(?=\sjr)|.*)(\sjr)?', name_b)
+    name_b_first = name_b_groups.group(1)
+    name_b_last = name_b_groups.group(2)
+    name_b_norm = name_b_first
     if name_a_last != name_b_last:
         return False
     for key, val in name_list.iteritems():

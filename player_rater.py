@@ -623,7 +623,7 @@ def trade_analyzer(team_a, team_a_players, team_b, team_b_players, team_list,
     for player in team_a_players:
         player = ast.literal_eval(player)
         for roster_player in team_a['ROSTER']:
-            if (roster_player['TEAM'] == player['TEAM'] and 
+            if (roster_player['TEAM'] == player['TEAM'] and
                     roster_player['LAST_NAME'] == player['LAST_NAME'] and
                     roster_player['NORMALIZED_FIRST_NAME'] == player['NORMALIZED_FIRST_NAME']):
                 team_a['ROSTER'].remove(roster_player)
@@ -633,7 +633,7 @@ def trade_analyzer(team_a, team_a_players, team_b, team_b_players, team_list,
         player = ast.literal_eval(player)
         team_a['ROSTER'].append(copy.deepcopy(player))
         for roster_player in team_b['ROSTER']:
-            if (roster_player['TEAM'] == player['TEAM'] and 
+            if (roster_player['TEAM'] == player['TEAM'] and
                     roster_player['LAST_NAME'] == player['LAST_NAME'] and
                     roster_player['NORMALIZED_FIRST_NAME'] == player['NORMALIZED_FIRST_NAME']):
                 team_b['ROSTER'].remove(roster_player)
