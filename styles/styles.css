@@ -39,7 +39,7 @@ ul {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #D7D6E2;
+    background-color: #C0C0C0;
 }
 
 li {
@@ -55,11 +55,13 @@ li a {
 }
 
 li a:hover:not(.active) {
-    background-color: #3409D7;
+    background-color: #002F6C;
+    color: white;
 }
 
 .active {
-    background-color: #CB0F12;
+    background-color: #C8102E;
+    color: white;
 }
 
 /*input[type=text] {

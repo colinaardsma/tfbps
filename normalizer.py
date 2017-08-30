@@ -36,7 +36,7 @@ def name_normalizer(full_name):
     if full_name is None:
         return {'First':"", 'Last':""}
     full_name = full_name.replace(".", "").lower()
-    groups = re.search(r'^(\w*)(.*?(?=\sJr)|.*)(\sJr)?', full_name)
+    groups = RegexGroups(full_name)
     first_name = groups.group(1)
     last_name = groups.group(2).strip()
     norm_first_name = first_name
@@ -179,11 +179,11 @@ def name_comparer(name_a, name_b):
     name_b = name_b.replace(".", "").lower()
     if name_a == name_b:
         return True
-    name_a_groups = re.search(r'^(\w*)(.*?(?=\sjr)|.*)(\sjr)?', name_a)
+    name_a_groups = RegexGroups(name_a)
     name_a_first = name_a_groups.group(1)
     name_a_last = name_a_groups.group(2)
     name_a_norm = name_a_first
-    name_b_groups = re.search(r'^(\w*)(.*?(?=\sjr)|.*)(\sjr)?', name_b)
+    name_b_groups = RegexGroups(name_b)
     name_b_first = name_b_groups.group(1)
     name_b_last = name_b_groups.group(2)
     name_b_norm = name_b_first
@@ -252,6 +252,9 @@ def player_comparer(yahoo_player, proj_player):
         return True
     return False
 
+def RegexGroups(full_name):
+    groups = re.search(r'^(\w*)(.*?(?=\sjr)|.*)(\sjr)?', full_name)
+    return groups
 
 # NAME_A = "Joe H. Smith"
 # NAME_B = "Joseph Smith"
@@ -270,4 +273,4 @@ def player_comparer(yahoo_player, proj_player):
 # print name_checker(NAME_D, NAME_E)
 # # # 60
 
-# print name_comparer('Ken Giles Jr.', 'Kenneth Giles')
+# print name_normalizer('Ken Giles Jr.')
