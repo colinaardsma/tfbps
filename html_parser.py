@@ -212,7 +212,7 @@ def yahoo_team_creator(single_team_html):
             player_dict['NAME'] = player_name[0]
             player_dict["NORMALIZED_FIRST_NAME"] = norm_name['First']
             player_dict["LAST_NAME"] = norm_name['Last']
-            player_dict['TEAM'] = player_team.upper()
+            player_dict['TEAM'] = normalizer.team_normalizer(player_team.upper())
             # player = player.replace('.', '')
             roster.append(player_dict)
         team[dict_key_list[2]] = roster
