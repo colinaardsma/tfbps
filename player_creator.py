@@ -16,9 +16,17 @@ def create_full_batter(url):
                 raw_batter.get("NAME") is None):
             continue
         else:
+            if "DL" in raw_batter.get("STATUS") or "MiLB" in raw_batter.get("STATUS"):
+                raw_batter["AB"] = float(raw_batter["AB"]) / 2
+                raw_batter["R"] = float(raw_batter["R"]) / 2
+                raw_batter["HR"] = float(raw_batter["HR"]) / 2
+                raw_batter["RBI"] = float(raw_batter["RBI"]) / 2
+                raw_batter["SB"] = float(raw_batter["SB"]) / 2
             batter = player_models.BatterHTML(name=raw_batter.get("NAME"),
                                               team=raw_batter.get("TEAM"),
-                                              pos=raw_batter.get("POS"), category="batter",
+                                              pos=raw_batter.get("POS"),
+                                              status=raw_batter.get("STATUS"),
+                                              category="batter",
                                               atbats=float(raw_batter.get("AB")),
                                               runs=float(raw_batter.get("R")),
                                               hrs=float(raw_batter.get("HR")),
@@ -151,9 +159,16 @@ def create_full_pitcher(url):
                 raw_pitcher.get("NAME") is None):
             continue
         else:
+            if "DL" in raw_pitcher.get("STATUS") or "MiLB" in raw_pitcher.get("STATUS"):
+                raw_pitcher["IP"] = float(raw_pitcher["IP"]) / 2
+                raw_pitcher["W"] = float(raw_pitcher["W"]) / 2
+                raw_pitcher["SV"] = float(raw_pitcher["SV"]) / 2
+                raw_pitcher["K"] = float(raw_pitcher["K"]) / 2
             pitcher = player_models.PitcherHTML(name=raw_pitcher.get("NAME"),
                                                 team=raw_pitcher.get("TEAM"),
-                                                pos=raw_pitcher.get("POS"), category="pitcher",
+                                                pos=raw_pitcher.get("POS"),
+                                                status=raw_pitcher.get("STATUS"),
+                                                category="pitcher",
                                                 ips=float(raw_pitcher.get("IP")),
                                                 wins=float(raw_pitcher.get("W")),
                                                 svs=float(raw_pitcher.get("SV")),

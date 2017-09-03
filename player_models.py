@@ -17,6 +17,7 @@ class BatterHTML(object):
     last_name = ""
     team = ""
     pos = ""
+    status = ""
     last_modified = datetime.datetime.now()
     category = ""
     # Raw Stat Properties
@@ -55,7 +56,7 @@ class BatterHTML(object):
     # FA Status
     isFA = False
 
-    def __init__(self, name, team, pos, category, atbats=0.0, runs=0.0, hrs=0.0, rbis=0.0,
+    def __init__(self, name, team, pos, status, category, atbats=0.0, runs=0.0, hrs=0.0, rbis=0.0,
                  sbs=0.0, avg=0.000, ops=0.000):
         # Descriptive Properties
         self.name = str(name)
@@ -64,6 +65,7 @@ class BatterHTML(object):
         self.last_name = str(norm_name['Last'])
         self.team = str(normalizer.team_normalizer(str(team)))
         self.pos = str(pos).split(",")
+        self.status = str(status)
         self.last_modified = datetime.datetime.now()
         self.category = str(category)
         # Raw Stat Properties
@@ -84,6 +86,7 @@ class PitcherHTML(object):
     team = ""
     pos = ""
     is_sp = False
+    status = ""
     last_modified = datetime.datetime.now()
     category = ""
     # Raw Stat Properties
@@ -120,7 +123,7 @@ class PitcherHTML(object):
     # FA Status
     isFA = False
 
-    def __init__(self, name, team, pos, category, ips=0.0, wins=0.0, svs=0.0, sos=0.0,
+    def __init__(self, name, team, pos, status, category, ips=0.0, wins=0.0, svs=0.0, sos=0.0,
                  era=0.00, whip=0.00):
         # Descriptive Properties
         self.name = str(name)
@@ -129,6 +132,7 @@ class PitcherHTML(object):
         self.last_name = str(norm_name['Last'])
         self.team = str(normalizer.team_normalizer(team))
         self.pos = str(pos).split(",")
+        self.status = str(status)
         self.last_modified = datetime.datetime.now()
         self.category = str(category)
         # Raw Stat Properties
@@ -152,6 +156,7 @@ class BatterDB(db.Model):
     last_name = db.StringProperty()
     team = db.StringProperty(required=True)
     pos = db.StringListProperty(required=True)
+    status = db.StringProperty()
     last_modified = db.DateTimeProperty(auto_now=True)
     category = db.StringProperty(required=True)
     # Raw Stat Properties
@@ -199,6 +204,7 @@ class PitcherDB(db.Model):
     team = db.StringProperty(required=True)
     pos = db.StringListProperty(required=True)
     is_sp = db.BooleanProperty()
+    status = db.StringProperty()
     last_modified = db.DateTimeProperty(auto_now=True)
     category = db.StringProperty(required=True)
     # Raw Stat Properties
@@ -238,6 +244,7 @@ class PitcherDB(db.Model):
 def store_batter(batter):
     batter = BatterDB(name=batter.name, normalized_first_name=batter.normalized_first_name,
                       last_name=batter.last_name, team=batter.team, pos=batter.pos,
+                      status=batter.status,
                       category=batter.category, atbats=batter.atbats, runs=batter.runs,
                       hrs=batter.hrs, rbis=batter.rbis, sbs=batter.sbs, avg=batter.avg,
                       ops=batter.ops, zScoreR=batter.zScoreR, zScoreHr=batter.zScoreHr,
@@ -259,9 +266,10 @@ def store_batter(batter):
 def store_pitcher(pitcher):
     pitcher = PitcherDB(name=pitcher.name, normalized_first_name=pitcher.normalized_first_name,
                         last_name=pitcher.last_name, team=pitcher.team, pos=pitcher.pos,
-                        is_sp=pitcher.is_sp, category=pitcher.category, ips=pitcher.ips,
+                        is_sp=pitcher.is_sp, status=pitcher.status,
+                        category=pitcher.category, ips=pitcher.ips,
                         wins=pitcher.wins, svs=pitcher.svs, sos=pitcher.sos, era=pitcher.era,
-                        whip=pitcher.whip, kip=pitcher.kip, winsip=pitcher.winsip, 
+                        whip=pitcher.whip, kip=pitcher.kip, winsip=pitcher.winsip,
                         zScoreW=pitcher.zScoreW, zScoreSv=pitcher.zScoreSv,
                         zScoreK=pitcher.zScoreK, zScoreEra=pitcher.zScoreEra,
                         zScoreWhip=pitcher.zScoreWhip, weightedW=pitcher.weightedW,

@@ -9,6 +9,7 @@
           <th>Player Name</th>
           <th>Team</th>
           <th>Position</th>
+          <th>Status</th>
           <th>W</th>
           <th>SV</th>
           <th>K</th>
@@ -24,6 +25,13 @@
               <td><a href={{'https://baseball.fantasysports.yahoo.com/b1/5091/playersearch?&search=' ~ pitcher.name|replace(' ','%20')}} target="_blank">{{pitcher.name}}</a></td>
               <td>{{pitcher.team}}</td>
               <td>{{pitcher.pos}}</td>
+              {%- if 'DL' in pitcher.status %}
+              <td style="color:red">{{pitcher.status}}</td>
+              {%- elif 'MiLB' in pitcher.status %}
+                <td style="color:blue">{{pitcher.status}}</td>
+              {%- else %}
+                <td></td>
+              {%- endif %}
               <td>{{'%0.0f' % pitcher.wins}}</td>
               <td>{{'%0.0f' % pitcher.svs}}</td>
               <td>{{'%0.0f' % pitcher.sos}}</td>
@@ -42,6 +50,7 @@
           <th>Player Name</th>
           <th>Team</th>
           <th>Position</th>
+          <th>Status</th>          
           <th>W</th>
           <th>SV</th>
           <th>K</th>
@@ -57,6 +66,13 @@
               <td>{{pitcher.name}}</td>
               <td>{{pitcher.team}}</td>
               <td>{{pitcher.pos}}</td>
+              {%- if 'DL' in pitcher.status %}
+              <td style="color:red">{{pitcher.status}}</td>
+              {%- elif 'MiLB' in pitcher.status %}
+                <td style="color:blue">{{pitcher.status}}</td>
+              {%- else %}
+                <td></td>
+              {%- endif %}
               <td>{{'%0.0f' % pitcher.wins}}</td>
               <td>{{'%0.0f' % pitcher.svs}}</td>
               <td>{{'%0.0f' % pitcher.sos}}</td>
@@ -75,6 +91,7 @@
           <th>Player Name</th>
           <th>Team</th>
           <th>Position</th>
+          <th>Status</th>
           <th>R</th>
           <th>HR</th>
           <th>RBI</th>
@@ -88,6 +105,13 @@
               <td><a href={{'https://baseball.fantasysports.yahoo.com/b1/5091/playersearch?&search=' ~ batter.name|replace(' ','%20')}} target="_blank">{{batter.name}}</a></td>
               <td>{{batter.team}}</td>
               <td>{{batter.pos}}</td>
+              {%- if 'DL' in batter.status %}
+              <td style="color:red">{{batter.status}}</td>
+              {%- elif 'MiLB' in batter.status %}
+                <td style="color:blue">{{batter.status}}</td>
+              {%- else %}
+                <td></td>
+              {%- endif %}
               <td>{{'%0.0f' % batter.runs}}</td>
               <td>{{'%0.0f' % batter.hrs}}</td>
               <td>{{'%0.0f' % batter.rbis}}</td>
@@ -104,6 +128,7 @@
           <th>Player Name</th>
           <th>Team</th>
           <th>Position</th>
+          <th>Status</th>
           <th>R</th>
           <th>HR</th>
           <th>RBI</th>
@@ -117,6 +142,13 @@
               <td>{{batter.name}}</td>
               <td>{{batter.team}}</td>
               <td>{{batter.pos}}</td>
+              {%- if 'DL' in batter.status %}
+              <td style="color:red">{{batter.status}}</td>
+              {%- elif 'MiLB' in batter.status %}
+                <td style="color:blue">{{batter.status}}</td>
+              {%- else %}
+                <td></td>
+              {%- endif %}
               <td>{{'%0.0f' % batter.runs}}</td>
               <td>{{'%0.0f' % batter.hrs}}</td>
               <td>{{'%0.0f' % batter.rbis}}</td>

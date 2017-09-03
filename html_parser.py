@@ -73,19 +73,24 @@ def fant_pro_player_dict_creator(single_player_html, headings_list_html):
                 continue
             single_player["NAME"] = name_team_pos[0]
             if len(name_team_pos) >= 3:
-                single_player["TEAM"] = name_team_pos[2].replace(u'\xa0', u' ')
+                single_player["TEAM"] = name_team_pos[2].replace(u'\xa0', u' ').encode('utf-8')
             else:
                 single_player["TEAM"] = "NONE"
             if len(name_team_pos) >= 4:
                 name_team_pos[3] = name_team_pos[3].strip(" - ")
                 name_team_pos[3] = name_team_pos[3].strip(")")
-                single_player["POS"] = name_team_pos[3].replace(u'\xa0', u' ')
+                single_player["POS"] = name_team_pos[3].replace(u'\xa0', u' ').encode('utf-8')
             else:
                 single_player["POS"] = "NONE"
+            if len(name_team_pos) >= 5:
+                single_player["STATUS"] = name_team_pos[4].replace(u'\xa0', '').encode('utf-8')
+            else:
+                single_player["STATUS"] = "ACTIVE"
         else:
             stat = single_player_html[counter].xpath("self::*/text()")
             if len(stat) != 0:
-                single_player[headings_list_html[counter]] = stat[0]
+                cat = stat[0].replace(u'\xa0', '').encode('utf-8')
+                single_player[headings_list_html[counter]] = cat
         counter += 1
     return single_player
 
@@ -152,8 +157,16 @@ def yahoo_player_dict_creator(single_player_html, b_or_p):
             single_player[dict_key_list[3]] = norm_name['Last']
             single_player[dict_key_list[4]] = team_pos.split(" - ")[0].upper()
             single_player[dict_key_list[5]] = team_pos.split(" - ")[1]
+            dl_na = single_player_html[1].xpath("descendant::span[@class='ysf-player-status " +
+                                                "F-injury Fz-xxs Grid-u Lh-xs Mend-xs']" +
+                                                "/text()")
+            if not dl_na:
+                single_player["DL_NA_STATUS"] = False
+            else:
+                single_player["DL_NA_STATUS"] = dl_na[0]
             counter = 9
             continue
+
         else:
             stat = single_player_html[counter + counter_addition].xpath("descendant::*/text()")
             if len(stat) != 0:
