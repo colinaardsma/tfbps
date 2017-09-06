@@ -233,12 +233,8 @@ class Redirect(Handler):
         self.render_redirect()
 
 class LocalhostRedirect(Handler):
-    # def render_redirect(self):
-    #     self.redirect("/team_tools_db")
-
     def get(self):
-        self.redirect("localhost:8080/redirect")
-
+        self.redirect("http://localhost:8080/redirect")        
 
 # routing
 app = webapp2.WSGIApplication([
