@@ -226,15 +226,24 @@ class Oauth(Handler):
         self.redirect(api_connector.request_auth())
 
 class Redirect(Handler):
-    def render_redirect(self):
-        self.render("/")
+    def render_redirect(self, code):
+        self.redirect("http://localhost:8080?code=" + code)
 
     def get(self):
-        self.render_redirect()
+        code = self.request.get('code')
+        self.render_redirect(code=code)
+
+    def post(self):
+        code = self.request.get('code')
+        self.render_redirect(code=code)
 
 class LocalhostRedirect(Handler):
+    def render_locahostredirect(self, code):
+        self.redirect(str('http://localhost:8080?code=' + code))
+
     def get(self):
-        self.redirect("http://localhost:8080/redirect")        
+        code = self.request.get('code')
+        self.render_locahostredirect(code=code)
 
 # routing
 app = webapp2.WSGIApplication([
