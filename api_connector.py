@@ -11,12 +11,12 @@ import base64
 # https://developer.yahoo.com/oauth2/guide/flows_authcode/
 
 # consumer key
-# CLIENT_ID = "dj0yJmk9WFp0SWhGNkVCR0R5JmQ9WVdrOWJucFRaa2wwTXpnbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD01Zg--"
-CLIENT_ID = "dj0yJmk9YWE1SnlhV0lUbndoJmQ9WVdrOU9FUmhUelV6TkdVbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD1lMQ--"
+CLIENT_ID = "dj0yJmk9aVk0WklPZUlJZ011JmQ9WVdrOVlrNTJlV0ZpTkhFbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0zNg--"
+# CLIENT_ID = "dj0yJmk9YWE1SnlhV0lUbndoJmQ9WVdrOU9FUmhUelV6TkdVbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD1lMQ--"
 # consumer secret
-# CLIENT_SECRET = "612e995401b6abd14e27c1422b1d31f097a8971f"
-CLIENT_SECRET = "55d6606ea0bec9a1468d3ea01bbf1c9991dbf93f"
-REDIRECT_URI = "localhost:8080"
+CLIENT_SECRET = "eb6af3627b7148a2f760d5ee2cc5db4cd6edb4d8"
+# CLIENT_SECRET = "55d6606ea0bec9a1468d3ea01bbf1c9991dbf93f"
+REDIRECT_URI = "grays-sports-almanac.appspot.com\localhostredirect"
 # REDIRECT_URI = "oob"
 
 def request_auth():

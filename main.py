@@ -227,10 +227,18 @@ class Oauth(Handler):
 
 class Redirect(Handler):
     def render_redirect(self):
-        self.render("home/html")
+        self.render("/")
 
     def get(self):
         self.render_redirect()
+
+class LocalhostRedirect(Handler):
+    # def render_redirect(self):
+    #     self.redirect("/team_tools_db")
+
+    def get(self):
+        self.redirect("localhost:8080/redirect")
+
 
 # routing
 app = webapp2.WSGIApplication([
@@ -243,6 +251,7 @@ app = webapp2.WSGIApplication([
     ('/pitching_projections/?', PitchingProjections),
     ('/team_tools_html/?', TeamToolsHTML),
     ('/team_tools_db/?', TeamToolsDB),
-    ('/update_projections/?', UpdateProjections)
+    ('/update_projections/?', UpdateProjections),
+    ('/localhostredirect/?', LocalhostRedirect)
     ], debug=True)
     
