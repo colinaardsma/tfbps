@@ -283,11 +283,11 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
         # TODO: is 0.06 the best cutoff?
         if "SP" not in pitcher.pos or ("RP" in pitcher.pos and pitcher.winsip < 0.06):
             pitcher.fvaaz = (pitcher.zScoreSv + pitcher.zScoreK +
-                             pitcher.zScoreEra + pitcher.zScoreWhip)
+                             pitcher.weightedZscoreEra + pitcher.weightedZscoreWhip)
         else:
             pitcher.fvaaz = (pitcher.zScoreW + pitcher.zScoreSv +
-                             pitcher.zScoreK + pitcher.zScoreEra +
-                             pitcher.zScoreWhip)
+                             pitcher.zScoreK + pitcher.weightedZscoreEra +
+                             pitcher.weightedZscoreWhip)
         #     pitcher.fvaaz = (pitcher.weightedZscoreSv + pitcher.weightedZscoreK +
         #                      pitcher.weightedZscoreEra + pitcher.weightedZscoreWhip)
         # else:
