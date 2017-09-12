@@ -92,6 +92,20 @@ class PitcherDB(db.Model):
     # FA Status
     isFA = db.BooleanProperty
 
-def pull_batters(player):
-    player = BatterDB(name=name, team=team, pos=pos, ab=ab, r=r, hr=hr, rbi=rbi, sb=sb, avg=avg, obp=obp, h=h, double=double, triple=triple, bb=bb, k=k, slg=slg, ops=ops, category=category)
-    player.put()
+# TODO: delete this?
+# def pull_batters(player):
+#     player = BatterDB(name=name, team=team, pos=pos, ab=ab, r=r, hr=hr, rbi=rbi, sb=sb, avg=avg, obp=obp, h=h, double=double, triple=triple, bb=bb, k=k, slg=slg, ops=ops, category=category)
+#     player.put()
+
+class User(db.Model):
+    """The User database model"""
+    username = db.StringProperty(required=True)
+    password = db.StringProperty(required=True)
+    email = db.EmailProperty(required=True)
+    yahooGuid = db.StringProperty
+    created = db.DateTimeProperty(auto_now_add=True)
+    last_modified = db.DateTimeProperty
+    last_accessed = db.DateTimeProperty(auto_now=True)
+    location = db.GeoPtProperty
+
+ 

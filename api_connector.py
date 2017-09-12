@@ -85,7 +85,21 @@ def yql_query(path, oauth_token):
         None.
     """
     baseurl = "https://fantasysports.yahooapis.com/fantasy/v2"
-    url = baseurl + path + "?format=json"
+    url = baseurl + path
+    raw_json = get_json_data(url, oauth_token)
+    return raw_json
+
+def get_guid(oauth_token):
+    url = "https://social.yahooapis.com/v1/me/guid"
+    raw_json = get_json_data(url, oauth_token)
+    return raw_json
+
+def get_json_data(url, oauth_token):
+    url = url + "?format=json"
+    raw_json = get_xml_data(url, oauth_token)
+    return raw_json
+
+def get_xml_data(url, oauth_token):
     headers = {'Authorization': str(oauth_token['token_type']).capitalize() +
                                 " " + str(oauth_token['access_token'])}
     request = urllib2.Request(url, headers=headers)
@@ -94,12 +108,12 @@ def yql_query(path, oauth_token):
     return raw_xml
 
 
-AUTHORIZATION_CODE = "yn2dxse"
-LEAGUE_YEAR_CODE = "370"
-LEAGUE_KEY = "5091"
-PATH = "/leagues;league_keys=" + LEAGUE_YEAR_CODE + ".l." + LEAGUE_KEY + "/standings"
-# webbrowser.open(request_auth())
-OAUTH_TOKEN = {u'access_token': u'aJZ7CI3OogsRi3YeufErdSjuw0MRG3r6ZtMAlptP80EfUUBr31Jqn.d1ikQA0goSrGD.9soz5MlKQ3FFhgVjEXhirRN.2XbrS4X.BM1J0DkwU7ElcEZZEyWvk8mMXfe47BslXzkmPIEMSoqe11Z39Lr5HE6NH5ifMv5TuK9jSg4HWnlUtaeD6ImqxGN9AAzqlCFsael_PfRNhhscNi9XEowp4s2ljogW.AIqubD8zRI3ZX7HwkeV0VqBGr2S8riSOjQMNN68xSyLTuOm1qbuJBGegVh6dZDZdrc5X6vxG5W6gpSGyZROtG8G_RE8ByALiwryMEpa7yL9L1S_j5GP2U0vHnbSLq7LKNl459FqI4nGOi83WGPUxvvRThCLysq5OVPPmgOojJbWbvFdkIyTx88rdjoYJEVLDlk7tjGn58K8TwuQbsrV1S3fsveRSzs3d.gee0k3cs3QniTNd5ibvw13bO0lrfrGZ.VWShJ0hkgAJ5tVLz6JaaZMnNmishUQEqMEUwA24daGrCiuFpJZoie38do.vvlXlASJY0m1Ds2i9MYVE57dpfJMTkalDpo_REzTXqMmcIlANGsWibbHLfEdLWAQlrbVwl_T.zfBARlX1A1pz0X0zDKw9fHnEovGlgXYCBL3uuxo.Xt_1qaJ6j4Kn89gJ.KTVHcDVYCaZOj3uHkd.kpfOOqTJNL0D2rbXFpoJ2Aixr4qGnK_THgVWiHmQcbKxtlL.nGPjvwx2wiN6wPKJYFTL1vf2i5hDdicbmu5_qBsq_TVNNmgDHfL4fESGzBgq77HyTI6mebFfBt9owqZudA6srbBNrmFDzAz.VPLsf.KJuIL01zK5rhaWF3cc7tp0a6.bCE6.V6oCckA3y_mJB4pxQmeRUxfc0c8kCaxpx6EjPRRA.2X6F4kdmcD5Wku4R0jz7dqGR1_m7wa.9qMo7G7TrT67xN3umVpSsBaoqkmxxqw6G7wL0egQR7dwyyn2aJWQ81hfLTMwBasmqr94HcfuQCA3tcyYeemm9AaZg2kNXqMgPq51pnA1892p2Spf17W3gFQlK_fu_7xl4LguBJi8H5.Kw--', u'token_type': u'bearer', u'expires_in': 3600, u'xoauth_yahoo_guid': u'PP5K6WYOIYQL4ZWJAYTN2ZQ5CU', u'refresh_token': u'ACRar1mAeCTt7i0dv3kIcSwD4yECKpGzipn4E2f1RrSZJmJecQ--'}
-# print get_token(AUTHORIZATION_CODE)
-print yql_query(PATH, OAUTH_TOKEN).replace(r"\/", "/")
-# print json_return
+# AUTHORIZATION_CODE = "yn2dxse"
+# LEAGUE_YEAR_CODE = "370"
+# LEAGUE_KEY = "5091"
+# PATH = "/leagues;league_keys=" + LEAGUE_YEAR_CODE + ".l." + LEAGUE_KEY + "/standings"
+# # webbrowser.open(request_auth())
+# OAUTH_TOKEN = {u'access_token': u'aJZ7CI3OogsRi3YeufErdSjuw0MRG3r6ZtMAlptP80EfUUBr31Jqn.d1ikQA0goSrGD.9soz5MlKQ3FFhgVjEXhirRN.2XbrS4X.BM1J0DkwU7ElcEZZEyWvk8mMXfe47BslXzkmPIEMSoqe11Z39Lr5HE6NH5ifMv5TuK9jSg4HWnlUtaeD6ImqxGN9AAzqlCFsael_PfRNhhscNi9XEowp4s2ljogW.AIqubD8zRI3ZX7HwkeV0VqBGr2S8riSOjQMNN68xSyLTuOm1qbuJBGegVh6dZDZdrc5X6vxG5W6gpSGyZROtG8G_RE8ByALiwryMEpa7yL9L1S_j5GP2U0vHnbSLq7LKNl459FqI4nGOi83WGPUxvvRThCLysq5OVPPmgOojJbWbvFdkIyTx88rdjoYJEVLDlk7tjGn58K8TwuQbsrV1S3fsveRSzs3d.gee0k3cs3QniTNd5ibvw13bO0lrfrGZ.VWShJ0hkgAJ5tVLz6JaaZMnNmishUQEqMEUwA24daGrCiuFpJZoie38do.vvlXlASJY0m1Ds2i9MYVE57dpfJMTkalDpo_REzTXqMmcIlANGsWibbHLfEdLWAQlrbVwl_T.zfBARlX1A1pz0X0zDKw9fHnEovGlgXYCBL3uuxo.Xt_1qaJ6j4Kn89gJ.KTVHcDVYCaZOj3uHkd.kpfOOqTJNL0D2rbXFpoJ2Aixr4qGnK_THgVWiHmQcbKxtlL.nGPjvwx2wiN6wPKJYFTL1vf2i5hDdicbmu5_qBsq_TVNNmgDHfL4fESGzBgq77HyTI6mebFfBt9owqZudA6srbBNrmFDzAz.VPLsf.KJuIL01zK5rhaWF3cc7tp0a6.bCE6.V6oCckA3y_mJB4pxQmeRUxfc0c8kCaxpx6EjPRRA.2X6F4kdmcD5Wku4R0jz7dqGR1_m7wa.9qMo7G7TrT67xN3umVpSsBaoqkmxxqw6G7wL0egQR7dwyyn2aJWQ81hfLTMwBasmqr94HcfuQCA3tcyYeemm9AaZg2kNXqMgPq51pnA1892p2Spf17W3gFQlK_fu_7xl4LguBJi8H5.Kw--', u'token_type': u'bearer', u'expires_in': 3600, u'xoauth_yahoo_guid': u'PP5K6WYOIYQL4ZWJAYTN2ZQ5CU', u'refresh_token': u'ACRar1mAeCTt7i0dv3kIcSwD4yECKpGzipn4E2f1RrSZJmJecQ--'}
+# # print get_token(AUTHORIZATION_CODE)
+# print yql_query(PATH, OAUTH_TOKEN).replace(r"\/", "/")
+# # print json_return

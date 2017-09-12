@@ -2,6 +2,7 @@ import os
 import ast
 import time
 import logging
+import json
 import webapp2
 import api_connector
 import jinja2
@@ -227,6 +228,12 @@ class Oauth(Handler):
 
 class Redirect(Handler):
     def render_redirect(self, code):
+        # oauth_token = api_connector.get_token(code)
+        # yahoo_guid_json = api_connector.get_guid(oauth_token)
+        # yahoo_guid_dict = json.loads(yahoo_guid_json)
+        # print yahoo_guid_json
+        # print yahoo_guid_dict
+
         self.redirect("http://localhost:8080?code=" + code)
 
     def get(self):
@@ -239,7 +246,7 @@ class Redirect(Handler):
 
 class LocalhostRedirect(Handler):
     def render_locahostredirect(self, code):
-        self.redirect(str('http://localhost:8080?code=' + code))
+        self.redirect(str('http://localhost:8080/redirect?code=' + code))
 
     def get(self):
         code = self.request.get('code')
