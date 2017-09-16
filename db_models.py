@@ -102,10 +102,14 @@ class User(db.Model):
     username = db.StringProperty(required=True)
     password = db.StringProperty(required=True)
     email = db.EmailProperty(required=True)
+    authorization = db.StringProperty(required=True)
     yahooGuid = db.StringProperty
     created = db.DateTimeProperty(auto_now_add=True)
     last_modified = db.DateTimeProperty
     last_accessed = db.DateTimeProperty(auto_now=True)
     location = db.GeoPtProperty
 
- 
+def store_user(username, password, email, authorization = "basic", yahooGuid = None, location = None):
+    user = User(username=username, password=password, email=email, authorization=authorization,
+                yahooGuid=yahooGuid, location=location)
+    db.put(user)

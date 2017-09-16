@@ -1,6 +1,7 @@
 """GQL Queries"""
 import logging
 import player_models
+import db_models
 # from google.appengine.ext import db
 
 # Projection Queries
@@ -35,3 +36,24 @@ def get_single_pitcher(player_name):
     pitcher_table = pitcher_query.run()
     pitcher = list(pitcher_table)
     return pitcher
+
+# User Queries
+def get_user(username):
+    user_query = db_models.User.all()
+    user_query.filter("username =", username)
+    user_list = list(user_query)
+    return user_list[0]
+
+def check_username(username):
+    # n = db.GqlQuery("SELECT * FROM Users ORDER BY username") #pull db of userinfo and order by username
+    name = db_models.User.all().order("username") # .all() = "SELECT *"; .order("username") = "ORDER BY username"
+    for n in name:
+        if n.username == username:
+            return n.key().id()
+
+def get_user_by_name(username):
+    """ Get a user object from the db, based on their username """
+    # user = db.GqlQuery("SELECT * FROM Users WHERE username = '%s'" % username) #using %s in SQL queries is BAD, never do this
+    user = db_models.User.all().filter("username", username) # .all() = "SELECT *"; .filter("username", username) = "username = username"
+    if user:
+        return user.get()

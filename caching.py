@@ -1,4 +1,5 @@
 import gqlqueries
+import queries
 import re
 from dbmodels import Users, FPProjB, FPProjP #import classes from python file named dbmodels
 from google.appengine.api import memcache
@@ -42,11 +43,11 @@ def cached_get_fpprojp(update=False):
     return sheet
 
 # user methods
-def cached_user_by_name(usr, update=False): # get user object
-    key = str(usr) + "getUbyN"
+def cached_user_by_name(username, update=False): # get user object
+    key = str(username) + "getUbyN"
     user = memcache.get(key)
     if user is None or update:
-        user = gqlqueries.get_user_by_name(usr)
+        user = queries.get_user_by_name(username)
         memcache.set(key, user)
     return user
 
@@ -62,7 +63,7 @@ def cached_check_username(username, update=False): #check username
     key = str(username) + "checkUsername"
     name = memcache.get(key)
     if name is None or update:
-        name = gqlqueries.check_username(username)
+        name = queries.check_username(username)
         memcache.set(key, name)
     return name
 

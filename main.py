@@ -9,6 +9,9 @@ import jinja2
 import hashing
 import caching
 import html_parser
+import validuser
+import db_models
+import queries
 
 # setup jinja2
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
@@ -228,13 +231,12 @@ class Oauth(Handler):
 
 class Redirect(Handler):
     def render_redirect(self, code):
-        # oauth_token = api_connector.get_token(code)
-        # yahoo_guid_json = api_connector.get_guid(oauth_token)
-        # yahoo_guid_dict = json.loads(yahoo_guid_json)
-        # print yahoo_guid_json
-        # print yahoo_guid_dict
+        oauth_token = api_connector.get_token(code)
+        yahoo_guid_json = api_connector.get_guid(oauth_token)
+        yahoo_guid_dict = json.loads(yahoo_guid_json)
+        guid = yahoo_guid_dict['guid']['value']
 
-        self.redirect("http://localhost:8080?code=" + code)
+        self.redirect(str("http://localhost:8080?code=" + code))
 
     def get(self):
         code = self.request.get('code')
@@ -252,18 +254,167 @@ class LocalhostRedirect(Handler):
         code = self.request.get('code')
         self.render_locahostredirect(code=code)
 
+class Registration(Handler):
+    def render_registration(self, username="", email="", usernameError="",
+                            passwordError="", passVerifyError="", emailError=""):
+        # pull username
+        if self.user:
+            user = self.user.username # get username from user object
+            # self.get_auth(self.auth) # check to see if authorized to view page
+        else:
+            user = ""
+
+        self.render("registration.html", username=username, email=email,
+                    usernameError=usernameError, passwordError=passwordError,
+                    passVerifyError=passVerifyError, emailError=emailError, user=user)
+
+    def get(self):
+        self.render_registration()
+
+    def post(self):
+        username = self.request.get("username")
+        password = self.request.get("password")
+        passVerify = self.request.get("passVerify")
+        email = self.request.get("email")
+        error = False
+
+        # check password
+        if not password: # check if password is blank
+            passwordError = "Password cannot be empty"
+            error = True
+        elif not validuser.valid_password(password): # check if password is valid
+            passwordError = "Invalid Password"
+            error = True
+        else:
+            passwordError = ""
+        # check password verification
+        if not passVerify: # check if password verification is blank
+            passVerifyError = "Password Verification cannot be empty"
+            error = True
+        elif password != passVerify: # check if password matches password verification
+            passVerifyError = "Passwords do not match"
+            error = True
+        else:
+            passVerifyError = ""
+        # check username
+        if not username: # check if username is blank
+            usernameError = "Username cannot be empty"
+            error = True
+        elif not validuser.valid_username(username): # check if username if valid
+            usernameError = "Invalid Username"
+            error = True
+        elif caching.cached_check_username(username): # check if username is unique
+            usernameError = "That username is taken"
+            error = True
+        else:
+            usernameError = ""
+        # check email
+        if not email: # check if email is blank
+            emailError = ""
+        elif not validuser.valid_email(email): # check if email is valid
+            emailError = "Invalid Email"
+            error = True
+        else:
+            emailError = ""
+        # see if any errors returned
+        if error == False:
+            username = username
+            password = hashing.make_pw_hash(username, password) # hash password for storage in db
+            authorization = "basic"
+            db_models.store_user(username, password, email, authorization)
+            # update cache
+            caching.cached_check_username(username, True)
+            caching.cached_user_by_name(username, True)
+            caching.cached_get_users(True)
+            
+            time.sleep(1) # wait 2/10 of a second while post is entered into db
+            user = caching.cached_user_by_name(username)
+            user_id = user.key().id()
+            self.response.headers.add_header('Set-Cookie', 'user=%s' %
+                                             hashing.make_secure_val(user_id)) # hash user id for use in cookie
+
+
+
+            self.redirect('/welcome')
+        else:
+            self.render_registration(username, email, usernameError,
+                                     passwordError, passVerifyError,
+                                     emailError)
+
+class Login(Handler):
+    def render_login(self, username="", error=""):
+        # pull username
+        if self.user:
+            user = self.user.username # get username from user object
+            self.get_auth(self.auth) # check to see if authorized to view page
+        else:
+            user = ""
+
+        self.render("login.html", username=username, error=error, user=user)
+
+    def get(self):
+        self.render_login()
+
+    def post(self):
+        username = self.request.get("username")
+        password = self.request.get("password")
+
+        if not caching.cached_check_username(username):
+            error = "Invalid login"
+        else:
+            user_id = caching.cached_check_username(username)
+            u = caching.cached_get_user_by_id(user_id)
+            p = u.password
+            salt = p.split("|")[1]
+            if username == u.username:
+                if hashing.make_pw_hash(username, password, salt) == p:
+                    error = ""
+                else:
+                    error = "invalid login - pass"
+
+        if error:
+            self.render_login(username, error)
+        else:
+            self.response.headers.add_header('Set-Cookie', 'user=%s' % hashing.make_secure_val(user_id)) # hash user id for use in cookie
+            self.redirect('/welcome')
+
+class Logout(Handler):
+    def get(self):
+        self.response.headers.add_header('Set-Cookie', 'user=""; expires=Thu, 01-Jan-1970 00:00:10 GMT') #clear cookie
+        self.redirect('/registration')
+
+class Welcome(Handler):
+    def render_welcome(self):
+        c = self.request.cookies.get('user') # pull cookie value
+        usr = hashing.get_user_from_cookie(c)
+
+        self.redirect('/')
+
+    def get(self):
+        self.render_welcome()
+
 # routing
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
 
     # user handling
+    ('/registration/?', Registration),
+    ('/login/?', Login),
+    ('/logout/?', Logout),
+    ('/welcome/?', Welcome),
+
+    # yahoo api
     ('/oauth/?', Oauth),
     ('/redirect/?', Redirect),
+    ('/localhostredirect/?', LocalhostRedirect),
+
+    # projections
     ('/batting_projections/?', BattingProjections),
     ('/pitching_projections/?', PitchingProjections),
+    
+    # team tools
     ('/team_tools_html/?', TeamToolsHTML),
     ('/team_tools_db/?', TeamToolsDB),
-    ('/update_projections/?', UpdateProjections),
-    ('/localhostredirect/?', LocalhostRedirect)
+    ('/update_projections/?', UpdateProjections)
     ], debug=True)
     
