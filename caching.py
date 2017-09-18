@@ -51,11 +51,11 @@ def cached_user_by_name(username, update=False): # get user object
         memcache.set(key, user)
     return user
 
-def cached_get_user_by_id(uid, update=False): # get user object
-    key = str(uid) + "getUbyUID"
+def cached_get_user_by_id(user_id, update=False): # get user object
+    key = str(user_id) + "getUbyUID"
     user = memcache.get(key)
     if user is None or update:
-        user = gqlqueries.get_user_by_id(uid)
+        user = queries.get_user_by_id(user_id)
         memcache.set(key, user)
     return user
 
@@ -79,7 +79,7 @@ def cached_get_authorization(username, update=False):
     key = str(username) + "authorization"
     auth = memcache.get(key)
     if auth is None or update:
-        auth = gqlqueries.get_authorization(username)
+        auth = queries.get_authorization(username)
         memcache.set(key, auth)
     return auth
 

@@ -57,3 +57,15 @@ def get_user_by_name(username):
     user = db_models.User.all().filter("username", username) # .all() = "SELECT *"; .filter("username", username) = "username = username"
     if user:
         return user.get()
+
+def get_user_by_id(user_id):
+    # logging.error("get_user_by_uid QUERY")
+    """ Get a user object from the db, based on their username """
+    user = db_models.User.get_by_id(int(user_id))
+    if user:
+        return user
+
+def get_authorization(username):
+    user = get_user_by_name(username)
+    if user:
+        return user.authorization

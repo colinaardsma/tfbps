@@ -1,6 +1,7 @@
 import os
 import ast
 import time
+import datetime
 import logging
 import json
 import webapp2
@@ -18,6 +19,12 @@ TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
                             'templates') # set template_dir to main.py dir(current dir)/templates
 JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
                                autoescape=True) # set jinja2's working directory to template_dir
+"""TESTING"""
+GUID_REDIRECT_PATH = "/guid_localhost"
+QUERY_REDIRECT_PATH = "/query_localhost"
+"""PRODUCTION"""
+# GUID_REDIRECT_PATH = "/quid_redirect"
+# QUERY_REDIRECT_PATH = "/query_redirect"
 
 # define some functions that will be used by all pages
 class Handler(webapp2.RequestHandler):
@@ -37,47 +44,90 @@ class Handler(webapp2.RequestHandler):
 
     def __init__(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
-        cookies = self.request.cookies.get('user') # pull cookie value
-        uid = ""
-        if cookies:
-            uid = hashing.check_secure_val(cookies)
+        self.get_user()
+        self.username = None
+        if self.user:
+            self.username = self.user.username
+    
+    def get_user(self):
+        user_cookie = self.request.cookies.get('user') # pull cookie value
 
-        self.user = uid and caching.cached_get_user_by_id(uid)
+        user_id = ""
+        if user_cookie:
+            user_id = hashing.check_secure_val(user_cookie)
+
+        self.user = user_id and caching.cached_get_user_by_id(user_id)
         self.auth = self.user and caching.cached_get_authorization(self.user.username)
 
-        # if not self.user and self.request.path in auth_paths:
-        # if not self.user:
-        #     self.redirect('/login')
+        # pull username
+        if self.user:
+            # username = self.user.username # get username from user object
+            self.get_auth(self.auth) # check to see if authorized to view page
+        elif not self.user and self.request.path in auth_paths:
+            self.redirect('/login')
+        # else:
+        #     username = ""
+        # return username
 
-    # # check user authorization vs authorization lists
-    # def get_auth(self, auth):
-    #     if auth != "admin" and self.request.path in admin_auth_paths:
-    #         self.redirect('/login')
-    #     elif ((auth != "admin" and auth != "power_user") and
-    #           self.request.path in power_user_auth_paths):
-    #         self.redirect('/login')
-    #     elif ((auth != "admin" and auth != "power_user" and auth != "commissioner") and
-    #           self.request.path in commissioner_auth_paths):
-    #         self.redirect('/login')
-    #     elif ((auth != "admin" and auth != "power_user" and auth != "commissioner" and
-    #            auth != "basic") and self.request.path in basic_auth_paths):
-    #         self.redirect('/login')
-    #     else:
-    #         self.request.path
+    def update_user(self, user, username=None, password=None, email=None,
+                    authorization=None, yahooGuid=None, last_accessed=None,
+                    location=None):
+        user = queries.get_user_by_name(user.username)
+        if username:
+            user.username = username
+        if password:
+            password = hashing.make_pw_hash(username, password) # hash password for storage in db
+            user.password = password
+        if email:
+            user.email = email
+        if authorization:
+            user.authorization = authorization
+        if yahooGuid:
+            user.yahooGuid = yahooGuid
+        if last_accessed:
+            user.last_accessed = last_accessed
+        if location:
+            user.location = location
+        db_models.update_user(user)
+
+    def store_user(self, username, password, email, guid=None):
+        db_models.store_user(username, password, email, guid)
+
+        # update cache
+        caching.cached_check_username(username, True)
+        caching.cached_user_by_name(username, True)
+        caching.cached_get_users(True)
+
+
+        time.sleep(1) # wait 1 second while post is entered into db and memcache
+        user = caching.cached_user_by_name(username)
+        user_id = user.key().id()
+        self.response.headers.add_header('Set-Cookie', 'user=%s' %
+                                         hashing.make_secure_val(user_id)) # hash user id for use in cookie
+        # self.redirect('/welcome')
+
+    # check user authorization vs authorization lists
+    def get_auth(self, auth):
+        if auth != "admin" and self.request.path in admin_auth_paths:
+            self.redirect('/login')
+        elif ((auth != "admin" and auth != "power_user") and
+              self.request.path in power_user_auth_paths):
+            self.redirect('/login')
+        elif ((auth != "admin" and auth != "power_user" and auth != "commissioner") and
+              self.request.path in commissioner_auth_paths):
+            self.redirect('/login')
+        elif ((auth != "admin" and auth != "power_user" and auth != "commissioner" and
+               auth != "basic") and self.request.path in basic_auth_paths):
+            self.redirect('/login')
+        else:
+            self.request.path
 
 class MainHandler(Handler):
     def render_main(self):
-        # pull username
-        if self.user:
-            user = self.user.username # get username from user object
-            # self.get_auth(self.auth) # check to see if authorized to view page
-        else:
-            user = ""
-
         # fakeBbArticle = rssparsing.get_fakebb_rss_content(0)
         # yahooArticle = rssparsing.get_yahoo_rss_content(0)
 
-        self.render("home.html", user=user)
+        self.render("home.html", username=self.username)
         # self.render("home.html", user=user, fakeBbArticle=fakeBbArticle,
         #             yahooArticle=yahooArticle)
         # self.write(rssparsing.get_fakebb_rss_content(0))
@@ -89,7 +139,7 @@ class BattingProjections(Handler):
     def render_batting_projections(self):
         import team_tools_db
         players = team_tools_db.batter_projections()
-        self.render("spreadsheet.html", players=players, cat="batter")
+        self.render("spreadsheet.html", players=players, cat="batter", username=self.username)
 
     def get(self):
         self.render_batting_projections()
@@ -98,7 +148,7 @@ class PitchingProjections(Handler):
     def render_pitching_projections(self):
         import team_tools_db
         players = team_tools_db.pitcher_projections()
-        self.render("spreadsheet.html", players=players, cat="pitcher")
+        self.render("spreadsheet.html", players=players, cat="pitcher", username=self.username)
 
     def get(self):
         self.render_pitching_projections()
@@ -144,7 +194,8 @@ class TeamToolsHTML(Handler):
 
         self.render("team_tools_html.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name,
-                    league_no=league_no, team_a=team_a, team_b=team_b, trade_result=trade_result)
+                    league_no=league_no, team_a=team_a, team_b=team_b, trade_result=trade_result,
+                    username=self.username)
 
     def get(self):
         self.render_fa_rater()
@@ -199,7 +250,8 @@ class TeamToolsDB(Handler):
             projected_standings = team_tools_db.final_standing_projection(league_no)
 
         self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
-                    projected_standings=projected_standings, team_name=team_name, elapsed=elapsed)
+                    projected_standings=projected_standings, team_name=team_name, elapsed=elapsed,
+                    username=self.username)
 
     def get(self):
         self.render_fa_rater()
@@ -227,11 +279,29 @@ class UpdateProjections(Handler):
 
 class Oauth(Handler):
     def get(self):
-        self.redirect(api_connector.request_auth())
+        self.redirect(api_connector.request_auth(GUID_REDIRECT_PATH))
 
-class Redirect(Handler):
-    def render_redirect(self, code):
-        oauth_token = api_connector.get_token(code)
+class GuidRedirect(Handler):
+    def render_guid_redirect(self, code):
+        oauth_token = api_connector.get_token(code, GUID_REDIRECT_PATH)
+        yahoo_guid_json = api_connector.get_guid(oauth_token)
+        yahoo_guid_dict = json.loads(yahoo_guid_json)
+        guid = yahoo_guid_dict['guid']['value']
+
+        self.update_user(user=self.user, yahooGuid=guid)
+        self.redirect("/")
+
+    def get(self):
+        code = self.request.get('code')
+        self.render_guid_redirect(code=code)
+
+    def post(self):
+        code = self.request.get('code')
+        self.render_guid_redirect(code=code)
+
+class QueryRedirect(Handler):
+    def render_query_redirect(self, code):
+        oauth_token = api_connector.get_token(code, GUID_REDIRECT_PATH)
         yahoo_guid_json = api_connector.get_guid(oauth_token)
         yahoo_guid_dict = json.loads(yahoo_guid_json)
         guid = yahoo_guid_dict['guid']['value']
@@ -240,33 +310,36 @@ class Redirect(Handler):
 
     def get(self):
         code = self.request.get('code')
-        self.render_redirect(code=code)
+        self.render_query_redirect(code=code)
 
-    def post(self):
-        code = self.request.get('code')
-        self.render_redirect(code=code)
+    # def post(self):
+    #     code = self.request.get('code')
+    #     self.render_query_redirect(code=code)
 
-class LocalhostRedirect(Handler):
-    def render_locahostredirect(self, code):
-        self.redirect(str('http://localhost:8080/redirect?code=' + code))
+class GuidLocalhost(Handler):
+    def render_guid_locahost(self, code):
+        self.redirect(str('http://localhost:8080/guid_redirect?code=' + code))
 
     def get(self):
         code = self.request.get('code')
-        self.render_locahostredirect(code=code)
+        self.render_guid_locahost(code=code)
+
+class QueryLocalhost(Handler):
+    def render_guery_locahost(self, code):
+        self.redirect(str('http://localhost:8080/query_redirect?code=' + code))
+
+    def get(self):
+        code = self.request.get('code')
+        self.render_guery_locahost(code=code)
 
 class Registration(Handler):
-    def render_registration(self, username="", email="", usernameError="",
-                            passwordError="", passVerifyError="", emailError=""):
-        # pull username
-        if self.user:
-            user = self.user.username # get username from user object
-            # self.get_auth(self.auth) # check to see if authorized to view page
-        else:
-            user = ""
-
+    def render_registration(self, username="", email="", username_error="",
+                            password_error="", pass_verify_error="", email_error="",
+                            link_yahoo=""):
         self.render("registration.html", username=username, email=email,
-                    usernameError=usernameError, passwordError=passwordError,
-                    passVerifyError=passVerifyError, emailError=emailError, user=user)
+                    username_error=username_error, password_error=password_error,
+                    pass_verify_error=pass_verify_error, email_error=email_error,
+                    link_yahoo=link_yahoo)
 
     def get(self):
         self.render_registration()
@@ -274,83 +347,65 @@ class Registration(Handler):
     def post(self):
         username = self.request.get("username")
         password = self.request.get("password")
-        passVerify = self.request.get("passVerify")
+        pass_verify = self.request.get("pass_verify")
         email = self.request.get("email")
-        error = False
+        link_yahoo = True if self.request.get("link_yahoo") == "on" else False
 
+        error = False
         # check password
         if not password: # check if password is blank
-            passwordError = "Password cannot be empty"
+            password_error = "Password cannot be empty"
             error = True
         elif not validuser.valid_password(password): # check if password is valid
-            passwordError = "Invalid Password"
+            password_error = "Invalid Password"
             error = True
         else:
-            passwordError = ""
+            password_error = ""
         # check password verification
-        if not passVerify: # check if password verification is blank
-            passVerifyError = "Password Verification cannot be empty"
+        if not pass_verify: # check if password verification is blank
+            pass_verify_error = "Password Verification cannot be empty"
             error = True
-        elif password != passVerify: # check if password matches password verification
-            passVerifyError = "Passwords do not match"
+        elif password != pass_verify: # check if password matches password verification
+            pass_verify_error = "Passwords do not match"
             error = True
         else:
-            passVerifyError = ""
+            pass_verify_error = ""
         # check username
         if not username: # check if username is blank
-            usernameError = "Username cannot be empty"
+            username_error = "Username cannot be empty"
             error = True
         elif not validuser.valid_username(username): # check if username if valid
-            usernameError = "Invalid Username"
+            username_error = "Invalid Username"
             error = True
         elif caching.cached_check_username(username): # check if username is unique
-            usernameError = "That username is taken"
+            username_error = "That username is taken"
             error = True
         else:
-            usernameError = ""
+            username_error = ""
         # check email
         if not email: # check if email is blank
-            emailError = ""
+            email_error = ""
         elif not validuser.valid_email(email): # check if email is valid
-            emailError = "Invalid Email"
+            email_error = "Invalid Email"
             error = True
         else:
-            emailError = ""
+            email_error = ""
         # see if any errors returned
-        if error == False:
+        if not error:
             username = username
             password = hashing.make_pw_hash(username, password) # hash password for storage in db
-            authorization = "basic"
-            db_models.store_user(username, password, email, authorization)
-            # update cache
-            caching.cached_check_username(username, True)
-            caching.cached_user_by_name(username, True)
-            caching.cached_get_users(True)
-            
-            time.sleep(1) # wait 2/10 of a second while post is entered into db
-            user = caching.cached_user_by_name(username)
-            user_id = user.key().id()
-            self.response.headers.add_header('Set-Cookie', 'user=%s' %
-                                             hashing.make_secure_val(user_id)) # hash user id for use in cookie
 
+            self.store_user(username, password, email)
+            if link_yahoo:
+                self.redirect(api_connector.request_auth(GUID_REDIRECT_PATH))
 
-
-            self.redirect('/welcome')
         else:
-            self.render_registration(username, email, usernameError,
-                                     passwordError, passVerifyError,
-                                     emailError)
+            self.render_registration(username, email, username_error, password_error,
+                                     pass_verify_error, email_error, link_yahoo)
 
 class Login(Handler):
     def render_login(self, username="", error=""):
-        # pull username
-        if self.user:
-            user = self.user.username # get username from user object
-            self.get_auth(self.auth) # check to see if authorized to view page
-        else:
-            user = ""
-
-        self.render("login.html", username=username, error=error, user=user)
+        self.render("login.html", username=self.username, error=error)
 
     def get(self):
         self.render_login()
@@ -363,11 +418,11 @@ class Login(Handler):
             error = "Invalid login"
         else:
             user_id = caching.cached_check_username(username)
-            u = caching.cached_get_user_by_id(user_id)
-            p = u.password
-            salt = p.split("|")[1]
-            if username == u.username:
-                if hashing.make_pw_hash(username, password, salt) == p:
+            user = caching.cached_get_user_by_id(user_id)
+            pword = user.password
+            salt = pword.split("|")[1]
+            if username == user.username:
+                if hashing.make_pw_hash(username, password, salt) == pword:
                     error = ""
                 else:
                     error = "invalid login - pass"
@@ -385,9 +440,6 @@ class Logout(Handler):
 
 class Welcome(Handler):
     def render_welcome(self):
-        c = self.request.cookies.get('user') # pull cookie value
-        usr = hashing.get_user_from_cookie(c)
-
         self.redirect('/')
 
     def get(self):
@@ -405,16 +457,49 @@ app = webapp2.WSGIApplication([
 
     # yahoo api
     ('/oauth/?', Oauth),
-    ('/redirect/?', Redirect),
-    ('/localhostredirect/?', LocalhostRedirect),
+    ('/guid_redirect/?', GuidRedirect),
+    ('/query_redirect/?', QueryRedirect),
+    ('/localhost_guid/?', GuidLocalhost),
+    ('/localhost_query?', QueryLocalhost),
 
     # projections
     ('/batting_projections/?', BattingProjections),
     ('/pitching_projections/?', PitchingProjections),
-    
+
     # team tools
     ('/team_tools_html/?', TeamToolsHTML),
     ('/team_tools_db/?', TeamToolsDB),
     ('/update_projections/?', UpdateProjections)
     ], debug=True)
-    
+
+# authorization paths
+basic_auth_paths = [ # must be logged in as basic user to access these links
+    '/fpprojb',
+    '/fpprojb/',
+    '/fpprojp',
+    '/fpprojp/'
+    # '/new_post',
+    # '/new_post/',
+    # '/modify_post',
+    # '/modify_post/',
+    # '/post/<post_id:\d+>/edit',
+    # '/post/<post_id:\d+>/delete'
+]
+
+commissioner_auth_paths = [ # must be logged in as power_user to access these links
+    '/test'
+]
+
+power_user_auth_paths = [ # must be logged in as power_user to access these links
+    '/fpprojbdatapull',
+    '/fpprojbdatapull/',
+    '/fpprojpdatapull',
+    '/fpprojpdatapull/'
+]
+
+admin_auth_paths = [ # must be logged in as admin to access these links
+    '/admin',
+    '/admin/'
+]
+
+auth_paths = basic_auth_paths + commissioner_auth_paths + power_user_auth_paths + admin_auth_paths

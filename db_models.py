@@ -103,13 +103,16 @@ class User(db.Model):
     password = db.StringProperty(required=True)
     email = db.EmailProperty(required=True)
     authorization = db.StringProperty(required=True)
-    yahooGuid = db.StringProperty
+    yahooGuid = db.StringProperty()
     created = db.DateTimeProperty(auto_now_add=True)
-    last_modified = db.DateTimeProperty
+    last_modified = db.DateTimeProperty()
     last_accessed = db.DateTimeProperty(auto_now=True)
-    location = db.GeoPtProperty
+    location = db.GeoPtProperty()
 
-def store_user(username, password, email, authorization = "basic", yahooGuid = None, location = None):
-    user = User(username=username, password=password, email=email, authorization=authorization,
-                yahooGuid=yahooGuid, location=location)
+def store_user(username, password, email, location = None, yahooGuid = None, authorization = "basic"):
+    user = User(username=username, password=password, email=email, location=location,
+                yahooGuid=yahooGuid, authorization=authorization)
+    db.put(user)
+
+def update_user(user):
     db.put(user)

@@ -7,22 +7,26 @@
         <form method="post">
         <td>Username:</td>
         <td><input class="regform" type="text" name="username" value="{{username}}" /></td>
-        <td><div style="color: red">{{usernameError}}</div></td>
+        <td><div style="color: red">{{username_error}}</div></td>
       </tr>
       <tr>
         <td>Password:</td>
         <td><input class="regform" type="password" name="password" value="" /></td>
-        <td><div style="color: red">{{passwordError}}</div></td>
+        <td><div style="color: red">{{password_error}}</div></td>
       </tr>
       <tr>
         <td>Re-enter Password:</td>
-        <td><input class="regform" type="password" name="passVerify" value="" /></td>
-        <td><div style="color: red">{{passVerifyError}}</div></td>
+        <td><input class="regform" type="password" name="pass_verify" value="" /></td>
+        <td><div style="color: red">{{pass_verify_error}}</div></td>
       </tr>
       <tr>
-        <td>Email (optional):</td>
+        <td>Email:</td>
         <td><input class="regform" type="text" name="email" value="{{email}}" /></td>
-        <td><div style="color: red">{{emailError}}</div></td>
+        <td><div style="color: red">{{email_error}}</div></td>
+      </tr>
+      <tr>
+        <td>Link Yahoo! Account:</td>
+        <td><input class="regform" type="checkbox" name="link_yahoo" checked="checked" /></td>
       </tr>
       <tr>
         <td>

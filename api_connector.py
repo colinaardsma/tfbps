@@ -16,7 +16,7 @@ import HTMLParser
 CLIENT_ID = "dj0yJmk9cEQyTkhmUUt5ekN5JmQ9WVdrOWFtRkdUSHB0Tm1zbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0yYQ--"
 # consumer secret
 CLIENT_SECRET = "2fdb054293ed5c071e62048411c9f3f204512bcc"
-REDIRECT_URI = "http://grays-sports-almanac.appspot.com/localhostredirect"
+REDIRECT_URI = "http://grays-sports-almanac.appspot.com"
 
 """PRODUCTION"""
 # consumer key
@@ -25,7 +25,7 @@ REDIRECT_URI = "http://grays-sports-almanac.appspot.com/localhostredirect"
 # CLIENT_SECRET = "55d6606ea0bec9a1468d3ea01bbf1c9991dbf93f"
 # REDIRECT_URI = "oob"
 
-def request_auth():
+def request_auth(redirect_path):
     """Requst Authorication from Yahoo!\n
     https://developer.yahoo.com/oauth2/guide/flows_authcode/#step-2-get-an-authorization-url-and-authorize-access\n
     Args:\n
@@ -39,7 +39,7 @@ def request_auth():
     url = 'https://api.login.yahoo.com/oauth2/request_auth'
     parameters = urllib.urlencode({
         'client_id': CLIENT_ID,
-        'redirect_uri': REDIRECT_URI,
+        'redirect_uri': REDIRECT_URI + redirect_path,
         'response_type': 'code'
         })
     url += '?' + parameters
@@ -47,7 +47,7 @@ def request_auth():
     content = urllib2.urlopen(request)
     return content.url
 
-def get_token(authorization_code):
+def get_token(authorization_code, redirect_path):
     """Requst Token from Yahoo!\n
     https://developer.yahoo.com/oauth2/guide/flows_authcode/#step-4-exchange-authorization-code-for-access-token\n
     Args:\n
@@ -66,7 +66,7 @@ def get_token(authorization_code):
         }
     body = urllib.urlencode({
         'grant_type': 'authorization_code',
-        'redirect_uri': REDIRECT_URI,
+        'redirect_uri': REDIRECT_URI + redirect_path,
         'code': authorization_code
         })
     request = urllib2.Request(url, data=body, headers=headers)
