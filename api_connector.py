@@ -8,6 +8,8 @@ import urllib
 import webbrowser
 import base64
 import HTMLParser
+import datetime
+import db_models
 
 # https://developer.yahoo.com/oauth2/guide/flows_authcode/
 
@@ -71,7 +73,8 @@ def get_token(authorization_code, redirect_path):
         })
     request = urllib2.Request(url, data=body, headers=headers)
     content = urllib2.urlopen(request)
-    return json.loads(content.read())
+    raw_json = content.read()
+    return raw_json
 
 def yql_query(path, oauth_token):
     """YQL call to Yahoo! API\n
@@ -107,13 +110,40 @@ def get_xml_data(url, oauth_token):
     raw_xml = content.read()
     return raw_xml
 
-
-# AUTHORIZATION_CODE = "yn2dxse"
-# LEAGUE_YEAR_CODE = "370"
-# LEAGUE_KEY = "5091"
-# PATH = "/leagues;league_keys=" + LEAGUE_YEAR_CODE + ".l." + LEAGUE_KEY + "/standings"
-# # webbrowser.open(request_auth())
-# OAUTH_TOKEN = {u'access_token': u'aJZ7CI3OogsRi3YeufErdSjuw0MRG3r6ZtMAlptP80EfUUBr31Jqn.d1ikQA0goSrGD.9soz5MlKQ3FFhgVjEXhirRN.2XbrS4X.BM1J0DkwU7ElcEZZEyWvk8mMXfe47BslXzkmPIEMSoqe11Z39Lr5HE6NH5ifMv5TuK9jSg4HWnlUtaeD6ImqxGN9AAzqlCFsael_PfRNhhscNi9XEowp4s2ljogW.AIqubD8zRI3ZX7HwkeV0VqBGr2S8riSOjQMNN68xSyLTuOm1qbuJBGegVh6dZDZdrc5X6vxG5W6gpSGyZROtG8G_RE8ByALiwryMEpa7yL9L1S_j5GP2U0vHnbSLq7LKNl459FqI4nGOi83WGPUxvvRThCLysq5OVPPmgOojJbWbvFdkIyTx88rdjoYJEVLDlk7tjGn58K8TwuQbsrV1S3fsveRSzs3d.gee0k3cs3QniTNd5ibvw13bO0lrfrGZ.VWShJ0hkgAJ5tVLz6JaaZMnNmishUQEqMEUwA24daGrCiuFpJZoie38do.vvlXlASJY0m1Ds2i9MYVE57dpfJMTkalDpo_REzTXqMmcIlANGsWibbHLfEdLWAQlrbVwl_T.zfBARlX1A1pz0X0zDKw9fHnEovGlgXYCBL3uuxo.Xt_1qaJ6j4Kn89gJ.KTVHcDVYCaZOj3uHkd.kpfOOqTJNL0D2rbXFpoJ2Aixr4qGnK_THgVWiHmQcbKxtlL.nGPjvwx2wiN6wPKJYFTL1vf2i5hDdicbmu5_qBsq_TVNNmgDHfL4fESGzBgq77HyTI6mebFfBt9owqZudA6srbBNrmFDzAz.VPLsf.KJuIL01zK5rhaWF3cc7tp0a6.bCE6.V6oCckA3y_mJB4pxQmeRUxfc0c8kCaxpx6EjPRRA.2X6F4kdmcD5Wku4R0jz7dqGR1_m7wa.9qMo7G7TrT67xN3umVpSsBaoqkmxxqw6G7wL0egQR7dwyyn2aJWQ81hfLTMwBasmqr94HcfuQCA3tcyYeemm9AaZg2kNXqMgPq51pnA1892p2Spf17W3gFQlK_fu_7xl4LguBJi8H5.Kw--', u'token_type': u'bearer', u'expires_in': 3600, u'xoauth_yahoo_guid': u'PP5K6WYOIYQL4ZWJAYTN2ZQ5CU', u'refresh_token': u'ACRar1mAeCTt7i0dv3kIcSwD4yECKpGzipn4E2f1RrSZJmJecQ--'}
-# # print get_token(AUTHORIZATION_CODE)
-# print yql_query(PATH, OAUTH_TOKEN).replace(r"\/", "/")
-# # print json_return
+def check_token_expiration(user, redirect_path):
+    """Check if Token is expired and if so refresh from Yahoo!\n
+    https://developer.yahoo.com/oauth2/guide/flows_authcode/#step-4-exchange-authorization-code-for-access-token\n
+    Args:\n
+        user: The User DB model.\n
+    Returns:\n
+        access_token, token_type, expires_in, refresh_token, xoauth_yahoo_guid in json form.\n
+    Raises:\n
+        None.
+    """
+    # if (user.token_expiration - datetime.datetime.now()).total_seconds() > 240:
+    #     return
+    url = 'https://api.login.yahoo.com/oauth2/get_token'
+    auth_string = "{}:{}".format(CLIENT_ID, CLIENT_SECRET)
+    auth_header = base64.b64encode(auth_string)
+    headers = {
+        'Authorization': 'Basic ' + auth_header,
+        'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    body = urllib.urlencode({
+        'grant_type': 'refresh_token',
+        'redirect_uri': REDIRECT_URI + redirect_path,
+        'refresh_token': user.refresh_token
+        })
+    print "**************"
+    print "Refresh_token: " + user.refresh_token
+    request = urllib2.Request(url, data=body, headers=headers)
+    content = urllib2.urlopen(request)
+    raw_json = content.read()
+    token_dict = json.loads(raw_json)
+    token_expiration = (datetime.datetime.now() +
+                        datetime.timedelta(seconds=token_dict['expires_in']))
+    user.access_token = token_dict['access_token']
+    user.token_expiration = token_expiration
+    user.refresh_token = token_dict['refresh_token']
+    db_models.update_user(user)
+    return token_dict

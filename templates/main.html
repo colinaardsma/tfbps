@@ -16,9 +16,9 @@
         <li><a href="/team_tools_html">team tools html</a></li>
         <li><a href="/team_tools_db">team tools db</a></li>
         {%- if username %}
-        <li>{{username}}<a href="/logout"> (logout)</a></li>
+        <li><a href="/user"><small>{{username}}</small></a><a href="/logout"><small>(logout)</small></a></li>
         {%- else %}
-        <li><a href="/login">login</a></li>
+        <li><a href="/login"><small>login</small></a></li>
         {%- endif %}
       </ul>
     </nav>

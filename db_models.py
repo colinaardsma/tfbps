@@ -3,6 +3,7 @@ import sys
 from google.appengine.ext import db
 # sys.path.insert(0, '//Users/colinaardsma/google_appengine')
 #define columns of database objects
+import caching
 
 class BatterDB(db.Model):
     """The Batter Database Model"""
@@ -108,11 +109,22 @@ class User(db.Model):
     last_modified = db.DateTimeProperty()
     last_accessed = db.DateTimeProperty(auto_now=True)
     location = db.GeoPtProperty()
+    access_token = db.StringProperty()
+    token_expiration = db.DateTimeProperty()
+    refresh_token = db.StringProperty()
 
 def store_user(username, password, email, location = None, yahooGuid = None, authorization = "basic"):
     user = User(username=username, password=password, email=email, location=location,
-                yahooGuid=yahooGuid, authorization=authorization)
+                yahooGuid=yahooGuid, authorization=authorization, access_token=None,
+                token_expiration=None, refresh_token=None)
     db.put(user)
+    update_user_memcache(user.username)
 
 def update_user(user):
     db.put(user)
+    update_user_memcache(user.username)
+
+def update_user_memcache(username):
+    caching.cached_check_username(username, True)
+    caching.cached_user_by_name(username, True)
+    caching.cached_get_users(True)

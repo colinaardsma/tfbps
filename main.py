@@ -71,7 +71,8 @@ class Handler(webapp2.RequestHandler):
 
     def update_user(self, user, username=None, password=None, email=None,
                     authorization=None, yahooGuid=None, last_accessed=None,
-                    location=None):
+                    location=None, access_token=None, token_expiration=None,
+                    refresh_token=None):
         user = queries.get_user_by_name(user.username)
         if username:
             user.username = username
@@ -88,16 +89,17 @@ class Handler(webapp2.RequestHandler):
             user.last_accessed = last_accessed
         if location:
             user.location = location
+        if access_token:
+            user.access_token = access_token
+        if token_expiration:
+            user.token_expiration = token_expiration
+        if refresh_token:
+            user.refresh_token = refresh_token
         db_models.update_user(user)
+
 
     def store_user(self, username, password, email, guid=None):
         db_models.store_user(username, password, email, guid)
-
-        # update cache
-        caching.cached_check_username(username, True)
-        caching.cached_user_by_name(username, True)
-        caching.cached_get_users(True)
-
 
         time.sleep(1) # wait 1 second while post is entered into db and memcache
         user = caching.cached_user_by_name(username)
@@ -284,7 +286,10 @@ class Oauth(Handler):
 class GuidRedirect(Handler):
     def render_guid_redirect(self, code):
         oauth_token = api_connector.get_token(code, GUID_REDIRECT_PATH)
+        oauth_token_dict = json.loads(oauth_token)
+        guid = oauth_token_dict['xoauth_yahoo_guid']
         yahoo_guid_json = api_connector.get_guid(oauth_token)
+
         yahoo_guid_dict = json.loads(yahoo_guid_json)
         guid = yahoo_guid_dict['guid']['value']
 
@@ -445,6 +450,68 @@ class Welcome(Handler):
     def get(self):
         self.render_welcome()
 
+class GetLeagues(Handler):
+    def get(self):
+        yql_query(path, oauth_token)
+        self.redirect(api_connector.request_auth(GUID_REDIRECT_PATH))
+
+class User(Handler):
+    def render_user(self, link_yahoo=None, refresh_token=None):
+        self.render("user.html", username=self.username, link_yahoo=link_yahoo, refresh_token=refresh_token)
+
+    def get(self):
+        link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
+        user = self.user
+        print "$$$$$$$$$$$$$$$$$"
+        print user.username
+        print user.refresh_token
+        # refresh_token = api_connector.check_token_expiration(user, "/user")
+        refresh_token = user.yahooGuid
+        self.render_user(link_yahoo, refresh_token)
+
+class CodeAuth(Handler):
+    def render_code_handler(self, code):
+        # print "Code: " + code
+        # print "Redirect: " + GUID_REDIRECT_PATH
+        self.redirect(api_connector.get_token(code, GUID_REDIRECT_PATH))
+
+    def get(self):
+        code = self.request.get("code")
+        self.render_code_handler(code)
+# TODO: fix
+class GetToken(Handler):
+    def render_code_handler(self, code):
+        # print "Code: " + code
+        # print "Redirect: " + GUID_REDIRECT_PATH
+        token_json = api_connector.get_token(code, GUID_REDIRECT_PATH)
+        token_dict = json.loads(token_json)
+        yahoo_guid = token_dict['xoauth_yahoo_guid']
+        access_token = token_dict['access_token']
+        refresh_token = token_dict['refresh_token']
+        token_expiration = (datetime.datetime.now() +
+                            datetime.timedelta(seconds=token_dict['expires_in']))
+        self.update_user(self.user, yahooGuid=yahoo_guid, access_token=access_token,
+                         refresh_token=refresh_token, token_expiration=token_expiration)
+        self.redirect("/user")
+
+    def get(self):
+        code = self.request.get("code")
+        self.render_code_handler(code)
+# TODO: fix
+class RefreshToken(Handler):
+    def render_code_handler(self):
+        # print "Code: " + code
+        # print "Redirect: " + GUID_REDIRECT_PATH
+        # token_json = api_connector.get_token(code, GUID_REDIRECT_PATH)
+        # print token_json
+        # token_dict = json.loads(token_json)
+        # print token_dict
+        # self.redirect()
+        self.redirect(api_connector.check_token_expiration(self.user, "/user"))
+
+    def get(self):
+        self.render_code_handler()
+
 # routing
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
@@ -454,13 +521,19 @@ app = webapp2.WSGIApplication([
     ('/login/?', Login),
     ('/logout/?', Logout),
     ('/welcome/?', Welcome),
+    ('/user/?', User),
 
     # yahoo api
     ('/oauth/?', Oauth),
     ('/guid_redirect/?', GuidRedirect),
     ('/query_redirect/?', QueryRedirect),
     ('/localhost_guid/?', GuidLocalhost),
-    ('/localhost_query?', QueryLocalhost),
+    ('/localhost_query/?', QueryLocalhost),
+    ('/get_leagues/?', GetLeagues),
+    ('/code_auth/?', CodeAuth),
+    ('/get_token/?', GetToken),
+    ('/refresh_token/?', RefreshToken),
+    
 
     # projections
     ('/batting_projections/?', BattingProjections),
