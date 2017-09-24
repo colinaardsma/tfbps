@@ -4,6 +4,7 @@ from google.appengine.ext import db
 # sys.path.insert(0, '//Users/colinaardsma/google_appengine')
 #define columns of database objects
 import caching
+import time
 
 class BatterDB(db.Model):
     """The Batter Database Model"""
@@ -113,18 +114,21 @@ class User(db.Model):
     token_expiration = db.DateTimeProperty()
     refresh_token = db.StringProperty()
 
-def store_user(username, password, email, location = None, yahooGuid = None, authorization = "basic"):
+def store_user(username, user_id, password, email, location = None, yahooGuid = None, authorization = "basic"):
     user = User(username=username, password=password, email=email, location=location,
                 yahooGuid=yahooGuid, authorization=authorization, access_token=None,
                 token_expiration=None, refresh_token=None)
     db.put(user)
-    update_user_memcache(user.username)
+    # time.sleep(1) # wait 1 second while post is entered into db and memcache
+    update_user_memcache(user, user_id)
 
-def update_user(user):
+def update_user(user, user_id):
     db.put(user)
-    update_user_memcache(user.username)
+    # time.sleep(1) # wait 1 second while post is entered into db and memcache
+    update_user_memcache(user, user_id)
 
-def update_user_memcache(username):
-    caching.cached_check_username(username, True)
-    caching.cached_user_by_name(username, True)
+def update_user_memcache(user, user_id):
+    caching.cached_user_by_name(user.username, True)
+    caching.cached_check_username(user.username, True)
+    caching.cached_get_user_by_id(user_id, True)
     caching.cached_get_users(True)

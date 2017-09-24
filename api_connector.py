@@ -139,11 +139,4 @@ def check_token_expiration(user, redirect_path):
     request = urllib2.Request(url, data=body, headers=headers)
     content = urllib2.urlopen(request)
     raw_json = content.read()
-    token_dict = json.loads(raw_json)
-    token_expiration = (datetime.datetime.now() +
-                        datetime.timedelta(seconds=token_dict['expires_in']))
-    user.access_token = token_dict['access_token']
-    user.token_expiration = token_expiration
-    user.refresh_token = token_dict['refresh_token']
-    db_models.update_user(user)
-    return token_dict
+    return raw_json

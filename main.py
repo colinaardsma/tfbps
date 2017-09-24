@@ -7,6 +7,9 @@ import json
 import webapp2
 import api_connector
 import jinja2
+import socket
+import cgi
+import urllib2
 import hashing
 import caching
 import html_parser
@@ -20,10 +23,10 @@ TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
 JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
                                autoescape=True) # set jinja2's working directory to template_dir
 """TESTING"""
-GUID_REDIRECT_PATH = "/guid_localhost"
+GUID_REDIRECT_PATH = "/get_token"
 QUERY_REDIRECT_PATH = "/query_localhost"
 """PRODUCTION"""
-# GUID_REDIRECT_PATH = "/quid_redirect"
+# GUID_REDIRECT_PATH = "/get_token"
 # QUERY_REDIRECT_PATH = "/query_redirect"
 
 # define some functions that will be used by all pages
@@ -52,11 +55,11 @@ class Handler(webapp2.RequestHandler):
     def get_user(self):
         user_cookie = self.request.cookies.get('user') # pull cookie value
 
-        user_id = ""
+        self.user_id = ""
         if user_cookie:
-            user_id = hashing.check_secure_val(user_cookie)
+            self.user_id = hashing.check_secure_val(user_cookie)
 
-        self.user = user_id and caching.cached_get_user_by_id(user_id)
+        self.user = self.user_id and caching.cached_get_user_by_id(self.user_id)
         self.auth = self.user and caching.cached_get_authorization(self.user.username)
 
         # pull username
@@ -69,7 +72,7 @@ class Handler(webapp2.RequestHandler):
         #     username = ""
         # return username
 
-    def update_user(self, user, username=None, password=None, email=None,
+    def update_user(self, user, user_id, username=None, password=None, email=None,
                     authorization=None, yahooGuid=None, last_accessed=None,
                     location=None, access_token=None, token_expiration=None,
                     refresh_token=None):
@@ -95,11 +98,10 @@ class Handler(webapp2.RequestHandler):
             user.token_expiration = token_expiration
         if refresh_token:
             user.refresh_token = refresh_token
-        db_models.update_user(user)
+        db_models.update_user(user, user_id)
 
-
-    def store_user(self, username, password, email, guid=None):
-        db_models.store_user(username, password, email, guid)
+    def store_user(self, username, user_id, password, email, location, guid=None):
+        db_models.store_user(username, user_id, password, email, location, guid)
 
         time.sleep(1) # wait 1 second while post is entered into db and memcache
         user = caching.cached_user_by_name(username)
@@ -293,7 +295,7 @@ class GuidRedirect(Handler):
         yahoo_guid_dict = json.loads(yahoo_guid_json)
         guid = yahoo_guid_dict['guid']['value']
 
-        self.update_user(user=self.user, yahooGuid=guid)
+        self.update_user(user=self.user, user_id=self.user_id, yahooGuid=guid)
         self.redirect("/")
 
     def get(self):
@@ -399,8 +401,18 @@ class Registration(Handler):
         if not error:
             username = username
             password = hashing.make_pw_hash(username, password) # hash password for storage in db
+            ip_address = self.request.remote_addr
+            url = "https://ipinfo.io/" + ip_address + "/json"
+            request = urllib2.Request(url)
+            content = urllib2.urlopen(request)
+            ip_address_json = content.read()
+            ip_address_dict = json.loads(ip_address_json)
+            print ip_address_dict
+            location = None
+            if 'loc' in ip_address_dict:
+                location = ip_address_dict['loc']
 
-            self.store_user(username, password, email)
+            self.store_user(username, self.user_id, password, email, location)
             if link_yahoo:
                 self.redirect(api_connector.request_auth(GUID_REDIRECT_PATH))
 
@@ -462,11 +474,7 @@ class User(Handler):
     def get(self):
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
         user = self.user
-        print "$$$$$$$$$$$$$$$$$"
-        print user.username
-        print user.refresh_token
-        # refresh_token = api_connector.check_token_expiration(user, "/user")
-        refresh_token = user.yahooGuid
+        refresh_token = "/refresh_token"
         self.render_user(link_yahoo, refresh_token)
 
 class CodeAuth(Handler):
@@ -478,11 +486,9 @@ class CodeAuth(Handler):
     def get(self):
         code = self.request.get("code")
         self.render_code_handler(code)
-# TODO: fix
+
 class GetToken(Handler):
     def render_code_handler(self, code):
-        # print "Code: " + code
-        # print "Redirect: " + GUID_REDIRECT_PATH
         token_json = api_connector.get_token(code, GUID_REDIRECT_PATH)
         token_dict = json.loads(token_json)
         yahoo_guid = token_dict['xoauth_yahoo_guid']
@@ -490,24 +496,28 @@ class GetToken(Handler):
         refresh_token = token_dict['refresh_token']
         token_expiration = (datetime.datetime.now() +
                             datetime.timedelta(seconds=token_dict['expires_in']))
-        self.update_user(self.user, yahooGuid=yahoo_guid, access_token=access_token,
-                         refresh_token=refresh_token, token_expiration=token_expiration)
+        self.update_user(self.user, self.user_id, yahooGuid=yahoo_guid,
+                         access_token=access_token, refresh_token=refresh_token,
+                         token_expiration=token_expiration)
         self.redirect("/user")
 
     def get(self):
         code = self.request.get("code")
         self.render_code_handler(code)
-# TODO: fix
+
 class RefreshToken(Handler):
     def render_code_handler(self):
-        # print "Code: " + code
-        # print "Redirect: " + GUID_REDIRECT_PATH
-        # token_json = api_connector.get_token(code, GUID_REDIRECT_PATH)
-        # print token_json
-        # token_dict = json.loads(token_json)
-        # print token_dict
-        # self.redirect()
-        self.redirect(api_connector.check_token_expiration(self.user, "/user"))
+        token_json = api_connector.check_token_expiration(self.user, "/user")
+        token_dict = json.loads(token_json)
+        yahoo_guid = token_dict['xoauth_yahoo_guid']
+        access_token = token_dict['access_token']
+        refresh_token = token_dict['refresh_token']
+        token_expiration = (datetime.datetime.now() +
+                            datetime.timedelta(seconds=token_dict['expires_in']))
+        self.update_user(self.user, self.user_id, yahooGuid=yahoo_guid,
+                         access_token=access_token, refresh_token=refresh_token,
+                         token_expiration=token_expiration)
+        self.redirect("/user")
 
     def get(self):
         self.render_code_handler()
@@ -533,7 +543,6 @@ app = webapp2.WSGIApplication([
     ('/code_auth/?', CodeAuth),
     ('/get_token/?', GetToken),
     ('/refresh_token/?', RefreshToken),
-    
 
     # projections
     ('/batting_projections/?', BattingProjections),
