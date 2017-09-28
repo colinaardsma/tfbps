@@ -7,6 +7,7 @@ import json
 import webapp2
 import api_connector
 import jinja2
+from operator import itemgetter
 import socket
 import cgi
 import urllib2
@@ -16,6 +17,7 @@ import html_parser
 import validuser
 import db_models
 import queries
+import yql_queries
 
 # setup jinja2
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
@@ -72,38 +74,9 @@ class Handler(webapp2.RequestHandler):
         #     username = ""
         # return username
 
-    def update_user(self, user, user_id, username=None, password=None, email=None,
-                    authorization=None, yahooGuid=None, last_accessed=None,
-                    location=None, access_token=None, token_expiration=None,
-                    refresh_token=None):
-        user = queries.get_user_by_name(user.username)
-        if username:
-            user.username = username
-        if password:
-            password = hashing.make_pw_hash(username, password) # hash password for storage in db
-            user.password = password
-        if email:
-            user.email = email
-        if authorization:
-            user.authorization = authorization
-        if yahooGuid:
-            user.yahooGuid = yahooGuid
-        if last_accessed:
-            user.last_accessed = last_accessed
-        if location:
-            user.location = location
-        if access_token:
-            user.access_token = access_token
-        if token_expiration:
-            user.token_expiration = token_expiration
-        if refresh_token:
-            user.refresh_token = refresh_token
-        db_models.update_user(user, user_id)
-
     def store_user(self, username, user_id, password, email, location, guid=None):
         db_models.store_user(username, user_id, password, email, location, guid)
 
-        time.sleep(1) # wait 1 second while post is entered into db and memcache
         user = caching.cached_user_by_name(username)
         user_id = user.key().id()
         self.response.headers.add_header('Set-Cookie', 'user=%s' %
@@ -251,7 +224,7 @@ class TeamToolsDB(Handler):
         if league_no == "" or (league_no != "" and team_name != ""):
             projected_standings = None
         else:
-            projected_standings = team_tools_db.final_standing_projection(league_no)
+            projected_standings = team_tools_db.final_standing_projection(self.user_id, self.user.access_token)
 
         self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name, elapsed=elapsed,
@@ -290,12 +263,12 @@ class GuidRedirect(Handler):
         oauth_token = api_connector.get_token(code, GUID_REDIRECT_PATH)
         oauth_token_dict = json.loads(oauth_token)
         guid = oauth_token_dict['xoauth_yahoo_guid']
-        yahoo_guid_json = api_connector.get_guid(oauth_token)
+        yahoo_guid_json = yql_queries.get_guid(oauth_token)
 
         yahoo_guid_dict = json.loads(yahoo_guid_json)
         guid = yahoo_guid_dict['guid']['value']
 
-        self.update_user(user=self.user, user_id=self.user_id, yahooGuid=guid)
+        db_models.update_user(user=self.user, user_id=self.user_id, yahooGuid=guid)
         self.redirect("/")
 
     def get(self):
@@ -309,7 +282,7 @@ class GuidRedirect(Handler):
 class QueryRedirect(Handler):
     def render_query_redirect(self, code):
         oauth_token = api_connector.get_token(code, GUID_REDIRECT_PATH)
-        yahoo_guid_json = api_connector.get_guid(oauth_token)
+        yahoo_guid_json = yql_queries.get_guid(oauth_token)
         yahoo_guid_dict = json.loads(yahoo_guid_json)
         guid = yahoo_guid_dict['guid']['value']
 
@@ -463,24 +436,63 @@ class Welcome(Handler):
         self.render_welcome()
 
 class GetLeagues(Handler):
+    def render_welcome(self):
+        self.redirect('/')
+
     def get(self):
-        yql_query(path, oauth_token)
-        self.redirect(api_connector.request_auth(GUID_REDIRECT_PATH))
+        print ":::::::::::::::::::::::"
+        league_list = yql_queries.get_leagues(self.user, self.user_id)
+        print league_list
+        season = datetime.datetime.now().year
+
+        current_leagues = []
+        while len(current_leagues) < 1:
+            current_leagues = [l for l in league_list if l['season'] == str(season)]
+            season -= 1
+        # TODO: now have a list of most current leagues, need to allow choice from dropdown and complete standings projections
+            
+        print ":::::::::::::::::::::::"
+        print current_leagues
+        # for league in league_list:
+
+        # api_connector.check_token_expiration(self.user, self.user_id, "/get_leagues")
+        # current_year_query_path = "/users;use_login=1/games;game_keys=mlb/leagues"
+        # current_year_query_json = api_connector.yql_query(current_year_query_path,
+        #                                                   self.user.access_token)
+        # current_year_dict = json.loads(current_year_query_json)
+        # current_year_league_id = current_year_dict['fantasy_content']['users']['0']['user'][1]['games']['0']['game'][1]['leagues']['0']['league'][0]['league_key']
+        # print "%%%%%%%%%%%%%%%%%%%%%%%%"
+        # print current_year_league_id
+        # league_settings_dict = yql_queries.get_league_settings(current_year_league_id, self.user.access_token)
+        # print league_settings_dict
+
+        # one_year_prior_league_id = yql_queries.get_prev_year_league(current_year_dict)
+        # one_year_prior_query_path = "/leagues;league_keys=" + one_year_prior_league_id
+        # one_year_prior_json = api_connector.yql_query(one_year_prior_query_path,
+        #                                               self.user.access_token)
+        # print one_year_prior_json
+        # one_year_prior_dict = json.loads(one_year_prior_json)
+
+        # two_years_prior_league_id = yql_queries.get_prev_year_league(one_year_prior_dict)
+        # two_years_prior_query_path = "/leagues;league_keys=" + two_years_prior_league_id
+        # two_years_prior_json = api_connector.yql_query(two_years_prior_query_path,
+        #                                                self.user.access_token)
+        # print two_years_prior_json
+        # two_years_prior_dict = json.loads(two_years_prior_json)
+
 
 class User(Handler):
     def render_user(self, link_yahoo=None, refresh_token=None):
-        self.render("user.html", username=self.username, link_yahoo=link_yahoo, refresh_token=refresh_token)
+        self.render("user.html", username=self.username, link_yahoo=link_yahoo,
+                    refresh_token=refresh_token)
 
     def get(self):
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
-        user = self.user
         refresh_token = "/refresh_token"
         self.render_user(link_yahoo, refresh_token)
 
 class CodeAuth(Handler):
     def render_code_handler(self, code):
-        # print "Code: " + code
-        # print "Redirect: " + GUID_REDIRECT_PATH
         self.redirect(api_connector.get_token(code, GUID_REDIRECT_PATH))
 
     def get(self):
@@ -496,9 +508,9 @@ class GetToken(Handler):
         refresh_token = token_dict['refresh_token']
         token_expiration = (datetime.datetime.now() +
                             datetime.timedelta(seconds=token_dict['expires_in']))
-        self.update_user(self.user, self.user_id, yahooGuid=yahoo_guid,
-                         access_token=access_token, refresh_token=refresh_token,
-                         token_expiration=token_expiration)
+        db_models.update_user(self.user, self.user_id, yahooGuid=yahoo_guid,
+                              access_token=access_token, refresh_token=refresh_token,
+                              token_expiration=token_expiration)
         self.redirect("/user")
 
     def get(self):
@@ -506,21 +518,8 @@ class GetToken(Handler):
         self.render_code_handler(code)
 
 class RefreshToken(Handler):
-    def render_code_handler(self):
-        token_json = api_connector.check_token_expiration(self.user, "/user")
-        token_dict = json.loads(token_json)
-        yahoo_guid = token_dict['xoauth_yahoo_guid']
-        access_token = token_dict['access_token']
-        refresh_token = token_dict['refresh_token']
-        token_expiration = (datetime.datetime.now() +
-                            datetime.timedelta(seconds=token_dict['expires_in']))
-        self.update_user(self.user, self.user_id, yahooGuid=yahoo_guid,
-                         access_token=access_token, refresh_token=refresh_token,
-                         token_expiration=token_expiration)
-        self.redirect("/user")
-
     def get(self):
-        self.render_code_handler()
+        api_connector.check_token_expiration(self.user, self.user_id, "/user")
 
 # routing
 app = webapp2.WSGIApplication([

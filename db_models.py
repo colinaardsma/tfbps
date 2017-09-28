@@ -5,6 +5,8 @@ from google.appengine.ext import db
 #define columns of database objects
 import caching
 import time
+import queries
+# import hashing
 
 class BatterDB(db.Model):
     """The Batter Database Model"""
@@ -119,12 +121,35 @@ def store_user(username, user_id, password, email, location = None, yahooGuid = 
                 yahooGuid=yahooGuid, authorization=authorization, access_token=None,
                 token_expiration=None, refresh_token=None)
     db.put(user)
-    # time.sleep(1) # wait 1 second while post is entered into db and memcache
     update_user_memcache(user, user_id)
 
-def update_user(user, user_id):
+def update_user(user, user_id, username=None, hashed_password=None, email=None,
+                authorization=None, yahooGuid=None, last_accessed=None,
+                location=None, access_token=None, token_expiration=None,
+                refresh_token=None):
+    user = queries.get_user_by_name(user.username)
+    if username:
+        user.username = username
+    if hashed_password:
+        # password = hashing.make_pw_hash(username, password) # hash password for storage in db
+        user.password = hashed_password
+    if email:
+        user.email = email
+    if authorization:
+        user.authorization = authorization
+    if yahooGuid:
+        user.yahooGuid = yahooGuid
+    if last_accessed:
+        user.last_accessed = last_accessed
+    if location:
+        user.location = location
+    if access_token:
+        user.access_token = access_token
+    if token_expiration:
+        user.token_expiration = token_expiration
+    if refresh_token:
+        user.refresh_token = refresh_token
     db.put(user)
-    # time.sleep(1) # wait 1 second while post is entered into db and memcache
     update_user_memcache(user, user_id)
 
 def update_user_memcache(user, user_id):
@@ -132,3 +157,4 @@ def update_user_memcache(user, user_id):
     caching.cached_check_username(user.username, True)
     caching.cached_get_user_by_id(user_id, True)
     caching.cached_get_users(True)
+    time.sleep(1) # wait 1 second while post is entered into db and memcache
