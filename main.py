@@ -442,17 +442,8 @@ class GetLeagues(Handler):
     def get(self):
         print ":::::::::::::::::::::::"
         league_list = yql_queries.get_leagues(self.user, self.user_id)
-        print league_list
-        season = datetime.datetime.now().year
+        current_leagues = yql_queries.get_current_leagues(league_list)
 
-        current_leagues = []
-        while len(current_leagues) < 1:
-            current_leagues = [l for l in league_list if l['season'] == str(season)]
-            season -= 1
-        # TODO: now have a list of most current leagues, need to allow choice from dropdown and complete standings projections
-            
-        print ":::::::::::::::::::::::"
-        print current_leagues
         # for league in league_list:
 
         # api_connector.check_token_expiration(self.user, self.user_id, "/get_leagues")
@@ -460,21 +451,21 @@ class GetLeagues(Handler):
         # current_year_query_json = api_connector.yql_query(current_year_query_path,
         #                                                   self.user.access_token)
         # current_year_dict = json.loads(current_year_query_json)
-        # current_year_league_id = current_year_dict['fantasy_content']['users']['0']['user'][1]['games']['0']['game'][1]['leagues']['0']['league'][0]['league_key']
+        # current_year_league_key = current_year_dict['fantasy_content']['users']['0']['user'][1]['games']['0']['game'][1]['leagues']['0']['league'][0]['league_key']
         # print "%%%%%%%%%%%%%%%%%%%%%%%%"
-        # print current_year_league_id
-        # league_settings_dict = yql_queries.get_league_settings(current_year_league_id, self.user.access_token)
+        # print current_year_league_key
+        # league_settings_dict = yql_queries.get_league_settings(current_year_league_key, self.user.access_token)
         # print league_settings_dict
 
-        # one_year_prior_league_id = yql_queries.get_prev_year_league(current_year_dict)
-        # one_year_prior_query_path = "/leagues;league_keys=" + one_year_prior_league_id
+        # one_year_prior_league_key = yql_queries.get_prev_year_league(current_year_dict)
+        # one_year_prior_query_path = "/leagues;league_keys=" + one_year_prior_league_key
         # one_year_prior_json = api_connector.yql_query(one_year_prior_query_path,
         #                                               self.user.access_token)
         # print one_year_prior_json
         # one_year_prior_dict = json.loads(one_year_prior_json)
 
-        # two_years_prior_league_id = yql_queries.get_prev_year_league(one_year_prior_dict)
-        # two_years_prior_query_path = "/leagues;league_keys=" + two_years_prior_league_id
+        # two_years_prior_league_key = yql_queries.get_prev_year_league(one_year_prior_dict)
+        # two_years_prior_query_path = "/leagues;league_keys=" + two_years_prior_league_key
         # two_years_prior_json = api_connector.yql_query(two_years_prior_query_path,
         #                                                self.user.access_token)
         # print two_years_prior_json
@@ -482,14 +473,27 @@ class GetLeagues(Handler):
 
 
 class User(Handler):
-    def render_user(self, link_yahoo=None, refresh_token=None):
-        self.render("user.html", username=self.username, link_yahoo=link_yahoo,
-                    refresh_token=refresh_token)
+    def render_user(self, current_leagues=None, link_yahoo=None, refresh_token=None):
+        self.render("user.html", username=self.username, current_leagues=current_leagues,
+                    link_yahoo=link_yahoo, refresh_token=refresh_token)
 
     def get(self):
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
+        league_list = yql_queries.get_leagues(self.user, self.user_id)
+        current_leagues = yql_queries.get_current_leagues(league_list)
+
         refresh_token = "/refresh_token"
-        self.render_user(link_yahoo, refresh_token)
+        self.render_user(current_leagues, link_yahoo, refresh_token)
+
+    def post(self):
+        link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
+        league_list = yql_queries.get_leagues(self.user, self.user_id)
+        current_leagues = yql_queries.get_current_leagues(league_list)
+
+        league_key = self.request.get("league_key")
+        refresh_token = yql_queries.get_league_standings(league_key, self.user.access_token)
+        # print refresh_token
+        self.render_user(current_leagues, link_yahoo, refresh_token)
 
 class CodeAuth(Handler):
     def render_code_handler(self, code):

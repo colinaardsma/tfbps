@@ -7,5 +7,19 @@
         <a href="{{refresh_token}}">Refresh Yahoo! Token</a>
         <br/>
         <a href="/get_leagues">Get Teams</a>
+        <br/>
+        Current Leagues:
+        <form method="post">
+            <select name="league_key">
+                {%- for league in current_leagues %}
+                <option value="{{league.league_key}}">{{league.name}} - {{league.season}}</option>
+                {%- endfor %}                
+            </select>
+            <br><br>
+            <input type="submit">
+        </form>
+        <br/>
+        League DICT:
+        {{refresh_token}}
     </div>
 {%- endblock -%}

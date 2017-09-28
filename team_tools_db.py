@@ -100,7 +100,7 @@ def single_player_rater(player_name):
 
     return player_stats
 
-def final_standing_projection(league_id, access_token):
+def final_standing_projection(league_key, access_token):
     """Returns projection of final standings for league based on\n
     current standings and team projections\n
     Args:\n
@@ -113,13 +113,12 @@ def final_standing_projection(league_id, access_token):
     ros_proj_b_list = queries.get_batters()
     ros_proj_p_list = queries.get_pitchers()
 
-    # league_settings_dict_base = yql_queries.get_league_settings(league_id, acces_token)['fantasy_content']['league']['0']['league'][0]
+    # league_settings_dict_base = yql_queries.get_league_settings(league_key, acces_token)['fantasy_content']['league']['0']['league'][0]
     # number_of_teams = league_settings_dict_base['num_teams']
-    # league_settings = html_parser.get_league_settings(league_no)
-    current_standings_dict = yql_queries.get_league_standings(league_id, access_token)
-    current_standings = html_parser.get_standings(league_no, int(league_settings['Max Teams:']))
-    print current_standings_dict
-    # team_list = html_parser.yahoo_teams(league_no)
+    league_settings = html_parser.get_league_settings(league_no)
+    current_standings = yql_queries.get_league_standings(league_key, access_token)
+    # current_standings = html_parser.get_standings(league_no, int(league_settings['Max Teams:']))
+    team_list = html_parser.yahoo_teams(league_no)
     league_pos_dict = html_parser.split_league_pos_types(league_settings["Roster Positions:"])
     final_stats = player_rater.final_stats_projection(team_list, ros_proj_b_list,
                                                       ros_proj_p_list, league_pos_dict,
