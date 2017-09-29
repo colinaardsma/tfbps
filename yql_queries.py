@@ -16,24 +16,27 @@ def get_prev_year_league(current_league_dict):
     # print prev_year_id
     return prev_year_id 
 
-def get_league_query(league_key, access_token, endpoint):
+def get_league_query(league_key, user, user_id, redirect, endpoint):
+    api_connector.check_token_expiration(user, user_id, redirect)
     query_path = "/leagues;league_keys=" + league_key + endpoint
-    league_base_json = api_connector.yql_query(query_path, access_token)
+    league_base_json = api_connector.yql_query(query_path, user.access_token)
     league_base_dict = json.loads(league_base_json)
     return league_base_dict
 
-def get_league_settings(league_key, access_token):
-    return get_league_query(league_key, access_token, "/settings")
+def get_league_settings(league_key, user, user_id, redirect):
+    query_dict = get_league_query(league_key, user, user_id, redirect, "/settings")
+    settings_dict = query_dict['fantasy_content']['leagues']['0']['league']
+    return format_league_settings_dict(settings_dict)
 
-def get_league_standings(league_key, access_token):
-    query_dict = get_league_query(league_key, access_token, "/standings")
+def get_league_standings(league_key, user, user_id, redirect):
+    query_dict = get_league_query(league_key, user, user_id, redirect, "/standings")
     standings_dict = query_dict['fantasy_content']['leagues']['0']['league']
     return format_league_standings_dict(standings_dict)
 
-def get_league_transactions(league_key, access_token):
-    return get_league_query(league_key, access_token, "/transactions")
+def get_league_transactions(league_key, user, user_id, redirect):
+    return get_league_query(league_key, user, user_id, redirect, "/transactions")
 
-def get_leagues(user, user_id):
+def get_leagues(user, user_id, redirect):
     api_connector.check_token_expiration(user, user_id, "/get_leagues")
     current_year_query_path = "/users;use_login=1/games;game_keys=mlb/leagues"
     # current_year_query_path = "/users;use_login=1/games;game_keys=238/leagues"
@@ -63,7 +66,7 @@ def get_leagues(user, user_id):
 
         one_year_prior_league_dict = {}
         one_year_prior_league_key = current_year_league_dict['prev_year']
-        one_year_prior_dict_base = get_league_query(one_year_prior_league_key, user.access_token, "")
+        one_year_prior_dict_base = get_league_query(one_year_prior_league_key, user, user_id, redirect, "")
         one_year_prior_dict = one_year_prior_dict_base['fantasy_content']['leagues']['0']['league'][0]
         one_year_prior_league_dict['league_key'] = one_year_prior_league_key
         one_year_prior_league_dict['season'] = one_year_prior_dict['season']        
@@ -77,7 +80,7 @@ def get_leagues(user, user_id):
 
         two_years_prior_league_dict = {}
         two_years_prior_league_key = one_year_prior_league_dict['prev_year']
-        two_years_prior_dict_base = get_league_query(two_years_prior_league_key, user.access_token, "")
+        two_years_prior_dict_base = get_league_query(two_years_prior_league_key, user, user_id, redirect, "")
         two_years_prior_dict = two_years_prior_dict_base['fantasy_content']['leagues']['0']['league'][0]
         two_years_prior_league_dict['league_key'] = two_years_prior_league_key
         two_years_prior_league_dict['season'] = two_years_prior_dict['season']        
@@ -127,6 +130,79 @@ def format_league_standings_dict(league_standings_base_dict):
 
         formatted_standings.append(standing)
     return formatted_standings
+
+def format_league_settings_dict(league_settings_base_dict):
+    formatted_settings = {}
+    roster_pos_base = league_settings_base_dict[1]['settings'][0]['roster_positions']
+    pitching_list = []
+    bench_list = []
+    dl_list = []
+    batting_list = []
+    na_list = []
+    for pos in roster_pos_base:
+        pos_dict = pos['roster_position']
+        if pos_dict['position'] == 'BN':
+            for i in range(int(pos_dict['count'])):
+                bench_list.append('BN')
+        elif pos_dict['position'] == 'NA':
+            for i in range(int(pos_dict['count'])):
+                na_list.append('NA')
+        elif pos_dict['position'] == 'DL':
+            for i in range(int(pos_dict['count'])):
+                dl_list.append('DL')
+        elif pos_dict['position_type'] == 'B':
+            for i in range(int(pos_dict['count'])):
+                batting_list.append(str(pos_dict['position']))
+        elif pos_dict['position_type'] == 'P':
+            for i in range(int(pos_dict['count'])):
+                pitching_list.append(str(pos_dict['position']))
+    formatted_settings['Roster Positions'] = {}
+    formatted_settings['Roster Positions']['Pitching POS'] = pitching_list
+    formatted_settings['Roster Positions']['Bench POS'] = bench_list
+    formatted_settings['Roster Positions']['DL POS'] = dl_list
+    formatted_settings['Roster Positions']['Batting POS'] = batting_list
+    formatted_settings['Roster Positions']['NA POS'] = na_list
+    formatted_settings['Max Teams'] = league_settings_base_dict[0]['num_teams']
+    formatted_settings['Max Innings Pitched'] = league_settings_base_dict[1]['settings'][1]['max_innings_pitched']
+    return formatted_settings
+
+
+LEAGUE_SETTINGS = {'Draft Type:': 'Live Auction Draft',
+                   'Post Draft Players:': 'Follow Waiver Rules',
+                   'New Players Become Available:': 'As soon as Yahoo adds them',
+                   'Max Teams:': '12',
+                   'Send unjoined players email reminders:': 'Yes',
+                   "Can't Cut List Provider:": 'Yahoo Sports',
+                   'Auto-renew Enabled:': 'Yes',
+                   'Max Trades for Entire Season': 'No maximum',
+                   'Cash League Settings:': 'Not a cash league',
+                   'Trade Reject Time:': '2',
+                   'Keeper Settings:': 'Yes, enable Keeper League Management tools',
+                   'League Name:': 'Grays Sports Almanac',
+                   'Roster Changes:': 'Daily - Today',
+                   'Keeper Deadline Date:': 'Sun Mar 26 12:00am PDT',
+                   'Batters Stat Categories:': 'Runs (R), Home Runs (HR), Runs Batted In (RBI), Stolen Bases (SB), On-base + Slugging Percentage (OPS)',
+                   'Invite Permissions:': 'Commissioner Only',
+                   'Roster Positions:': 'C, 1B, 2B, 3B, SS, OF, OF, OF, OF, Util, Util, SP, SP, RP, RP, P, P, P, P, BN, BN, BN, BN, BN, BN, DL, DL, NA, NA',
+                   'Draft Time:': 'Sat Apr 1 9:00am PDT',
+                   'Trade Review:': 'Commissioner',
+                   'Max Games Played:': '162',
+                   'Trade End Date:': 'August 13, 2017',
+                   'Max Innings Pitched:': '1500',
+                   'Scoring Type:': 'Rotisserie',
+                   'Max Acquisitions for Entire Season:': 'No maximum',
+                   'Allow Draft Pick Trades:': 'No',
+                   'Waiver Mode:': 'Standard',
+                   'Allow injured players from waivers or free agents to be added directly to IR:': 'No',
+                   'League ID#:': '5091', 'Waiver Type:': 'FAAB w/ Continual rolling list tiebreak',
+                   'Waiver Time:': '2 days',
+                   'Pitchers Stat Categories:': 'Wins (W), Saves (SV), Strikeouts (K), Earned Run Average (ERA), (Walks + Hits)/ Innings Pitched (WHIP)',
+                   'Custom League URL:': 'https://baseball.fantasysports.yahoo.com/league/grayssportsalmanac',
+                   'Player Universe:': 'All baseball',
+                   'Make League Publicly Viewable:': 'Yes',
+                   'Start Scoring on:': 'Sunday, Apr 2'}
+
+
 
 STAT_ID_DICT = {'1': 'TotalGP',
                 '60': '',

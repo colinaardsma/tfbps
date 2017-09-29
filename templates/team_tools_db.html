@@ -305,21 +305,17 @@
       </table>
     {%- else %}
       <h2>Projected Final Standings</h2>
+      Current Leagues:
       <form method="post">
-      <table>
-        <tr>
-          <td>League Number:</td>
-          <td>
-            <input class="regform" type="text" name="league_no" value="{{league_no}}" placeholder="5091" />
-          </td>
-        </tr>
-      </table>
-      <!--<div style="color: red">{{error}}</div>-->
-      <table>
-        <tr>
-          <td>
-            <input type = "submit" />
+          <select name="league_key">
+              {%- for league in current_leagues %}
+              <option value="{{league.league_key}}">{{league.name}} - {{league.season}}</option>
+              {%- endfor %}                
+          </select>
+          <br><br>
+          <input type="submit">
       </form>
-    {%- endif %}
+      <br/>
+  {%- endif %}
   </div>
 {%- endblock -%}

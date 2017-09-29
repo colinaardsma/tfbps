@@ -192,8 +192,9 @@ class TeamToolsHTML(Handler):
                              team_b=team_b, team_b_name=team_b_name, team_b_players=team_b_players)
 
 class TeamToolsDB(Handler):
-    def render_fa_rater(self, league_no="", team_name="", player_name="", update=""):
+    def render_team_tools_db(self, league_no="", team_name="", player_name="", update="", league_key=""):
         import team_tools_db
+        redirect = "/team_tools_db"
         # update projections
         if update == "":
             elapsed = None
@@ -224,22 +225,29 @@ class TeamToolsDB(Handler):
         if league_no == "" or (league_no != "" and team_name != ""):
             projected_standings = None
         else:
-            projected_standings = team_tools_db.final_standing_projection(self.user_id, self.user.access_token)
+            projected_standings = team_tools_db.final_standing_projection(league_key, self.user, self.user_id, redirect)
 
         self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name, elapsed=elapsed,
-                    username=self.username)
+                    username=self.username, league_key=league_key)
 
     def get(self):
-        self.render_fa_rater()
+        redirect = "/team_tools_db"
+        league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
+        current_leagues = yql_queries.get_current_leagues(league_list)
+
+        self.render_team_tools_db(current_leagues)
+
+# TODO: get projections not yet working
 
     def post(self):
         league_no = self.request.get("league_no")
         team_name = self.request.get("team_name")
         player_name = self.request.get("player_name")
         update = self.request.get("update")
-        self.render_fa_rater(league_no=league_no, team_name=team_name,
-                             player_name=player_name, update=update)
+        league_key = self.request.get("league_key")
+        self.render_team_tools_db(league_no=league_no, team_name=team_name,
+                             player_name=player_name, update=update, league_key=league_key)
 
 class UpdateProjections(Handler):
     def render_update_projections(self, elapsed=""):
@@ -441,8 +449,11 @@ class GetLeagues(Handler):
 
     def get(self):
         print ":::::::::::::::::::::::"
-        league_list = yql_queries.get_leagues(self.user, self.user_id)
-        current_leagues = yql_queries.get_current_leagues(league_list)
+        league_key = "370.l.5091"
+        redirect = "/get_leagues"
+        settings = yql_queries.get_league_settings(league_key, self.user, self.user_id, redirect)
+
+        print settings
 
         # for league in league_list:
 
