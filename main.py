@@ -192,9 +192,9 @@ class TeamToolsHTML(Handler):
                              team_b=team_b, team_b_name=team_b_name, team_b_players=team_b_players)
 
 class TeamToolsDB(Handler):
-    def render_team_tools_db(self, league_no="", team_name="", player_name="", update="", league_key=""):
+    def render_team_tools_db(self, league_no="", team_name="", player_name="", update="",
+                             league_key="", current_leagues=None, redirect=""):
         import team_tools_db
-        redirect = "/team_tools_db"
         # update projections
         if update == "":
             elapsed = None
@@ -222,32 +222,34 @@ class TeamToolsDB(Handler):
             logging.info("\r\n***************\r\nBatter Creation in %f seconds", elapsed)
 
         # final stanings projection
-        if league_no == "" or (league_no != "" and team_name != ""):
+        # if league_no == "" or (league_no != "" and team_name != ""):
+        if league_key == "":
             projected_standings = None
         else:
             projected_standings = team_tools_db.final_standing_projection(league_key, self.user, self.user_id, redirect)
 
         self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name, elapsed=elapsed,
-                    username=self.username, league_key=league_key)
+                    username=self.username, league_key=league_key, current_leagues=current_leagues)
 
     def get(self):
         redirect = "/team_tools_db"
         league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
         current_leagues = yql_queries.get_current_leagues(league_list)
 
-        self.render_team_tools_db(current_leagues)
+        self.render_team_tools_db(current_leagues=current_leagues, redirect=redirect)
 
 # TODO: get projections not yet working
 
     def post(self):
+        redirect = "/team_tools_db"
         league_no = self.request.get("league_no")
         team_name = self.request.get("team_name")
         player_name = self.request.get("player_name")
         update = self.request.get("update")
         league_key = self.request.get("league_key")
-        self.render_team_tools_db(league_no=league_no, team_name=team_name,
-                             player_name=player_name, update=update, league_key=league_key)
+        self.render_team_tools_db(league_no=league_no, team_name=team_name, redirect=redirect,
+                                  player_name=player_name, update=update, league_key=league_key)
 
 class UpdateProjections(Handler):
     def render_update_projections(self, elapsed=""):
@@ -451,8 +453,7 @@ class GetLeagues(Handler):
         print ":::::::::::::::::::::::"
         league_key = "370.l.5091"
         redirect = "/get_leagues"
-        settings = yql_queries.get_league_settings(league_key, self.user, self.user_id, redirect)
-
+        settings = yql_queries.get_team_rosters(league_key, self.user, self.user_id, redirect)
         print settings
 
         # for league in league_list:
@@ -484,27 +485,27 @@ class GetLeagues(Handler):
 
 
 class User(Handler):
-    def render_user(self, current_leagues=None, link_yahoo=None, refresh_token=None):
-        self.render("user.html", username=self.username, current_leagues=current_leagues,
-                    link_yahoo=link_yahoo, refresh_token=refresh_token)
+    def render_user(self, link_yahoo=None):
+        self.render("user.html", username=self.username, link_yahoo=link_yahoo)
 
     def get(self):
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
-        league_list = yql_queries.get_leagues(self.user, self.user_id)
-        current_leagues = yql_queries.get_current_leagues(league_list)
-
-        refresh_token = "/refresh_token"
-        self.render_user(current_leagues, link_yahoo, refresh_token)
+        if self.user.access_token:
+            redirect = "/user"
+            league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
+            # current_leagues = yql_queries.get_current_leagues(league_list)
+        self.render_user(link_yahoo)
 
     def post(self):
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
-        league_list = yql_queries.get_leagues(self.user, self.user_id)
-        current_leagues = yql_queries.get_current_leagues(league_list)
-
-        league_key = self.request.get("league_key")
-        refresh_token = yql_queries.get_league_standings(league_key, self.user.access_token)
-        # print refresh_token
-        self.render_user(current_leagues, link_yahoo, refresh_token)
+        if self.user.access_token:
+            redirect = "/user"
+            league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
+            # current_leagues = yql_queries.get_current_leagues(league_list)
+            league_key = self.request.get("league_key")
+        #     refresh_token = yql_queries.get_league_standings(league_key, self.user, self.user_id, redirect)
+        # # print refresh_token
+        self.render_user(link_yahoo)
 
 class CodeAuth(Handler):
     def render_code_handler(self, code):

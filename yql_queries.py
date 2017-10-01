@@ -1,6 +1,7 @@
 import json
 import datetime
 import api_connector
+import normalizer
 
 def get_guid(access_token):
     url = "https://social.yahooapis.com/v1/me/guid"
@@ -163,7 +164,7 @@ def format_league_settings_dict(league_settings_base_dict):
     formatted_settings['Roster Positions']['Batting POS'] = batting_list
     formatted_settings['Roster Positions']['NA POS'] = na_list
     formatted_settings['Max Teams'] = league_settings_base_dict[0]['num_teams']
-    formatted_settings['Max Innings Pitched'] = league_settings_base_dict[1]['settings'][1]['max_innings_pitched']
+    formatted_settings['Max Innings Pitched:'] = league_settings_base_dict[1]['settings'][1]['max_innings_pitched']
     return formatted_settings
 
 
@@ -217,3 +218,44 @@ STAT_ID_DICT = {'1': 'TotalGP',
                 '42': 'K',
                 '26': 'ERA',
                 '27': 'WHIP'}
+
+def get_team_query(league_key, user, user_id, redirect, endpoint):
+    endpoint = "/teams" + endpoint
+    team_base_dict = get_league_query(league_key, user, user_id, redirect, endpoint)
+    return team_base_dict
+
+def get_team_rosters(league_key, user, user_id, redirect):
+    query_dict = get_team_query(league_key, user, user_id, redirect, "/roster")
+    rosters_dict = query_dict['fantasy_content']['leagues']['0']['league']
+    return format_team_rosters_dict(rosters_dict)
+
+def format_team_rosters_dict(team_rosters_base_dict):
+    team_count = team_rosters_base_dict[0]['num_teams']
+    rosters = team_rosters_base_dict[1]['teams']
+
+    formatted_rosters = []
+    for i in range(team_count):
+        team_dict = {}
+        team_rosters_dict = rosters['{}'.format(i)]['team']
+        team_dict['TEAM_NAME'] = team_rosters_dict[0][2]['name']
+        team_dict['TEAM_NUMBER'] = team_rosters_dict[0][1]['team_id']
+        roster = []
+        roster_count = team_rosters_dict[1]['roster']['0']['players']['count']
+        for i in range(roster_count):
+            player_dict = {}
+            for info in team_rosters_dict[1]['roster']['0']['players']['{}'.format(i)]['player'][0]:
+                if 'name' in info:
+                    first_name = info['name']['ascii_first']
+                    last_name = info['name']['ascii_last']
+                    player_name = str(first_name) + " " + str(last_name)
+                    norm_name = normalizer.name_normalizer(player_name)
+                    player_dict['NAME'] = player_name
+                    player_dict["NORMALIZED_FIRST_NAME"] = norm_name['First']
+                    player_dict["LAST_NAME"] = norm_name['Last']
+                if 'editorial_team_abbr' in info:
+                    team = info['editorial_team_abbr']
+                    player_dict['TEAM'] = normalizer.team_normalizer(team)
+            roster.append(player_dict)
+        team_dict['ROSTER'] = roster
+        formatted_rosters.append(team_dict)
+    return formatted_rosters

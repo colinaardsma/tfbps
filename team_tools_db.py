@@ -128,9 +128,7 @@ def final_standing_projection(league_key, user, user_id, redirect):
     league_settings = yql_queries.get_league_settings(league_key, user, user_id, redirect)
     league_pos_dict = league_settings['Roster Positions']
     current_standings = yql_queries.get_league_standings(league_key, user, user_id, redirect)
-    team_list = []
-    for team in current_standings:
-        team_list.append(team['StatsTeam'])
+    team_list = yql_queries.get_team_rosters(league_key, user, user_id, redirect)
 
     # current_standings = html_parser.get_standings(league_no, int(league_settings['Max Teams:']))
     # team_list = html_parser.yahoo_teams(league_no)
