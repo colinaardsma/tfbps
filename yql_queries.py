@@ -14,7 +14,6 @@ def get_prev_year_league(current_league_dict):
         fantasy_content = fantasy_content['users']['0']['user'][1]['games']['0']['game'][1]
     prev_year_id = fantasy_content['leagues']['0']['league'][0]['renew']
     prev_year_id = prev_year_id.replace("_", ".l.")
-    # print prev_year_id
     return prev_year_id 
 
 def get_league_query(league_key, user, user_id, redirect, endpoint):
@@ -34,16 +33,38 @@ def get_league_standings(league_key, user, user_id, redirect):
     standings_dict = query_dict['fantasy_content']['leagues']['0']['league']
     return format_league_standings_dict(standings_dict)
 
+def get_league_players(league_key, user, user_id, redirect, player_type):
+    # player types:
+    # A (all available players)
+    # FA (free agents only)
+    # W (waivers only)
+    # T (all taken players)
+    # K (keepers only)
+    endpoint = "/players;status=" + player_type
+    query_dict = get_league_query(league_key, user, user_id, redirect, endpoint)
+    players_dict = query_dict['fantasy_content']['leagues']['0']['league']
+    return players_dict
+    # return format_players_dict(players_dict)
+
 def get_league_transactions(league_key, user, user_id, redirect):
     return get_league_query(league_key, user, user_id, redirect, "/transactions")
 
+def get_user_query(user, user_id, redirect, endpoint):
+    api_connector.check_token_expiration(user, user_id, redirect)
+    query_path = "/users;use_login=1/games;game_keys=mlb" + endpoint
+    # query_path = "/users;use_login=1/games;game_keys=238" + redirect
+    user_base_json = api_connector.yql_query(query_path, user.access_token)
+    user_base_dict = json.loads(user_base_json)
+    return user_base_dict
+
 def get_leagues(user, user_id, redirect):
-    api_connector.check_token_expiration(user, user_id, "/get_leagues")
-    current_year_query_path = "/users;use_login=1/games;game_keys=mlb/leagues"
-    # current_year_query_path = "/users;use_login=1/games;game_keys=238/leagues"
-    current_year_query_json = api_connector.yql_query(current_year_query_path,
-                                                      user.access_token)
-    current_year_dict = json.loads(current_year_query_json)
+    api_connector.check_token_expiration(user, user_id, redirect)
+# get_user_query doesnt work right
+    # current_year_query_path = get_user_query(user, user_id, redirect, "/leagues")
+    # current_year_query_json = api_connector.yql_query(current_year_query_path,
+    #                                                   user.access_token)
+    # current_year_dict = json.loads(current_year_query_json)
+    current_year_dict = get_user_query(user, user_id, redirect, "/leagues")
     # print current_year_dict
     current_year_league_list = []
     current_year_league_base = current_year_dict['fantasy_content']['users']['0']['user'][1]['games']['0']['game'][1]['leagues']
@@ -224,8 +245,13 @@ def get_team_query(league_key, user, user_id, redirect, endpoint):
     team_base_dict = get_league_query(league_key, user, user_id, redirect, endpoint)
     return team_base_dict
 
-def get_team_rosters(league_key, user, user_id, redirect):
+def get_all_team_rosters(league_key, user, user_id, redirect):
     query_dict = get_team_query(league_key, user, user_id, redirect, "/roster")
+    rosters_dict = query_dict['fantasy_content']['leagues']['0']['league']
+    return format_team_rosters_dict(rosters_dict)
+
+def get_single_team_roster(league_key, user, user_id, redirect):
+    query_dict = get_user_query(user, user_id, redirect, "/teams/roster")
     rosters_dict = query_dict['fantasy_content']['leagues']['0']['league']
     return format_team_rosters_dict(rosters_dict)
 
@@ -259,3 +285,33 @@ def format_team_rosters_dict(team_rosters_base_dict):
         team_dict['ROSTER'] = roster
         formatted_rosters.append(team_dict)
     return formatted_rosters
+
+def get_teams(user, user_id, redirect):
+    api_connector.check_token_expiration(user, user_id, redirect)
+    teams_query_path = get_user_query(user, user_id, redirect, "/teams")
+    teams_query_json = api_connector.yql_query(teams_query_path, user.access_token)
+    teams_dict = json.loads(teams_query_json)
+    return teams_dict
+
+def get_fa_players(league_key, user, user_id, redirect, pOrB):
+    formatted_fas = []
+    count = 25
+    total_players = 300
+    for i in range(0, total_players, count):
+        player_type = "FA;sort=AR;position=" + pOrB + ";count=" + str(count) + ";start=" + str(i)
+        fa_dict = get_league_players(league_key, user, user_id, redirect, player_type)
+        for i in range(count):
+            player = fa_dict[1]['players']['{}'.format(i)]['player'][0]
+            player_name = player[2]['name']['ascii_first'] + " " + player[2]['name']['ascii_last']
+            player_dict = {}
+            norm_name = normalizer.name_normalizer(player_name)
+            player_dict['NAME'] = player_name
+            player_dict["NORMALIZED_FIRST_NAME"] = norm_name['First']
+            player_dict["LAST_NAME"] = norm_name['Last']
+            team = ""
+            for info in player:
+                if 'editorial_team_abbr' in info:
+                    team = info['editorial_team_abbr']
+                    player_dict['TEAM'] = normalizer.team_normalizer(team)
+            formatted_fas.append(player_dict)
+    return formatted_fas

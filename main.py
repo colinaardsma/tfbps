@@ -50,7 +50,7 @@ class Handler(webapp2.RequestHandler):
     def __init__(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
         self.get_user()
-        self.username = None
+        self.username = ""
         if self.user:
             self.username = self.user.username
     
@@ -82,6 +82,10 @@ class Handler(webapp2.RequestHandler):
         self.response.headers.add_header('Set-Cookie', 'user=%s' %
                                          hashing.make_secure_val(user_id)) # hash user id for use in cookie
         # self.redirect('/welcome')
+    
+    def set_cookie(self, user_id):
+        self.response.headers.add_header('Set-Cookie', 'user=%s' %
+                                         hashing.make_secure_val(user_id)) # hash user id for use in cookie
 
     # check user authorization vs authorization lists
     def get_auth(self, auth):
@@ -139,6 +143,7 @@ class TeamToolsHTML(Handler):
         if league_no != "" and team_name != "":
             top_fa = team_tools_html.fa_finder(league_no, team_name)
             team_name = top_fa['Team Name']
+            print top_fa
         else:
             top_fa = None
         # single player lookup
@@ -206,10 +211,11 @@ class TeamToolsDB(Handler):
             end = time.time()
             elapsed = end - start
         # fa rater
-        if league_no == "" or team_name == "":
+        # if league_no == "" or team_name == "":
+        if league_key == "":
             top_fa = None
         else:
-            top_fa = team_tools_db.fa_finder(league_no, team_name)
+            top_fa = team_tools_db.fa_finder(league_key, self.user, self.user_id, redirect)
             team_name = top_fa['Team Name']
         # single player lookup
         if player_name == "":
@@ -239,7 +245,7 @@ class TeamToolsDB(Handler):
 
         self.render_team_tools_db(current_leagues=current_leagues, redirect=redirect)
 
-# TODO: get projections not yet working
+# TODO: fa rater not yet working
 
     def post(self):
         redirect = "/team_tools_db"
@@ -430,12 +436,14 @@ class Login(Handler):
         if error:
             self.render_login(username, error)
         else:
-            self.response.headers.add_header('Set-Cookie', 'user=%s' % hashing.make_secure_val(user_id)) # hash user id for use in cookie
+            self.response.headers.add_header('Set-Cookie', 'user=%s' %
+                                            hashing.make_secure_val(user_id)) # hash user id for use in cookie
             self.redirect('/welcome')
 
 class Logout(Handler):
     def get(self):
-        self.response.headers.add_header('Set-Cookie', 'user=""; expires=Thu, 01-Jan-1970 00:00:10 GMT') #clear cookie
+        self.response.headers.add_header('Set-Cookie', 'user=%s' %
+                                         hashing.make_secure_val(user_id)) # hash user id for use in cookie
         self.redirect('/registration')
 
 class Welcome(Handler):
@@ -445,7 +453,7 @@ class Welcome(Handler):
     def get(self):
         self.render_welcome()
 
-class GetLeagues(Handler):
+class TestPage(Handler):
     def render_welcome(self):
         self.redirect('/')
 
@@ -453,8 +461,8 @@ class GetLeagues(Handler):
         print ":::::::::::::::::::::::"
         league_key = "370.l.5091"
         redirect = "/get_leagues"
-        settings = yql_queries.get_team_rosters(league_key, self.user, self.user_id, redirect)
-        print settings
+        settings = yql_queries.get_fa_players(league_key, self.user, self.user_id, redirect, "B")
+        # print settings
 
         # for league in league_list:
 
@@ -490,21 +498,10 @@ class User(Handler):
 
     def get(self):
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
-        if self.user.access_token:
-            redirect = "/user"
-            league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
-            # current_leagues = yql_queries.get_current_leagues(league_list)
         self.render_user(link_yahoo)
 
     def post(self):
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
-        if self.user.access_token:
-            redirect = "/user"
-            league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
-            # current_leagues = yql_queries.get_current_leagues(league_list)
-            league_key = self.request.get("league_key")
-        #     refresh_token = yql_queries.get_league_standings(league_key, self.user, self.user_id, redirect)
-        # # print refresh_token
         self.render_user(link_yahoo)
 
 class CodeAuth(Handler):
@@ -554,7 +551,7 @@ app = webapp2.WSGIApplication([
     ('/query_redirect/?', QueryRedirect),
     ('/localhost_guid/?', GuidLocalhost),
     ('/localhost_query/?', QueryLocalhost),
-    ('/get_leagues/?', GetLeagues),
+    ('/test_page/?', TestPage),
     ('/code_auth/?', CodeAuth),
     ('/get_token/?', GetToken),
     ('/refresh_token/?', RefreshToken),

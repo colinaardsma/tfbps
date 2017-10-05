@@ -55,6 +55,8 @@ def fa_finder(league_no, team_name):
     """
     player_comp = {}
     pitching_fa_list = html_parser.yahoo_fa(league_no, "P")
+    print "HTMLHTMLHTMLHTMLHTMLHTMLHTML"
+    print pitching_fa_list
     batting_fa_list = html_parser.yahoo_fa(LEAGUE_NO, "B")
     avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ROS_PROJ_P_LIST)
     yahoo_team = html_parser.get_single_yahoo_team(league_no, team_name)
@@ -105,8 +107,6 @@ def final_standing_projection(league_no):
     league_settings = html_parser.get_league_settings(league_no)
     current_standings = html_parser.get_standings(league_no, int(league_settings['Max Teams:']))
     team_list = html_parser.yahoo_teams(league_no)
-    print "##########################"
-    print team_list
     league_pos_dict = html_parser.split_league_pos_types(league_settings["Roster Positions:"])
     final_stats = player_rater.final_stats_projection(team_list, ROS_PROJ_B_LIST,
                                                       ROS_PROJ_P_LIST, league_pos_dict,

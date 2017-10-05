@@ -121,6 +121,7 @@ def store_user(username, user_id, password, email, location = None, yahooGuid = 
                 yahooGuid=yahooGuid, authorization=authorization, access_token=None,
                 token_expiration=None, refresh_token=None)
     db.put(user)
+    time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     update_user_memcache(user, user_id)
 
 def update_user(user, user_id, username=None, hashed_password=None, email=None,
@@ -150,6 +151,7 @@ def update_user(user, user_id, username=None, hashed_password=None, email=None,
     if refresh_token:
         user.refresh_token = refresh_token
     db.put(user)
+    time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     update_user_memcache(user, user_id)
 
 def update_user_memcache(user, user_id):
@@ -157,4 +159,4 @@ def update_user_memcache(user, user_id):
     caching.cached_check_username(user.username, True)
     caching.cached_get_user_by_id(user_id, True)
     caching.cached_get_users(True)
-    time.sleep(1) # wait 1 second while post is entered into db and memcache
+    time.sleep(.5) # wait .5 seconds while post is entered into db and memcache

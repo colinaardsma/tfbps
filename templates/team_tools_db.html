@@ -145,27 +145,17 @@
       </table>
     {%- else %}
       <h2>FA Rater by Team/League</h2>
+      Current Leagues:
       <form method="post">
-      <table>
-        <tr>
-          <td>League Number:</td>
-          <td>
-            <input class="regform" type="text" name="league_no" value="{{league_no}}" placeholder="5091" />
-          </td>
-        </tr>
-        <tr>
-          <td>Team Name:</td>
-          <td>
-            <input class="regform" type="text" name="team_name" value="{{team_name}}" placeholder="MachadoAboutNothing" />
-          </td>
-        </tr>
-      </table>
-      <!--<div style="color: red">{{error}}</div>-->
-      <table>
-        <tr>
-          <td>
-            <input type = "submit" />
+          <select name="league_key">
+              {%- for team_league in current_leagues %}
+              <option value="{{team_league.league_key}}">{{team_league.name}} - {{team_league.season}}</option>
+              {%- endfor %}                
+          </select>
+          <br><br>
+          <input type="submit">
       </form>
+      <br/>
     {%- endif %}
   </div>
   <div>
