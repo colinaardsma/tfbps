@@ -65,7 +65,6 @@ def get_leagues(user, user_id, redirect):
     #                                                   user.access_token)
     # current_year_dict = json.loads(current_year_query_json)
     current_year_dict = get_user_query(user, user_id, redirect, "/leagues")
-    # print current_year_dict
     current_year_league_list = []
     current_year_league_base = current_year_dict['fantasy_content']['users']['0']['user'][1]['games']['0']['game'][1]['leagues']
     current_year_league_count = current_year_league_base['count']
@@ -248,14 +247,50 @@ def get_team_query(league_key, user, user_id, redirect, endpoint):
 def get_all_team_rosters(league_key, user, user_id, redirect):
     query_dict = get_team_query(league_key, user, user_id, redirect, "/roster")
     rosters_dict = query_dict['fantasy_content']['leagues']['0']['league']
-    return format_team_rosters_dict(rosters_dict)
+    return format_all_team_rosters_dict(rosters_dict)
 
 def get_single_team_roster(league_key, user, user_id, redirect):
     query_dict = get_user_query(user, user_id, redirect, "/teams/roster")
-    rosters_dict = query_dict['fantasy_content']['leagues']['0']['league']
-    return format_team_rosters_dict(rosters_dict)
+    rosters_dict = query_dict['fantasy_content']['users']['0']['user'][1]['games']['0']['game'][1]['teams']
+    user_team_list = format_single_team_rosters_dict(rosters_dict)
+    for team in user_team_list:
+        if league_key in team['TEAM_KEY']:
+            return team
 
-def format_team_rosters_dict(team_rosters_base_dict):
+# TODO: don't need 2 methods that do effectively the same thing, combine these
+def format_single_team_rosters_dict(team_rosters_base_dict):
+    team_count = team_rosters_base_dict['count']
+    rosters = team_rosters_base_dict
+
+    formatted_rosters = []
+    for i in range(team_count):
+        team_dict = {}
+        team_rosters_dict = rosters['{}'.format(i)]['team']
+        team_dict['TEAM_NAME'] = team_rosters_dict[0][2]['name']
+        team_dict['TEAM_NUMBER'] = team_rosters_dict[0][1]['team_id']
+        team_dict['TEAM_KEY'] = team_rosters_dict[0][0]['team_key']
+        roster = []
+        roster_count = team_rosters_dict[2]['roster']['0']['players']['count']
+        for i in range(roster_count):
+            player_dict = {}
+            for info in team_rosters_dict[2]['roster']['0']['players']['{}'.format(i)]['player'][0]:
+                if 'name' in info:
+                    first_name = info['name']['ascii_first']
+                    last_name = info['name']['ascii_last']
+                    player_name = str(first_name) + " " + str(last_name)
+                    norm_name = normalizer.name_normalizer(player_name)
+                    player_dict['NAME'] = player_name
+                    player_dict["NORMALIZED_FIRST_NAME"] = norm_name['First']
+                    player_dict["LAST_NAME"] = norm_name['Last']
+                if 'editorial_team_abbr' in info:
+                    team = info['editorial_team_abbr']
+                    player_dict['TEAM'] = normalizer.team_normalizer(team)
+            roster.append(player_dict)
+        team_dict['ROSTER'] = roster
+        formatted_rosters.append(team_dict)
+    return formatted_rosters
+
+def format_all_team_rosters_dict(team_rosters_base_dict):
     team_count = team_rosters_base_dict[0]['num_teams']
     rosters = team_rosters_base_dict[1]['teams']
 

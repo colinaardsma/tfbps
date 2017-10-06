@@ -161,11 +161,13 @@ def batting_roster_optimizer(team_dict, ros_projection_list, league_pos_dict):
             elif pos == "Util":
                 pos_elig_dict[pos] = len(team_player_list)
     for pos in batting_pos_scarc:
-        if pos_elig_dict[pos] == 1:
-            batting_pos_scarc_elig.append(pos)
+        if pos in pos_elig_dict:
+            if pos_elig_dict[pos] == 1:
+                batting_pos_scarc_elig.append(pos)
     for pos in batting_pos_scarc:
-        if pos_elig_dict[pos] != 1:
-            batting_pos_scarc_elig.append(pos)
+        if pos in pos_elig_dict:
+            if pos_elig_dict[pos] != 1:
+                batting_pos_scarc_elig.append(pos)
     for pos in batting_pos_scarc_elig:
         i = 0
         multi_pos = False

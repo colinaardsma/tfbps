@@ -2,12 +2,13 @@
 import unicodedata
 from lxml import html
 URL_FETCH = False
-try:
-    from google.appengine.api import urlfetch
-    URL_FETCH = True
-except ImportError:
-    import urllib2
+# try:
+#     from google.appengine.api import urlfetch
+#     URL_FETCH = True
+# except ImportError:
+#     import urllib2
     # pass
+import urllib2
 import normalizer
 
 def html_to_document(url):
@@ -49,7 +50,8 @@ def fantasy_pro_players(url):
     for player_html in body_html:
         single_player_html = player_html.xpath("descendant::td")
         player_stats = fant_pro_player_dict_creator(single_player_html, headings_list_html)
-        player_list.append(player_stats)
+        if player_stats:
+            player_list.append(player_stats)
     return player_list
 
 def fant_pro_player_dict_creator(single_player_html, headings_list_html):
@@ -65,34 +67,35 @@ def fant_pro_player_dict_creator(single_player_html, headings_list_html):
     """
     single_player = {}
     counter = 0
-    while counter < len(single_player_html):
-        if counter == 1:
-            name_team_pos = single_player_html[1].xpath("descendant::*/text()")
-            if name_team_pos[0] is None or name_team_pos[0] == " ()":
-                counter = len(single_player_html)
-                continue
-            single_player["NAME"] = name_team_pos[0]
-            if len(name_team_pos) >= 3:
-                single_player["TEAM"] = name_team_pos[2].replace(u'\xa0', u' ').encode('utf-8')
+    name_team_pos = single_player_html[1].xpath("descendant::*/text()")
+    if name_team_pos:
+        while counter < len(single_player_html):
+            if counter == 1:
+                if name_team_pos[0] is None or name_team_pos[0] == " ()":
+                    counter = len(single_player_html)
+                    continue
+                single_player["NAME"] = name_team_pos[0]
+                if len(name_team_pos) >= 3:
+                    single_player["TEAM"] = name_team_pos[2].replace(u'\xa0', u' ').encode('utf-8')
+                else:
+                    single_player["TEAM"] = "NONE"
+                if len(name_team_pos) >= 4:
+                    name_team_pos[3] = name_team_pos[3].strip(" - ")
+                    name_team_pos[3] = name_team_pos[3].strip(")")
+                    single_player["POS"] = name_team_pos[3].replace(u'\xa0', u' ').encode('utf-8')
+                else:
+                    single_player["POS"] = "NONE"
+                if len(name_team_pos) >= 5:
+                    single_player["STATUS"] = name_team_pos[4].replace(u'\xa0', '').encode('utf-8')
+                else:
+                    single_player["STATUS"] = "ACTIVE"
             else:
-                single_player["TEAM"] = "NONE"
-            if len(name_team_pos) >= 4:
-                name_team_pos[3] = name_team_pos[3].strip(" - ")
-                name_team_pos[3] = name_team_pos[3].strip(")")
-                single_player["POS"] = name_team_pos[3].replace(u'\xa0', u' ').encode('utf-8')
-            else:
-                single_player["POS"] = "NONE"
-            if len(name_team_pos) >= 5:
-                single_player["STATUS"] = name_team_pos[4].replace(u'\xa0', '').encode('utf-8')
-            else:
-                single_player["STATUS"] = "ACTIVE"
-        else:
-            stat = single_player_html[counter].xpath("self::*/text()")
-            if len(stat) != 0:
-                cat = stat[0].replace(u'\xa0', '').encode('utf-8')
-                single_player[headings_list_html[counter]] = cat
-        counter += 1
-    return single_player
+                stat = single_player_html[counter].xpath("self::*/text()")
+                if len(stat) != 0:
+                    cat = stat[0].replace(u'\xa0', '').encode('utf-8')
+                    single_player[headings_list_html[counter]] = cat
+            counter += 1
+        return single_player
 
 def yahoo_fa(league_no, b_or_p):
     """Parse FAs from yahoo league\n

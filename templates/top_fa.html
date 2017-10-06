@@ -158,7 +158,20 @@
           {%- endfor %}
         </tbody>
       </table>
-    {%- else %}
+    {%- elif username %}
+      <h2>FA Rater by Team/League</h2>
+      Current Leagues:
+      <form method="post">
+          <select name="fa_league_key">
+              {%- for team_league in current_leagues %}
+              <option value="{{team_league.league_key}}">{{team_league.name}} - {{team_league.season}}</option>
+              {%- endfor %}                
+          </select>
+          <br><br>
+          <input type="submit">
+      </form>
+      <br/>
+      {%- else %}      
       <h2>FA Rater by Team/League</h2>
       <form method="post">
         <table>

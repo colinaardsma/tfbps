@@ -198,7 +198,8 @@ class TeamToolsHTML(Handler):
 
 class TeamToolsDB(Handler):
     def render_team_tools_db(self, league_no="", team_name="", player_name="", update="",
-                             league_key="", current_leagues=None, redirect=""):
+                             fa_league_key="", proj_league_key="", current_leagues=None,
+                             redirect=""):
         import team_tools_db
         # update projections
         if update == "":
@@ -212,10 +213,10 @@ class TeamToolsDB(Handler):
             elapsed = end - start
         # fa rater
         # if league_no == "" or team_name == "":
-        if league_key == "":
+        if fa_league_key == "":
             top_fa = None
         else:
-            top_fa = team_tools_db.fa_finder(league_key, self.user, self.user_id, redirect)
+            top_fa = team_tools_db.fa_finder(fa_league_key, self.user, self.user_id, redirect)
             team_name = top_fa['Team Name']
         # single player lookup
         if player_name == "":
@@ -229,14 +230,15 @@ class TeamToolsDB(Handler):
 
         # final stanings projection
         # if league_no == "" or (league_no != "" and team_name != ""):
-        if league_key == "":
+        if proj_league_key == "":
             projected_standings = None
         else:
-            projected_standings = team_tools_db.final_standing_projection(league_key, self.user, self.user_id, redirect)
+            projected_standings = team_tools_db.final_standing_projection(proj_league_key, self.user, self.user_id, redirect)
 
         self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name, elapsed=elapsed,
-                    username=self.username, league_key=league_key, current_leagues=current_leagues)
+                    username=self.username, fa_league_key=fa_league_key, proj_league_key=proj_league_key,
+                    current_leagues=current_leagues)
 
     def get(self):
         redirect = "/team_tools_db"
@@ -245,17 +247,17 @@ class TeamToolsDB(Handler):
 
         self.render_team_tools_db(current_leagues=current_leagues, redirect=redirect)
 
-# TODO: fa rater not yet working
-
     def post(self):
         redirect = "/team_tools_db"
         league_no = self.request.get("league_no")
         team_name = self.request.get("team_name")
         player_name = self.request.get("player_name")
         update = self.request.get("update")
-        league_key = self.request.get("league_key")
+        fa_league_key = self.request.get("fa_league_key")
+        proj_league_key = self.request.get("proj_league_key")        
         self.render_team_tools_db(league_no=league_no, team_name=team_name, redirect=redirect,
-                                  player_name=player_name, update=update, league_key=league_key)
+                                  player_name=player_name, update=update, fa_league_key=fa_league_key,
+                                  proj_league_key=proj_league_key)
 
 class UpdateProjections(Handler):
     def render_update_projections(self, elapsed=""):
@@ -437,13 +439,13 @@ class Login(Handler):
             self.render_login(username, error)
         else:
             self.response.headers.add_header('Set-Cookie', 'user=%s' %
-                                            hashing.make_secure_val(user_id)) # hash user id for use in cookie
+                                             hashing.make_secure_val(user_id)) # hash user id for use in cookie
             self.redirect('/welcome')
 
 class Logout(Handler):
     def get(self):
-        self.response.headers.add_header('Set-Cookie', 'user=%s' %
-                                         hashing.make_secure_val(user_id)) # hash user id for use in cookie
+        self.response.headers.add_header('Set-Cookie',
+                                         'user=""; expires=Thu, 01-Jan-1970 00:00:10 GMT') #clear cookie
         self.redirect('/registration')
 
 class Welcome(Handler):

@@ -6,6 +6,7 @@ import sys
 sys.path.append('/usr/local/google_appengine/')
 sys.path.append('/usr/local/google_appengine/lib/yaml/lib/')
 from google.appengine.ext import db
+import urllib
 import html_parser
 import player_rater
 import player_creator
@@ -18,8 +19,13 @@ import yql_queries
 # https://www.mysportsfeeds.com
 
 # static variables
-ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
-ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/ros-pitchers.php"
+# ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
+# ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/ros-pitchers.php"
+# ROS_BATTER_URL = "https://www.fantasypros.com/mlb/projections/hitters.php"
+# ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/pitchers.php"
+ROS_BATTER_URL = "file://" + urllib.pathname2url(r"/Users/colinaardsma/git/tfbps/testing html/2017 Rest of Season Fantasy Baseball Projections - Hitters.html")
+ROS_PITCHER_URL = "file://" + urllib.pathname2url(r"/Users/colinaardsma/git/tfbps/testing html/2017 Rest of Season Fantasy Baseball Projections - Pitchers.html")
+
 BATTERS_OVER_ZERO_DOLLARS = 176
 PITCHERS_OVER_ZERO_DOLLARS = 124
 ONE_DOLLAR_BATTERS = 30
@@ -65,13 +71,11 @@ def fa_finder(league_key, user, user_id, redirect):
                                                          ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
                                                          B_PLAYER_POOL_MULT)
     ros_proj_p_list = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
-                                                         ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
-                                                         P_PLAYER_POOL_MULT)
+                                                          ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
+                                                          P_PLAYER_POOL_MULT)
 
     player_comp = {}
     pitching_fa_list = yql_queries.get_fa_players(league_key, user, user_id, redirect, "P")
-    print "DBDBDBDBDBDBDBDBDBDBDBDBDBDBDB"
-    print pitching_fa_list
     batting_fa_list = yql_queries.get_fa_players(league_key, user, user_id, redirect, "B")
     avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ros_proj_p_list)
     yahoo_team = yql_queries.get_single_team_roster(league_key, user, user_id, redirect)

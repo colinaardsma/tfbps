@@ -108,6 +108,19 @@
           {% endfor %}
         </tbody>
       </table>
+    {%- elif username %}
+      <h2>Projected Final Standings</h2>
+      Current Leagues:
+      <form method="post">
+          <select name="proj_league_key">
+              {%- for league in current_leagues %}
+              <option value="{{league.league_key}}">{{league.name}} - {{league.season}}</option>
+              {%- endfor %}                
+          </select>
+          <br><br>
+          <input type="submit">
+      </form>
+      <br/>
     {%- else %}
       <h2>Projected Final Standings</h2>
       <form method="post">
