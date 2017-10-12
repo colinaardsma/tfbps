@@ -119,10 +119,7 @@ def check_token_expiration(user, user_id, redirect_path):
     Raises:\n
         None.
     """
-    # print "User Token Exp: " + str(user.token_expiration)
-    # print "Now: " + str(datetime.datetime.now())
-    # print "Dif: " + str((user.token_expiration - datetime.datetime.now()).total_seconds())
-    if (user.token_expiration - datetime.datetime.now()).total_seconds() > 240:
+    if (not user or user.token_expiration - datetime.datetime.now()).total_seconds() > 240:
         return
     url = 'https://api.login.yahoo.com/oauth2/get_token'
     auth_string = "{}:{}".format(CLIENT_ID, CLIENT_SECRET)
@@ -146,6 +143,7 @@ def check_token_expiration(user, user_id, redirect_path):
     refresh_token = token_dict['refresh_token']
     token_expiration = (datetime.datetime.now() +
                         datetime.timedelta(seconds=token_dict['expires_in']))
-    db_models.update_user(user, user_id, yahooGuid=yahoo_guid,
-                          access_token=access_token, refresh_token=refresh_token,
-                          token_expiration=token_expiration)
+    updated_user = db_models.update_user(user, user_id, yahooGuid=yahoo_guid,
+                                         access_token=access_token, refresh_token=refresh_token,
+                                         token_expiration=token_expiration)
+    return updated_user

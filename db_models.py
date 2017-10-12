@@ -123,6 +123,7 @@ def store_user(username, user_id, password, email, location = None, yahooGuid = 
     db.put(user)
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     update_user_memcache(user, user_id)
+    return user
 
 def update_user(user, user_id, username=None, hashed_password=None, email=None,
                 authorization=None, yahooGuid=None, last_accessed=None,
@@ -153,6 +154,7 @@ def update_user(user, user_id, username=None, hashed_password=None, email=None,
     db.put(user)
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     update_user_memcache(user, user_id)
+    return user
 
 def update_user_memcache(user, user_id):
     caching.cached_user_by_name(user.username, True)

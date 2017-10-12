@@ -17,7 +17,9 @@ def get_prev_year_league(current_league_dict):
     return prev_year_id 
 
 def get_league_query(league_key, user, user_id, redirect, endpoint):
-    api_connector.check_token_expiration(user, user_id, redirect)
+    updated_user = api_connector.check_token_expiration(user, user_id, redirect)
+    if updated_user:
+        user = updated_user
     query_path = "/leagues;league_keys=" + league_key + endpoint
     league_base_json = api_connector.yql_query(query_path, user.access_token)
     league_base_dict = json.loads(league_base_json)
@@ -50,20 +52,18 @@ def get_league_transactions(league_key, user, user_id, redirect):
     return get_league_query(league_key, user, user_id, redirect, "/transactions")
 
 def get_user_query(user, user_id, redirect, endpoint):
-    api_connector.check_token_expiration(user, user_id, redirect)
+    updated_user = api_connector.check_token_expiration(user, user_id, redirect)
+    if updated_user:
+        user = updated_user
     query_path = "/users;use_login=1/games;game_keys=mlb" + endpoint
-    # query_path = "/users;use_login=1/games;game_keys=238" + redirect
     user_base_json = api_connector.yql_query(query_path, user.access_token)
     user_base_dict = json.loads(user_base_json)
     return user_base_dict
 
 def get_leagues(user, user_id, redirect):
-    api_connector.check_token_expiration(user, user_id, redirect)
-# get_user_query doesnt work right
-    # current_year_query_path = get_user_query(user, user_id, redirect, "/leagues")
-    # current_year_query_json = api_connector.yql_query(current_year_query_path,
-    #                                                   user.access_token)
-    # current_year_dict = json.loads(current_year_query_json)
+    updated_user = api_connector.check_token_expiration(user, user_id, redirect)
+    if updated_user:
+        user = updated_user
     current_year_dict = get_user_query(user, user_id, redirect, "/leagues")
     current_year_league_list = []
     current_year_league_base = current_year_dict['fantasy_content']['users']['0']['user'][1]['games']['0']['game'][1]['leagues']
@@ -123,7 +123,6 @@ def get_current_leagues(league_list):
     return current_leagues
 
 def format_league_standings_dict(league_standings_base_dict):
-    # team_count = league_standings_base_dict[0]['num_teams']
     team_count = league_standings_base_dict[1]['standings'][0]['teams']['count']
     standings = league_standings_base_dict[1]['standings'][0]['teams']
 
@@ -186,58 +185,6 @@ def format_league_settings_dict(league_settings_base_dict):
     formatted_settings['Max Teams'] = league_settings_base_dict[0]['num_teams']
     formatted_settings['Max Innings Pitched:'] = league_settings_base_dict[1]['settings'][1]['max_innings_pitched']
     return formatted_settings
-
-
-LEAGUE_SETTINGS = {'Draft Type:': 'Live Auction Draft',
-                   'Post Draft Players:': 'Follow Waiver Rules',
-                   'New Players Become Available:': 'As soon as Yahoo adds them',
-                   'Max Teams:': '12',
-                   'Send unjoined players email reminders:': 'Yes',
-                   "Can't Cut List Provider:": 'Yahoo Sports',
-                   'Auto-renew Enabled:': 'Yes',
-                   'Max Trades for Entire Season': 'No maximum',
-                   'Cash League Settings:': 'Not a cash league',
-                   'Trade Reject Time:': '2',
-                   'Keeper Settings:': 'Yes, enable Keeper League Management tools',
-                   'League Name:': 'Grays Sports Almanac',
-                   'Roster Changes:': 'Daily - Today',
-                   'Keeper Deadline Date:': 'Sun Mar 26 12:00am PDT',
-                   'Batters Stat Categories:': 'Runs (R), Home Runs (HR), Runs Batted In (RBI), Stolen Bases (SB), On-base + Slugging Percentage (OPS)',
-                   'Invite Permissions:': 'Commissioner Only',
-                   'Roster Positions:': 'C, 1B, 2B, 3B, SS, OF, OF, OF, OF, Util, Util, SP, SP, RP, RP, P, P, P, P, BN, BN, BN, BN, BN, BN, DL, DL, NA, NA',
-                   'Draft Time:': 'Sat Apr 1 9:00am PDT',
-                   'Trade Review:': 'Commissioner',
-                   'Max Games Played:': '162',
-                   'Trade End Date:': 'August 13, 2017',
-                   'Max Innings Pitched:': '1500',
-                   'Scoring Type:': 'Rotisserie',
-                   'Max Acquisitions for Entire Season:': 'No maximum',
-                   'Allow Draft Pick Trades:': 'No',
-                   'Waiver Mode:': 'Standard',
-                   'Allow injured players from waivers or free agents to be added directly to IR:': 'No',
-                   'League ID#:': '5091', 'Waiver Type:': 'FAAB w/ Continual rolling list tiebreak',
-                   'Waiver Time:': '2 days',
-                   'Pitchers Stat Categories:': 'Wins (W), Saves (SV), Strikeouts (K), Earned Run Average (ERA), (Walks + Hits)/ Innings Pitched (WHIP)',
-                   'Custom League URL:': 'https://baseball.fantasysports.yahoo.com/league/grayssportsalmanac',
-                   'Player Universe:': 'All baseball',
-                   'Make League Publicly Viewable:': 'Yes',
-                   'Start Scoring on:': 'Sunday, Apr 2'}
-
-
-
-STAT_ID_DICT = {'1': 'TotalGP',
-                '60': '',
-                '7': 'R',
-                '12': 'HR',
-                '13': 'RBI',
-                '16': 'SB',
-                '55': 'OPS',
-                '50': 'IP',
-                '28': 'W',
-                '32': 'SV',
-                '42': 'K',
-                '26': 'ERA',
-                '27': 'WHIP'}
 
 def get_team_query(league_key, user, user_id, redirect, endpoint):
     endpoint = "/teams" + endpoint
@@ -322,7 +269,9 @@ def format_all_team_rosters_dict(team_rosters_base_dict):
     return formatted_rosters
 
 def get_teams(user, user_id, redirect):
-    api_connector.check_token_expiration(user, user_id, redirect)
+    updated_user = api_connector.check_token_expiration(user, user_id, redirect)
+    if updated_user:
+        user = updated_user
     teams_query_path = get_user_query(user, user_id, redirect, "/teams")
     teams_query_json = api_connector.yql_query(teams_query_path, user.access_token)
     teams_dict = json.loads(teams_query_json)
@@ -350,3 +299,17 @@ def get_fa_players(league_key, user, user_id, redirect, pOrB):
                     player_dict['TEAM'] = normalizer.team_normalizer(team)
             formatted_fas.append(player_dict)
     return formatted_fas
+
+STAT_ID_DICT = {'1': 'TotalGP',
+                '60': '',
+                '7': 'R',
+                '12': 'HR',
+                '13': 'RBI',
+                '16': 'SB',
+                '55': 'OPS',
+                '50': 'IP',
+                '28': 'W',
+                '32': 'SV',
+                '42': 'K',
+                '26': 'ERA',
+                '27': 'WHIP'}
