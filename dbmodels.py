@@ -113,7 +113,7 @@ class FPProjB(db.Model):
     zrbi = db.FloatProperty(required=False)
     zsb = db.FloatProperty(required=False)
     zops = db.FloatProperty(required=False)
-    last_modified=db.DateTimeProperty(auto_now = True)
+    last_modified = db.DateTimeProperty(auto_now = True)
     category = db.StringProperty(required=True)
 
 #define columns of database objects
@@ -140,14 +140,14 @@ class FPProjP(db.Model):
     cg = db.IntegerProperty(required=True)
     sgp = db.FloatProperty(required=False) #change to true later
     z_score = db.FloatProperty(required=False) #change to true later
-    last_modified=db.DateTimeProperty(auto_now = True)
+    last_modified = db.DateTimeProperty(auto_now=True)
     category = db.StringProperty(required=True)
 
 #define columns of database objects
 class Blog(db.Model):
     title = db.StringProperty(required=True)
     body = db.TextProperty(required=True)
-    created=db.DateTimeProperty(auto_now_add=True)
-    last_modified=db.DateTimeProperty(auto_now = True)
+    created = db.DateTimeProperty(auto_now_add=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
     author = db.ReferenceProperty(Users, required=True)
     coords = db.GeoPtProperty(required=False) #store coordinates of user based on URL, not required as it may not always be available

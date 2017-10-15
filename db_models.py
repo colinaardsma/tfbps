@@ -116,12 +116,14 @@ class User(db.Model):
     token_expiration = db.DateTimeProperty()
     refresh_token = db.StringProperty()
 
-def store_user(username, user_id, password, email, location = None, yahooGuid = None, authorization = "basic"):
+def store_user(username, password, email, location = None, yahooGuid = None, authorization = "basic"):
     user = User(username=username, password=password, email=email, location=location,
                 yahooGuid=yahooGuid, authorization=authorization, access_token=None,
                 token_expiration=None, refresh_token=None)
     db.put(user)
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
+    user = caching.cached_user_by_name(username)
+    user_id = user.key().id()
     update_user_memcache(user, user_id)
     return user
 

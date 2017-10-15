@@ -74,8 +74,8 @@ class Handler(webapp2.RequestHandler):
         #     username = ""
         # return username
 
-    def store_user(self, username, user_id, password, email, location, guid=None):
-        db_models.store_user(username, user_id, password, email, location, guid)
+    def store_user(self, username, password, email, location, guid=None):
+        db_models.store_user(username, password, email, location, guid)
 
         user = caching.cached_user_by_name(username)
         user_id = user.key().id()
@@ -242,8 +242,11 @@ class TeamToolsDB(Handler):
 
     def get(self):
         redirect = "/team_tools_db"
-        league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
-        current_leagues = yql_queries.get_current_leagues(league_list)
+        league_list = None
+        current_leagues = None
+        if self.user:
+            league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
+            current_leagues = yql_queries.get_current_leagues(league_list)
 
         self.render_team_tools_db(current_leagues=current_leagues, redirect=redirect)
 
@@ -403,7 +406,7 @@ class Registration(Handler):
             if 'loc' in ip_address_dict:
                 location = ip_address_dict['loc']
 
-            self.store_user(username, self.user_id, password, email, location)
+            self.store_user(username, password, email, location)
             if link_yahoo:
                 self.redirect(api_connector.request_auth(GUID_REDIRECT_PATH))
 
