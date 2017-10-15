@@ -12,7 +12,8 @@ import datetime
 import db_models
 import main
 import time
-
+import httplib
+import requests
 # https://developer.yahoo.com/oauth2/guide/flows_authcode/
 
 """TESTING"""
@@ -100,13 +101,16 @@ def get_json_data(url, access_token):
     return raw_json
 
 def get_xml_data(url, access_token):
-    headers = {"Authorization": "Bearer " + str(access_token)}
-    # print "$$$$$$$$$$$$$$$$$$$$$"
-    # print url
-    # print headers
+    headers = {"Authorization": "Bearer " + str(access_token), "request": None}
     request = urllib2.Request(url, headers=headers)
-    content = urllib2.urlopen(request)
-    raw_xml = content.read()
+    while True:
+        try:
+            content = urllib2.urlopen(request)
+            raw_xml = content.read()
+        except httplib.HTTPException, error:
+            print error
+            continue
+        break
     return raw_xml
 
 def check_token_expiration(user, user_id, redirect_path):

@@ -3,12 +3,13 @@ import unicodedata
 import normalizer
 from lxml import html
 URL_FETCH = False
-try:
-    from google.appengine.api import urlfetch
-    URL_FETCH = True
-except ImportError:
-    import urllib2
+# try:
+#     from google.appengine.api import urlfetch
+#     URL_FETCH = True
+# except ImportError:
+#     import urllib2
     # pass
+import urllib2
 
 def html_to_document(url):
     """Get league standings\n
