@@ -2,23 +2,20 @@
 
 {%- block content %}
 <div>
+    <a href="{{link_yahoo}}">Link Yahoo! Account</a>
+    <br/>
+</div>
+<div>
     <h2>Update Database Player Projections</h2>
     <td>
     <form method="post">
         <input type="hidden" name="update" value="true">
         <button>Update Projections</button>
     </form>
-    {%- if elapsed%}
+    {%- if elapsed %}
     <h6>Updated in {{'%0.2f' % elapsed}} seconds</h6>
     {%- endif %}
     </td>
-</div>
-<div>
-    <a href="{{link_yahoo}}">Link Yahoo! Account</a>
-    <br/>
-    <a href="{{refresh_token}}">Refresh Yahoo! Token</a>
-    <br/>
-    <a href="/test_page">Test Page</a>
-    <br/>
+    <br/>    
 </div>
 {%- endblock -%}
