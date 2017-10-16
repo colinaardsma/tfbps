@@ -3,13 +3,13 @@ import unicodedata
 import normalizer
 from lxml import html
 URL_FETCH = False
-# try:
-#     from google.appengine.api import urlfetch
-#     URL_FETCH = True
-# except ImportError:
-#     import urllib2
+try:
+    from google.appengine.api import urlfetch
+    URL_FETCH = True
+except ImportError:
+    import urllib2
     # pass
-import urllib2
+import httplib
 
 def html_to_document(url):
     """Get league standings\n
@@ -22,10 +22,22 @@ def html_to_document(url):
     """
     if URL_FETCH:
         request = urlfetch.fetch(url)
-        content = request.content.decode('utf-8')
+        while True:
+            try:
+                content = request.content.decode('utf-8')
+            except httplib.HTTPException, error:
+                print error
+                continue
+            break
     else:
         request = urllib2.Request(url)
-        content = urllib2.urlopen(request).read().decode('utf-8')
+        while True:
+            try:
+                content = urllib2.urlopen(request).read().decode('utf-8')
+            except httplib.HTTPException, error:
+                print error
+                continue
+            break
     decoded_content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
     document = html.document_fromstring(decoded_content)
     return document

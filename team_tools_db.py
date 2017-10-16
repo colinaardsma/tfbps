@@ -44,6 +44,12 @@ SGP_DICT = {'R SGP': 19.16666667, 'HR SGP': 11.5, 'RBI SGP': 20.83333333, 'SB SG
 # # dynamic variables
 # ROS_PROJ_B_LIST = queries.get_batters()
 # ROS_PROJ_P_LIST = queries.get_pitchers()
+ROS_PROJ_B_LIST = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
+                                                     ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
+                                                     B_PLAYER_POOL_MULT)
+ROS_PROJ_P_LIST = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
+                                                      ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
+                                                      P_PLAYER_POOL_MULT)
 
 # variable defined within methods
 # BATTER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "B")
@@ -65,22 +71,16 @@ def fa_finder(league_key, user, user_id, redirect):
     """
     # ros_proj_b_list = queries.get_batters()
     # ros_proj_p_list = queries.get_pitchers()
-    ros_proj_b_list = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
-                                                         ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
-                                                         B_PLAYER_POOL_MULT)
-    ros_proj_p_list = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
-                                                          ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
-                                                          P_PLAYER_POOL_MULT)
 
     player_comp = {}
     pitching_fa_list = yql_queries.get_fa_players(league_key, user, user_id, redirect, "P")
     batting_fa_list = yql_queries.get_fa_players(league_key, user, user_id, redirect, "B")
-    avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ros_proj_p_list)
+    avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ROS_PROJ_P_LIST)
     yahoo_team = yql_queries.get_single_team_roster(league_key, user, user_id, redirect)
     # yahoo_team = html_parser.get_single_yahoo_team(league_no, team_name)
-    team_pitching_values = player_rater.rate_team(yahoo_team, ros_proj_p_list)
-    avail_batting_fas = player_rater.rate_fa(batting_fa_list, ros_proj_b_list)
-    team_batting_values = player_rater.rate_team(yahoo_team, ros_proj_b_list)
+    team_pitching_values = player_rater.rate_team(yahoo_team, ROS_PROJ_P_LIST)
+    avail_batting_fas = player_rater.rate_fa(batting_fa_list, ROS_PROJ_B_LIST)
+    team_batting_values = player_rater.rate_team(yahoo_team, ROS_PROJ_B_LIST)
 
     player_comp['Team Name'] = yahoo_team['TEAM_NAME']
     player_comp['Pitching FAs'] = avail_pitching_fas
@@ -99,8 +99,9 @@ def single_player_rater(player_name):
     Raises:\n
         None.
     """
-    player_list = player_rater.single_player_rater_db(player_name)
-    player = player_list[0]
+    # player_list = player_rater.single_player_rater_db(player_name)
+    # player = player_list[0]
+    player = player_rater.single_player_rater_html(player_name, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST)
     player_stats = ""
     if any("P" in pos for pos in player.pos):
         player_stats = ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +

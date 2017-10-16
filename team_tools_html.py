@@ -4,13 +4,17 @@ import time
 import html_parser
 import player_rater
 import player_creator
+import urllib
 
 # https://developer.yahoo.com/fantasysports/guide/players-collection.html
 # https://www.mysportsfeeds.com
 
 # static variables
-ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
-ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/ros-pitchers.php"
+# ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
+# ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/ros-pitchers.php"
+ROS_BATTER_URL = "file://" + urllib.pathname2url(r"/Users/colinaardsma/git/tfbps/testing html/2017 Rest of Season Fantasy Baseball Projections - Hitters.html")
+ROS_PITCHER_URL = "file://" + urllib.pathname2url(r"/Users/colinaardsma/git/tfbps/testing html/2017 Rest of Season Fantasy Baseball Projections - Pitchers.html")
+
 BATTERS_OVER_ZERO_DOLLARS = 176
 PITCHERS_OVER_ZERO_DOLLARS = 124
 ONE_DOLLAR_BATTERS = 30
@@ -55,8 +59,6 @@ def fa_finder(league_no, team_name):
     """
     player_comp = {}
     pitching_fa_list = html_parser.yahoo_fa(league_no, "P")
-    print "HTMLHTMLHTMLHTMLHTMLHTMLHTML"
-    print pitching_fa_list
     batting_fa_list = html_parser.yahoo_fa(LEAGUE_NO, "B")
     avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ROS_PROJ_P_LIST)
     yahoo_team = html_parser.get_single_yahoo_team(league_no, team_name)
