@@ -1,34 +1,19 @@
 {% extends "main.html" %}
 
 {%- block content %}
-    <h1>Please login:</h1>
-    <form method="post">
-      <table>
-        <tr>
-          <td>Username:</td>
-          <td>
-            <input class="regform" type="text" name="username" value="{{username}}" />
-          </td>
-        </tr>
-        <tr>
-          <td>Password:</td>
-          <td>
-            <input class="regform" type="password" name="password" value="" />
-          </td>
-        </tr>
-      </table>
+    <form class="form-signin" method="post">
+      <h2 class="form-signin-heading">please login</h2>
+      <label for="inputUsername" class="sr-only">username</label>
+      <input type="text" name="username" id="inputUsername" class="form-control" placeholder="username" value="{{username}}" required autofocus />
+      <label for="inputPassword" class="sr-only">password</label>
+      <input type="password" name="password" id="inputPassword" class="form-control" placeholder="password" required>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" value="remember-me"> remember me
+        </label>
+      </div>
       <div style="color: red">{{error}}</div>
-      <table>
-        <tr>
-          <td>
-            <input type = "submit" />
-      </form>
-          </td>
-          <td>
-            <form action="/registration">
-              <button>register</button>
-            </form>
-          </td>
-        </tr>
-
+      <button class="btn btn-sm btn-default" type="submit">login</button>
+      <a href="/registration" class="btn btn-sm btn-default" role="button">register</a>
+    </form>
 {%- endblock %}

@@ -350,7 +350,8 @@ class Registration(Handler):
         password = self.request.get("password")
         pass_verify = self.request.get("pass_verify")
         email = self.request.get("email")
-        link_yahoo = True if self.request.get("link_yahoo") == "on" else False
+        link_yahoo = self.request.get("link_yahoo")
+        # link_yahoo = True if self.request.get("link_yahoo") == "on" else False
 
         error = False
         # check password
@@ -401,7 +402,6 @@ class Registration(Handler):
             content = urllib2.urlopen(request)
             ip_address_json = content.read()
             ip_address_dict = json.loads(ip_address_json)
-            print ip_address_dict
             location = None
             if 'loc' in ip_address_dict:
                 location = ip_address_dict['loc']

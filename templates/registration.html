@@ -1,44 +1,31 @@
 {% extends "main.html" %}
 
 {%- block content %}
-    <h1>Please enter your info:</h1>
-    <table>
-      <tr>
-        <form method="post">
-        <td>Username:</td>
-        <td><input class="regform" type="text" name="username" value="{{username}}" /></td>
-        <td><div style="color: red">{{username_error}}</div></td>
-      </tr>
-      <tr>
-        <td>Password:</td>
-        <td><input class="regform" type="password" name="password" value="" /></td>
-        <td><div style="color: red">{{password_error}}</div></td>
-      </tr>
-      <tr>
-        <td>Re-enter Password:</td>
-        <td><input class="regform" type="password" name="pass_verify" value="" /></td>
-        <td><div style="color: red">{{pass_verify_error}}</div></td>
-      </tr>
-      <tr>
-        <td>Email:</td>
-        <td><input class="regform" type="text" name="email" value="{{email}}" /></td>
-        <td><div style="color: red">{{email_error}}</div></td>
-      </tr>
-      <tr>
-        <td>Link Yahoo! Account:</td>
-        <td><input class="regform" type="checkbox" name="link_yahoo" checked="checked" /></td>
-      </tr>
-      <tr>
-        <td>
-          <input type = "submit" />
-        </td>
-        </form>
-        <td>
-          <form action="/login">
-            <button>login</button>
-          </form>
-        </td>
-      </tr>
-    </table>
-
+    <form class="form-signin" method="post">
+      <h2 class="form-signin-heading">Please enter your info:</h2>
+      <label for="inputUsername" class="sr-only">username</label>
+      <input type="text" name="username" id="inputUsername" class="form-control" placeholder="username" value="{{username}}" required />
+      <div style="color: red">{{username_error}}</div>
+      <label for="inputPassword" class="sr-only">password</label>
+      <input type="password" name="password" id="registerPassword" class="form-control" placeholder="password" required />
+      <div style="color: red">{{password_error}}</div>
+      <label for="inputPass_Verify" class="sr-only">re-enter password</label>
+      <input type="password" name="pass_verify" id="registerPassword" class="form-control" placeholder="re-enter password" required />
+      <div style="color: red">{{pass_verify_error}}</div>
+      <label for="inputEmail" class="sr-only">email</label>
+      <input type="email" name="email" id="inputEmail" class="form-control" placeholder="email" value="{{email}}" required />
+      <div style="color: red">{{email_error}}</div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" name="link_yahoo" value="link_yahoo" checked="checked" /> Link Yahoo! Account
+        </label>
+      </div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" value="remember-me /"> remember me
+        </label>
+      </div>
+      <button class="btn btn-sm btn-default" type="submit">register</button>
+      <a href="/login" class="btn btn-sm btn-default" role="button">login</a>
+    </form>
 {%- endblock %}
