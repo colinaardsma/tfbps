@@ -123,7 +123,10 @@ class BattingProjections(Handler):
         self.render("spreadsheet.html", players=players, cat="batter", username=self.username)
 
     def get(self):
-        self.render_batting_projections()
+        if datetime.datetime.now() > datetime.datetime(2017,10,1):
+            self.render("offseason.html", username=self.username)
+        else:
+            self.render_batting_projections()
 
 class PitchingProjections(Handler):
     def render_pitching_projections(self):
@@ -132,7 +135,10 @@ class PitchingProjections(Handler):
         self.render("spreadsheet.html", players=players, cat="pitcher", username=self.username)
 
     def get(self):
-        self.render_pitching_projections()
+        if datetime.datetime.now() > datetime.datetime(2017,10,1):
+            self.render("offseason.html", username=self.username)
+        else:
+            self.render_pitching_projections()
 
 class TeamToolsHTML(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name="", team_a={},
@@ -160,7 +166,7 @@ class TeamToolsHTML(Handler):
             team_a = ast.literal_eval(team_a)
             team_b = ast.literal_eval(team_b)
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
-                                                          team_b, team_b_players)
+                                                        team_b, team_b_players)
         else:
             team_a = None
             team_b = None
@@ -180,7 +186,10 @@ class TeamToolsHTML(Handler):
                     username=self.username)
 
     def get(self):
-        self.render_fa_rater()
+        if datetime.datetime.now() > datetime.datetime(2017,10,1):
+            self.render("offseason.html", username=self.username)
+        else:
+            self.render_fa_rater()
 
     def post(self):
         league_no = self.request.get("league_no")
@@ -241,14 +250,17 @@ class TeamToolsDB(Handler):
                     current_leagues=current_leagues)
 
     def get(self):
-        redirect = "/team_tools_db"
-        league_list = None
-        current_leagues = None
-        if self.user:
-            league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
-            current_leagues = yql_queries.get_current_leagues(league_list)
+        if datetime.datetime.now() > datetime.datetime(2017,10,1):
+            self.render("offseason.html", username=self.username)
+        else:
+            redirect = "/team_tools_db"
+            league_list = None
+            current_leagues = None
+            if self.user:
+                league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
+                current_leagues = yql_queries.get_current_leagues(league_list)
 
-        self.render_team_tools_db(current_leagues=current_leagues, redirect=redirect)
+            self.render_team_tools_db(current_leagues=current_leagues, redirect=redirect)
 
     def post(self):
         redirect = "/team_tools_db"
