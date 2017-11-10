@@ -1,4 +1,4 @@
-# tFBPs (the Fantasy Baseball Projection site)
+# Grays Sports Almanac
 A fantasy baseball projection site.
 
 ## What it does
