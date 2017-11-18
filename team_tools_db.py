@@ -34,8 +34,10 @@ B_PLAYER_POOL_MULT = 2.375
 P_PLAYER_POOL_MULT = 4.45
 LEAGUE_NO = 5091
 TEAM_COUNT = 12
-BATTER_LIST = player_creator.create_full_batter(ROS_BATTER_URL)
-PITCHER_LIST = player_creator.create_full_pitcher(ROS_PITCHER_URL)
+BATTER_LIST = player_creator.create_full_batter_html(ROS_BATTER_URL)
+PITCHER_LIST = player_creator.create_full_pitcher_html(ROS_PITCHER_URL)
+# BATTER_LIST = player_creator.create_full_batter_csv(CSV)
+# PITCHER_LIST = player_creator.create_full_pitcher_csv(CSV)
 
 SGP_DICT = {'R SGP': 19.16666667, 'HR SGP': 11.5, 'RBI SGP': 20.83333333, 'SB SGP': 7.537037037,
             'OPS SGP': 0.005055555556, 'W SGP': 3.277777778, 'SV SGP': 10.44444444, 'K SGP': 42.5,
@@ -169,7 +171,8 @@ def pitcher_projections():
 
 def pull_batters():
     start = time.time()
-    batter_list = player_creator.create_full_batter(ROS_BATTER_URL)
+    batter_list = player_creator.create_full_batter_html(ROS_BATTER_URL)
+    # batter_list = player_creator.create_full_batter_csv(CSV)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nBatter Creation in %f seconds", elapsed)
@@ -204,7 +207,8 @@ def pull_batters():
 
 def pull_pitchers():
     start = time.time()
-    pitcher_list = player_creator.create_full_pitcher(ROS_PITCHER_URL)
+    pitcher_list = player_creator.create_full_pitcher_html(ROS_PITCHER_URL)
+    # pitcher_list = player_creator.create_full_pitcher_csv(CSV)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nPitcher Creation in %f seconds", elapsed)
@@ -238,8 +242,10 @@ def pull_pitchers():
 
     
 def pull_players():
-    pitcher_list = player_creator.create_full_pitcher(ROS_PITCHER_URL)
-    batter_list = player_creator.create_full_batter(ROS_BATTER_URL)
+    pitcher_list = player_creator.create_full_pitcher_html(ROS_PITCHER_URL)
+    batter_list = player_creator.create_full_batter_html(ROS_BATTER_URL)
+    pitcher_list = player_creator.create_full_pitcher_csv(CSV)
+    batter_list = player_creator.create_full_batter_csv(CSV)
     #delete all records from database before rebuidling
     # if player_models.PitcherDB:
     pitcher_query = player_models.PitcherDB.all() # .all() = "SELECT *"

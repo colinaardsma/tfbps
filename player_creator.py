@@ -4,10 +4,43 @@ import operator
 import player_models
 import html_parser
 import z_score_calc
+import csv_parser
 
-def create_full_batter(url):
+def create_full_batter_html(url):
     """Test creation of batters"""
     raw_batter_list = html_parser.fantasy_pro_players(url)
+    batter_model_list = []
+    for raw_batter in raw_batter_list:
+        if ((raw_batter.get("AB") is not None and float(raw_batter.get("AB")) == 0.0) or
+                (raw_batter.get("OPS") is not None and float(raw_batter.get("OPS")) == .000) or
+                (raw_batter.get("AVG") is not None and float(raw_batter.get("AVG")) == .000) or
+                raw_batter.get("NAME") is None):
+            continue
+        else:
+            if "DL" in raw_batter.get("STATUS") or "MiLB" in raw_batter.get("STATUS"):
+                raw_batter["AB"] = float(raw_batter["AB"]) / 2
+                raw_batter["R"] = float(raw_batter["R"]) / 2
+                raw_batter["HR"] = float(raw_batter["HR"]) / 2
+                raw_batter["RBI"] = float(raw_batter["RBI"]) / 2
+                raw_batter["SB"] = float(raw_batter["SB"]) / 2
+            batter = player_models.BatterHTML(name=raw_batter.get("NAME"),
+                                              team=raw_batter.get("TEAM"),
+                                              pos=raw_batter.get("POS"),
+                                              status=raw_batter.get("STATUS"),
+                                              category="batter",
+                                              atbats=float(raw_batter.get("AB")),
+                                              runs=float(raw_batter.get("R")),
+                                              hrs=float(raw_batter.get("HR")),
+                                              rbis=float(raw_batter.get("RBI")),
+                                              sbs=float(raw_batter.get("SB")),
+                                              avg=raw_batter.get("AVG"),
+                                              ops=raw_batter.get("OPS"))
+            batter_model_list.append(batter)
+    return batter_model_list
+
+def create_full_batter_csv(csv):
+    """Test creation of batters"""
+    raw_batter_list = csv_parser.parse_batters_from_csv(csv)
     batter_model_list = []
     for raw_batter in raw_batter_list:
         if ((raw_batter.get("AB") is not None and float(raw_batter.get("AB")) == 0.0) or
@@ -145,9 +178,42 @@ def calc_batter_z_score(batter_list, players_over_zero_dollars, one_dollar_playe
     return sorted(batter_list, key=operator.attrgetter('fvaaz'), reverse=True)
         # sorts by fvaaz (largest to smallest)
 
-def create_full_pitcher(url):
+def create_full_pitcher_html(url):
     """Test creation of pitchers"""
     raw_pitcher_list = html_parser.fantasy_pro_players(url)
+    pitcher_model_list = []
+    for raw_pitcher in raw_pitcher_list:
+        if (raw_pitcher.get("IP") is None or float(raw_pitcher.get("IP")) <= 0.0 or
+                raw_pitcher.get("W") is None or float(raw_pitcher.get("W")) < 0.0 or
+                raw_pitcher.get("SV") is None or float(raw_pitcher.get("SV")) < 0.0 or
+                raw_pitcher.get("K") is None or float(raw_pitcher.get("K")) < 0.0 or
+                raw_pitcher.get("ERA") is None or float(raw_pitcher.get("ERA")) <= 0.0 or
+                raw_pitcher.get("WHIP") is None or float(raw_pitcher.get("WHIP")) <= 0.0 or
+                raw_pitcher.get("NAME") is None):
+            continue
+        else:
+            if "DL" in raw_pitcher.get("STATUS") or "MiLB" in raw_pitcher.get("STATUS"):
+                raw_pitcher["IP"] = float(raw_pitcher["IP"]) / 2
+                raw_pitcher["W"] = float(raw_pitcher["W"]) / 2
+                raw_pitcher["SV"] = float(raw_pitcher["SV"]) / 2
+                raw_pitcher["K"] = float(raw_pitcher["K"]) / 2
+            pitcher = player_models.PitcherHTML(name=raw_pitcher.get("NAME"),
+                                                team=raw_pitcher.get("TEAM"),
+                                                pos=raw_pitcher.get("POS"),
+                                                status=raw_pitcher.get("STATUS"),
+                                                category="pitcher",
+                                                ips=float(raw_pitcher.get("IP")),
+                                                wins=float(raw_pitcher.get("W")),
+                                                svs=float(raw_pitcher.get("SV")),
+                                                sos=float(raw_pitcher.get("K")),
+                                                era=raw_pitcher.get("ERA"),
+                                                whip=raw_pitcher.get("WHIP"))
+            pitcher_model_list.append(pitcher)
+    return pitcher_model_list
+
+def create_full_pitcher_csv(csv):
+    """Test creation of pitchers"""
+    raw_pitcher_list = csv_parser.parse_pitchers_from_csv(csv)
     pitcher_model_list = []
     for raw_pitcher in raw_pitcher_list:
         if (raw_pitcher.get("IP") is None or float(raw_pitcher.get("IP")) <= 0.0 or

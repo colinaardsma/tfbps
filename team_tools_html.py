@@ -31,8 +31,10 @@ SGP_DICT = {'R SGP': 19.16666667, 'HR SGP': 11.5, 'RBI SGP': 20.83333333, 'SB SG
             'ERA SGP': -0.08444444444, 'WHIP SGP': -0.01666666667}
 
 # dynamic variables
-BATTER_LIST = player_creator.create_full_batter(ROS_BATTER_URL)
-PITCHER_LIST = player_creator.create_full_pitcher(ROS_PITCHER_URL)
+BATTER_LIST = player_creator.create_full_batter_html(ROS_BATTER_URL)
+PITCHER_LIST = player_creator.create_full_pitcher_html(ROS_PITCHER_URL)
+# BATTER_LIST = player_creator.create_full_batter_csv(CSV)
+# PITCHER_LIST = player_creator.create_full_pitcher_csv(CSV)
 ROS_PROJ_B_LIST = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
                                                      ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
                                                      B_PLAYER_POOL_MULT)

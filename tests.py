@@ -1,7 +1,8 @@
 # """TESTS"""
-# import urllib
+import urllib
+import urllib2
 # import platform
-import html_parser
+# import html_parser
 # import player_rater
 # import player_creator
 # import tests_long_variables
@@ -16,8 +17,8 @@ import html_parser
 # PLATFORM = platform.sys.platform
 # # ROS_BATTER_URL = WIN_ROS_BATTER_URL if platform.sys.platform == 'win32' else MAC_ROS_BATTER_URL
 # # ROS_PITCHER_URL = WIN_ROS_PITCHER_URL if platform.sys.platform == 'win32' else MAC_ROS_PITCHER_URL
-ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
-ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/ros-pitchers.php"
+# ROS_BATTER_URL = "http://www.fantasypros.com/mlb/projections/ros-hitters.php"
+# ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/ros-pitchers.php"
 
 # BATTER_LIST = player_creator.create_full_batter(ROS_BATTER_URL)
 # PITCHER_LIST = player_creator.create_full_pitcher(ROS_PITCHER_URL)
@@ -29,7 +30,7 @@ ROS_PITCHER_URL = "https://www.fantasypros.com/mlb/projections/ros-pitchers.php"
 # P_DOLLAR_PER_FVAAZ = 2.17
 # B_PLAYER_POOL_MULT = 2.375
 # P_PLAYER_POOL_MULT = 4.45
-LEAGUE_NO = 5091
+# LEAGUE_NO = 5091
 # TEAM_COUNT = 12
 # BATTER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "B")
 # PITCHER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "P")
@@ -102,4 +103,41 @@ LEAGUE_NO = 5091
 
 # # print normalizer.name_comparer(lance1, lance2)
 # print html_parser.yahoo_fa(LEAGUE_NO, "b")
-print html_parser.fantasy_pro_players(ROS_BATTER_URL)
+# print html_parser.fantasy_pro_players(ROS_BATTER_URL)
+
+def GetCsv():
+    url = "http://www.fangraphs.com"
+    html = html_to_document(url)
+
+
+def html_to_document(url):
+    """Get league standings\n
+    Args:\n
+        url: the url.\n
+    Returns:\n
+        html in document form.\n
+    Raises:\n
+        None.
+    """
+    if URL_FETCH:
+        request = urlfetch.fetch(url)
+        while True:
+            try:
+                content = request.content.decode('utf-8')
+            except httplib.HTTPException, error:
+                print error
+                continue
+            break
+    else:
+        request = urllib2.Request(url)
+        while True:
+            try:
+                content = urllib2.urlopen(request).read().decode('utf-8')
+            except httplib.HTTPException, error:
+                print error
+                continue
+            break
+    decoded_content = unicodedata.normalize('NFKD', content).encode('ASCII', 'ignore')
+    document = html.document_fromstring(decoded_content)
+    return document
+
