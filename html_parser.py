@@ -417,12 +417,3 @@ def parse_pos_from_url(playerid):
     pos = raw_pos.strip().split("/")
     return pos
 
-def get_yahoo_position_elig(league_no):
-    count = 0
-    avail_player_list = []
-    b_or_p = "b"
-    while count <= 300:
-        url = "https://baseball.fantasysports.yahoo.com/b1/{league_no}/positioneligibility?sort={b_or_p}&count={count}".format(league_no=league_no, b_or_p=b_or_p, count=str(count))
-        count += 25
-
-
