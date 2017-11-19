@@ -1,5 +1,7 @@
 """CSV Parser"""
 import csv
+import html_parser
+import normalizer
 
 def parse_batters_from_csv(csv_file):
     """Parse batter data from CSV file\n
@@ -10,16 +12,20 @@ def parse_batters_from_csv(csv_file):
     Raises:\n
         None.
     """
+    avail_players = html_parser.yahoo_players(5091, "B", 300, True)
     batter_dict_list = []
     with open(csv_file) as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             batter = {}
+            norm_name = normalizer.name_normalizer(row['\xef\xbb\xbf"Name"'])
+            avail_player = [ player for player in avail_players if player['NORMALIZED_FIRST_NAME'] in norm_name['First'] and player['LAST_NAME'] in norm_name['Last'] ]
             batter['Name'] = row['\xef\xbb\xbf"Name"']
+            batter['NORMALIZED_FIRST_NAME'] = norm_name['First']
+            batter['LAST_NAME'] = norm_name['Last']
             batter['TEAM'] = row['Team']
-            # TODO: how to incorporate position and minors data?
-            # batter['POS'] = row['POS']
-            # batter['STATUS'] = row['STATUS']
+            batter['POS'] = avail_player['POS']
+            batter['STATUS'] = avail_player['STATUS']
             batter['category'] = "batter"
             batter['AB'] = row['AB']
             batter['R'] = row['R']
@@ -48,8 +54,8 @@ def parse_pitchers_from_csv(csv_file):
             pitcher = {}
             pitcher['Name'] = row['\xef\xbb\xbf"Name"']
             pitcher['TEAM'] = row['Team']
-            # TODO: how to incorporate position and minors data?
-            # batter['POS'] = row['POS']
+            pitcher['POS'] = html_parser.parse_pos_from_url(row['playerid'])
+            # TODO: how to incorporate minors data?
             # batter['STATUS'] = row['STATUS']
             pitcher['category'] = "pitcher"
             pitcher['AB'] = row['IP']
@@ -58,9 +64,10 @@ def parse_pitchers_from_csv(csv_file):
             pitcher['RBI'] = row['SO']
             pitcher['SB'] = row['ERA']
             pitcher['AVG'] = row['WHIP']
+            pitcher['playerid'] = row['playerid']
             pitcher_dict_list.append(pitcher)
     return pitcher_dict_list
 # ['\xef\xbb\xbf"Name"', 'Team', 'W', 'L', 'SV', 'HLD', 'ERA', 'GS', 'G', 'IP', 'H', 'ER', 'HR', 'SO', 'BB', 'WHIP', 'K/9', 'BB/9', 'FIP', 'WAR', 'playerid']
 
-# print parse_batters_from_csv("/Users/colinaardsma/Downloads/FanGraphs Leaderboard.csv")
-print parse_pitchers_from_csv("/Users/colinaardsma/Downloads/FanGraphs Leaderboard (1).csv")
+print parse_batters_from_csv("/Users/colinaardsma/Downloads/FanGraphs Leaderboard.csv")
+# print parse_pitchers_from_csv("/Users/colinaardsma/Downloads/FanGraphs Leaderboard (1).csv")

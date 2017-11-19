@@ -26,7 +26,8 @@ def create_full_batter(raw_batter_list):
                 raw_batter.get("NAME") is None):
             continue
         else:
-            if "DL" in raw_batter.get("STATUS") or "MiLB" in raw_batter.get("STATUS"):
+            if ("DL" in raw_batter.get("STATUS") or "MiLB" in raw_batter.get("STATUS")
+                or "NA" in raw_batter.get("STATUS") or "Not Active" in raw_batter.get("STATUS")):
                 raw_batter["AB"] = float(raw_batter["AB"]) / 2
                 raw_batter["R"] = float(raw_batter["R"]) / 2
                 raw_batter["HR"] = float(raw_batter["HR"]) / 2
@@ -167,7 +168,6 @@ def create_full_pitcher_csv(csv):
 
 def create_full_pitcher(raw_pitcher_list):
     """Create pitchers"""
-    raw_pitcher_list = html_parser.fantasy_pro_players(url)
     pitcher_model_list = []
     for raw_pitcher in raw_pitcher_list:
         if (raw_pitcher.get("IP") is None or float(raw_pitcher.get("IP")) <= 0.0 or
@@ -179,7 +179,8 @@ def create_full_pitcher(raw_pitcher_list):
                 raw_pitcher.get("NAME") is None):
             continue
         else:
-            if "DL" in raw_pitcher.get("STATUS") or "MiLB" in raw_pitcher.get("STATUS"):
+            if ("DL" in raw_pitcher.get("STATUS") or "MiLB" in raw_pitcher.get("STATUS")
+                or "NA" in raw_pitcher.get("STATUS") or "Not Active" in raw_pitcher.get("STATUS")):
                 raw_pitcher["IP"] = float(raw_pitcher["IP"]) / 2
                 raw_pitcher["W"] = float(raw_pitcher["W"]) / 2
                 raw_pitcher["SV"] = float(raw_pitcher["SV"]) / 2

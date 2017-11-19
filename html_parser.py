@@ -109,23 +109,28 @@ def fant_pro_player_dict_creator(single_player_html, headings_list_html):
             counter += 1
         return single_player
 
-def yahoo_fa(league_no, b_or_p):
+def yahoo_players(league_no, b_or_p, max_players=300, all_players=False):
     """Parse FAs from yahoo league\n
     Args:\n
         league_no: Yahoo! fantasy baseball league number.\n
         b_or_p: "B" for batters or "P" for pitchers.\n
+        max_players: max number of players in list\n
+        all_players: set to True to get all players, False to get all Available players\n
     Returns:\n
         list of available FAs for league specified.\n
     Raises:\n
         None.
     """
+    status = "A"
+    if all_players:
+        status = "ALL"
     count = 0
     avail_player_list = []
-    while count <= 300:
+    while count <= max_players:
         url = ("http://baseball.fantasysports.yahoo.com/b1/{league_no}" +
-               "/players?status=A&pos={b_or_p}&cut_type=33&stat1=S_S_2017&myteam=0&sort=AR&" +
-               "sdir=1&count={count}").format(league_no=league_no, b_or_p=b_or_p.upper(),
-                                              count=count)
+               "/players?status={status}&pos={b_or_p}&cut_type=33&stat1=S_S_2017&myteam=0&sort=AR&" +
+               "sdir=1&count={count}").format(league_no=league_no, status=status,
+                                              b_or_p=b_or_p.upper(), count=count)
         document = html_to_document(url)
         body_html = document.xpath(".//div[@class='players'][table]/table/tbody/tr")
         for player_html in body_html:
@@ -395,3 +400,29 @@ def split_league_pos_types(league_roster_pos):
     league_roster_pos_dict["DL POS"] = dl_pos
     league_roster_pos_dict["NA POS"] = na_pos
     return league_roster_pos_dict
+
+def parse_pos_from_url(playerid):
+    """Parse position data from fangraphs website using playerid\n
+    SUPER SLOW!\n
+    Args:\n
+        playerid: the playerid from csv\n
+    Returns:\n
+        list of player's eligible positions\n
+    Raises:\n
+        None.
+    """
+    url = 'http://www.fangraphs.com/statss.aspx?playerid=' + str(playerid)
+    document = html_to_document(url)
+    raw_pos = document.xpath('.//strong[text()="Position:"]')[0].tail
+    pos = raw_pos.strip().split("/")
+    return pos
+
+def get_yahoo_position_elig(league_no):
+    count = 0
+    avail_player_list = []
+    b_or_p = "b"
+    while count <= 300:
+        url = "https://baseball.fantasysports.yahoo.com/b1/{league_no}/positioneligibility?sort={b_or_p}&count={count}".format(league_no=league_no, b_or_p=b_or_p, count=str(count))
+        count += 25
+
+

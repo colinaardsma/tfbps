@@ -60,8 +60,8 @@ def fa_finder(league_no, team_name):
         None.
     """
     player_comp = {}
-    pitching_fa_list = html_parser.yahoo_fa(league_no, "P")
-    batting_fa_list = html_parser.yahoo_fa(LEAGUE_NO, "B")
+    pitching_fa_list = html_parser.yahoo_players(league_no, "P")
+    batting_fa_list = html_parser.yahoo_players(LEAGUE_NO, "B")
     avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ROS_PROJ_P_LIST)
     yahoo_team = html_parser.get_single_yahoo_team(league_no, team_name)
     team_pitching_values = player_rater.rate_team(yahoo_team, ROS_PROJ_P_LIST)
