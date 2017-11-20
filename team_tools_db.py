@@ -126,15 +126,15 @@ def final_standing_projection(league_key, user, user_id, redirect):
     Raises:\n
         None.
     """
-    # ros_proj_b_list = queries.get_batters()
-    # ros_proj_p_list = queries.get_pitchers()
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
 
-    ros_proj_b_list = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
-                                                         ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
-                                                         B_PLAYER_POOL_MULT)
-    ros_proj_p_list = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
-                                                         ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
-                                                         P_PLAYER_POOL_MULT)
+    # ros_proj_b_list = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
+    #                                                      ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
+    #                                                      B_PLAYER_POOL_MULT)
+    # ros_proj_p_list = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
+    #                                                      ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
+    #                                                      P_PLAYER_POOL_MULT)
 
     league_settings = yql_queries.get_league_settings(league_key, user, user_id, redirect)
     league_pos_dict = league_settings['Roster Positions']
