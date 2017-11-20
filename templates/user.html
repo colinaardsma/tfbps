@@ -10,9 +10,9 @@
     <td>
     <form method="post">
         <label for="inputBatterCsv" class="sr-only">path to batter csv</label>
-        <input type="text" name="path to batter csv" id="inputBatterCsv" class="form-control" placeholder="path to batter csv" value="{{batting_csv}}" required autofocus />
+        <input type="text" name="batting_csv" id="inputBatterCsv" class="form-control" placeholder="path to batter csv" value="{{batting_csv}}" required autofocus />
         <label for="inputPitcherCsv" class="sr-only">path to pitcher csv</label>
-        <input type="text" name="path to pitcher csv" id="inputPitcherCsv" class="form-control" placeholder="path to pitcher csv" value="{{pitching_csv}}" required />
+        <input type="text" name="pitching_csv" id="inputPitcherCsv" class="form-control" placeholder="path to pitcher csv" value="{{pitching_csv}}" required />
         <button class="btn btn-sm btn-default" type="submit">update projections</button>
     </form>
     {%- if elapsed %}

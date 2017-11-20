@@ -521,6 +521,7 @@ class User(Handler):
         start = time.time()
         batting_csv = self.request.get("batting_csv")
         pitching_csv = self.request.get("pitching_csv")
+        print batting_csv
         import team_tools_db
         team_tools_db.pull_batters(batting_csv)
         team_tools_db.pull_pitchers(pitching_csv)
