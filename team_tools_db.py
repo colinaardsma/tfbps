@@ -169,10 +169,10 @@ def pitcher_projections():
     # sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
     return projections
 
-def pull_batters():
+def pull_batters(csv):
     start = time.time()
-    batter_list = player_creator.create_full_batter_html(ROS_BATTER_URL)
-    # batter_list = player_creator.create_full_batter_csv(CSV)
+    # batter_list = player_creator.create_full_batter_html(ROS_BATTER_URL)
+    batter_list = player_creator.create_full_batter_csv(csv)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nBatter Creation in %f seconds", elapsed)
@@ -205,10 +205,10 @@ def pull_batters():
     logging.info("\r\n***************\r\nBatter DB in %f seconds", elapsed)
 
 
-def pull_pitchers():
+def pull_pitchers(csv):
     start = time.time()
-    pitcher_list = player_creator.create_full_pitcher_html(ROS_PITCHER_URL)
-    # pitcher_list = player_creator.create_full_pitcher_csv(CSV)
+    # pitcher_list = player_creator.create_full_pitcher_html(ROS_PITCHER_URL)
+    pitcher_list = player_creator.create_full_pitcher_csv(csv)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nPitcher Creation in %f seconds", elapsed)
@@ -241,11 +241,11 @@ def pull_pitchers():
     logging.info("\r\n***************\r\nPitcher DB in %f seconds", elapsed)
 
     
-def pull_players():
-    pitcher_list = player_creator.create_full_pitcher_html(ROS_PITCHER_URL)
-    batter_list = player_creator.create_full_batter_html(ROS_BATTER_URL)
-    pitcher_list = player_creator.create_full_pitcher_csv(CSV)
-    batter_list = player_creator.create_full_batter_csv(CSV)
+def pull_players(pitcher_csv, batter_csv):
+    # pitcher_list = player_creator.create_full_pitcher_html(ROS_PITCHER_URL)
+    # batter_list = player_creator.create_full_batter_html(ROS_BATTER_URL)
+    pitcher_list = player_creator.create_full_pitcher_csv(pitcher_csv)
+    batter_list = player_creator.create_full_batter_csv(batter_csv)
     #delete all records from database before rebuidling
     # if player_models.PitcherDB:
     pitcher_query = player_models.PitcherDB.all() # .all() = "SELECT *"

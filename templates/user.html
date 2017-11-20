@@ -9,8 +9,11 @@
     <h2>Update Database Player Projections</h2>
     <td>
     <form method="post">
-        <input type="hidden" name="update" value="true">
-        <button>Update Projections</button>
+        <label for="inputBatterCsv" class="sr-only">path to batter csv</label>
+        <input type="text" name="path to batter csv" id="inputBatterCsv" class="form-control" placeholder="path to batter csv" value="{{batting_csv}}" required autofocus />
+        <label for="inputPitcherCsv" class="sr-only">path to pitcher csv</label>
+        <input type="text" name="path to pitcher csv" id="inputPitcherCsv" class="form-control" placeholder="path to pitcher csv" value="{{pitching_csv}}" required />
+        <button class="btn btn-sm btn-default" type="submit">update projections</button>
     </form>
     {%- if elapsed %}
     <h6>Updated in {{'%0.2f' % elapsed}} seconds</h6>

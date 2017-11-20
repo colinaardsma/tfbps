@@ -44,7 +44,7 @@ def cached_get_fpprojp(update=False):
 
 # user methods
 def cached_user_by_name(username, update=False): # get user object
-    key = str(username) + "getUbyN"
+    key = str(username).lower() + "getUbyN"
     user = memcache.get(key)
     if user is None or update:
         user = queries.get_user_by_name(username)
@@ -60,7 +60,7 @@ def cached_get_user_by_id(user_id, update=False): # get user object
     return user
 
 def cached_check_username(username, update=False): #check username
-    key = str(username) + "checkUsername"
+    key = str(username).lower() + "checkUsername"
     name = memcache.get(key)
     if name is None or update:
         name = queries.check_username(username)
@@ -76,7 +76,7 @@ def cached_get_users(update=False):
     return users
 
 def cached_get_authorization(username, update=False):
-    key = str(username) + "authorization"
+    key = str(username).lower() + "authorization"
     auth = memcache.get(key)
     if auth is None or update:
         auth = queries.get_authorization(username)

@@ -123,10 +123,10 @@ class BattingProjections(Handler):
         self.render("spreadsheet.html", players=players, cat="batter", username=self.username)
 
     def get(self):
-        if datetime.datetime.now() > datetime.datetime(2017,10,1):
-            self.render("offseason.html", username=self.username)
-        else:
-            self.render_batting_projections()
+        # if datetime.datetime.now() > datetime.datetime(2017,10,1):
+        #     self.render("offseason.html", username=self.username)
+        # else:
+        self.render_batting_projections()
 
 class PitchingProjections(Handler):
     def render_pitching_projections(self):
@@ -135,10 +135,10 @@ class PitchingProjections(Handler):
         self.render("spreadsheet.html", players=players, cat="pitcher", username=self.username)
 
     def get(self):
-        if datetime.datetime.now() > datetime.datetime(2017,10,1):
-            self.render("offseason.html", username=self.username)
-        else:
-            self.render_pitching_projections()
+        # if datetime.datetime.now() > datetime.datetime(2017,10,1):
+        #     self.render("offseason.html", username=self.username)
+        # else:
+        self.render_pitching_projections()
 
 class TeamToolsHTML(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name="", team_a={},
@@ -186,10 +186,10 @@ class TeamToolsHTML(Handler):
                     username=self.username)
 
     def get(self):
-        if datetime.datetime.now() > datetime.datetime(2017,10,1):
-            self.render("offseason.html", username=self.username)
-        else:
-            self.render_fa_rater()
+        # if datetime.datetime.now() > datetime.datetime(2017,10,1):
+        #     self.render("offseason.html", username=self.username)
+        # else:
+        self.render_fa_rater()
 
     def post(self):
         league_no = self.request.get("league_no")
@@ -213,15 +213,15 @@ class TeamToolsDB(Handler):
         # update projections
         if update == "":
             elapsed = None
-        else:
-            start = time.time()
-            team_tools_db.pull_batters()
-            team_tools_db.pull_pitchers()
-            # team_tools_db.pull_players()
-            end = time.time()
-            elapsed = end - start
-        # fa rater
-        # if league_no == "" or team_name == "":
+        # else:
+        #     start = time.time()
+        #     team_tools_db.pull_batters()
+        #     team_tools_db.pull_pitchers()
+        #     # team_tools_db.pull_players()
+        #     end = time.time()
+        #     elapsed = end - start
+        # # fa rater
+        # # if league_no == "" or team_name == "":
         if fa_league_key == "":
             top_fa = None
         else:
@@ -250,17 +250,17 @@ class TeamToolsDB(Handler):
                     current_leagues=current_leagues)
 
     def get(self):
-        if datetime.datetime.now() > datetime.datetime(2017,10,1):
-            self.render("offseason.html", username=self.username)
-        else:
-            redirect = "/team_tools_db"
-            league_list = None
-            current_leagues = None
-            if self.user:
-                league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
-                current_leagues = yql_queries.get_current_leagues(league_list)
+        # if datetime.datetime.now() > datetime.datetime(2017,10,1):
+        #     self.render("offseason.html", username=self.username)
+        # else:
+        redirect = "/team_tools_db"
+        league_list = None
+        current_leagues = None
+        if self.user:
+            league_list = yql_queries.get_leagues(self.user, self.user_id, redirect)
+            current_leagues = yql_queries.get_current_leagues(league_list)
 
-            self.render_team_tools_db(current_leagues=current_leagues, redirect=redirect)
+        self.render_team_tools_db(current_leagues=current_leagues, redirect=redirect)
 
     def post(self):
         redirect = "/team_tools_db"
@@ -281,8 +281,8 @@ class UpdateProjections(Handler):
     def get(self):
         start = time.time()
         import team_tools_db
-        team_tools_db.pull_batters()
-        team_tools_db.pull_pitchers()
+        # team_tools_db.pull_batters(batting_csv)
+        # team_tools_db.pull_pitchers(pitching_csv)
         end = time.time()
         elapsed = end - start
         self.redirect("/team_tools_db")
@@ -444,7 +444,7 @@ class Login(Handler):
             user = caching.cached_get_user_by_id(user_id)
             pword = user.password
             salt = pword.split("|")[1]
-            if username == user.username:
+            if username.lower() == user.username.lower():
                 if hashing.make_pw_hash(username, password, salt) == pword:
                     error = ""
                 else:
@@ -510,7 +510,7 @@ class TestPage(Handler):
 
 
 class User(Handler):
-    def render_user(self, link_yahoo=None):
+    def render_user(self, link_yahoo=None, elapse=elapsed):
         self.render("user.html", username=self.username, link_yahoo=link_yahoo)
 
     def get(self):
@@ -518,8 +518,16 @@ class User(Handler):
         self.render_user(link_yahoo)
 
     def post(self):
+        start = time.time()
+        batting_csv = self.request.get("batting_csv")
+        pitching_csv = self.request.get("pitching_csv")
+        import team_tools_db
+        team_tools_db.pull_batters(batting_csv)
+        team_tools_db.pull_pitchers(pitching_csv)
+        end = time.time()
+        elapsed = end - start
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
-        self.render_user(link_yahoo)
+        self.render_user(link_yahoo=link_yahoo, elapse=elapsed)
 
 class CodeAuth(Handler):
     def render_code_handler(self, code):
