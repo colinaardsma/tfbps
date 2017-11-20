@@ -34,8 +34,8 @@ B_PLAYER_POOL_MULT = 2.375
 P_PLAYER_POOL_MULT = 4.45
 LEAGUE_NO = 5091
 TEAM_COUNT = 12
-BATTER_LIST = player_creator.create_full_batter_html(ROS_BATTER_URL)
-PITCHER_LIST = player_creator.create_full_pitcher_html(ROS_PITCHER_URL)
+# BATTER_LIST = player_creator.create_full_batter_html(ROS_BATTER_URL)
+# PITCHER_LIST = player_creator.create_full_pitcher_html(ROS_PITCHER_URL)
 # BATTER_LIST = player_creator.create_full_batter_csv(CSV)
 # PITCHER_LIST = player_creator.create_full_pitcher_csv(CSV)
 
@@ -44,14 +44,14 @@ SGP_DICT = {'R SGP': 19.16666667, 'HR SGP': 11.5, 'RBI SGP': 20.83333333, 'SB SG
             'ERA SGP': -0.08444444444, 'WHIP SGP': -0.01666666667}
 
 # # dynamic variables
-# ROS_PROJ_B_LIST = queries.get_batters()
-# ROS_PROJ_P_LIST = queries.get_pitchers()
-ROS_PROJ_B_LIST = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
-                                                     ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
-                                                     B_PLAYER_POOL_MULT)
-ROS_PROJ_P_LIST = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
-                                                      ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
-                                                      P_PLAYER_POOL_MULT)
+ROS_PROJ_B_LIST = queries.get_batters()
+ROS_PROJ_P_LIST = queries.get_pitchers()
+# ROS_PROJ_B_LIST = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
+#                                                      ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
+#                                                      B_PLAYER_POOL_MULT)
+# ROS_PROJ_P_LIST = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
+#                                                       ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
+#                                                       P_PLAYER_POOL_MULT)
 
 # variable defined within methods
 # BATTER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "B")
