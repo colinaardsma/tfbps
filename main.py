@@ -510,12 +510,12 @@ class TestPage(Handler):
 
 
 class User(Handler):
-    def render_user(self, link_yahoo=None, elapse=elapsed):
+    def render_user(self, elapsed=None, link_yahoo=None):
         self.render("user.html", username=self.username, link_yahoo=link_yahoo)
 
     def get(self):
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
-        self.render_user(link_yahoo)
+        self.render_user(link_yahoo=link_yahoo)
 
     def post(self):
         start = time.time()
@@ -527,7 +527,7 @@ class User(Handler):
         end = time.time()
         elapsed = end - start
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
-        self.render_user(link_yahoo=link_yahoo, elapse=elapsed)
+        self.render_user(elapsed=elapsed, link_yahoo=link_yahoo)
 
 class CodeAuth(Handler):
     def render_code_handler(self, code):
