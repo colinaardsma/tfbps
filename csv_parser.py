@@ -14,7 +14,7 @@ def parse_batters_from_csv(csv_file):
     """
     avail_players = html_parser.yahoo_players(5091, "B", 300, True)
     batter_dict_list = []
-    with open(csv_file) as csvfile:
+    with open(str(csv_file)) as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             batter = {}
@@ -62,7 +62,7 @@ def parse_pitchers_from_csv(csv_file):
     """
     avail_players = html_parser.yahoo_players(5091, "P", 300, True)
     pitcher_dict_list = []
-    with open(csv_file) as csvfile:
+    with open(str(csv_file)) as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             pitcher = {}
