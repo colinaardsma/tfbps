@@ -96,4 +96,4 @@ def parse_pitchers_from_csv(csv_file):
 # 'IP', 'H', 'ER', 'HR', 'SO', 'BB', 'WHIP', 'K/9', 'BB/9', 'FIP', 'WAR', 'playerid']
 
 # print parse_batters_from_csv("/Users/colinaardsma/Downloads/FanGraphs Leaderboard.csv")
-print parse_pitchers_from_csv("/Users/colinaardsma/Downloads/FanGraphs Leaderboard (1).csv")
+# print parse_pitchers_from_csv("/Users/colinaardsma/Downloads/FanGraphs Leaderboard (1).csv")
