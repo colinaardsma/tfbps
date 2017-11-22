@@ -8,12 +8,10 @@
 <div>
     <h2>Update Database Player Projections</h2>
     <td>
-    <form method="post">
-        <label for="inputBatterCsv" class="sr-only">path to batter csv</label>
-        <input type="text" name="batting_csv" id="inputBatterCsv" class="form-control" placeholder="path to batter csv" value="{{batting_csv}}" required autofocus />
-        <label for="inputPitcherCsv" class="sr-only">path to pitcher csv</label>
-        <input type="text" name="pitching_csv" id="inputPitcherCsv" class="form-control" placeholder="path to pitcher csv" value="{{pitching_csv}}" required />
-        <button class="btn btn-sm btn-default" type="submit">update projections</button>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="batting_csv" />
+        <input type="file" name="pitching_csv" />
+        <button type="submit">submit</button>
     </form>
     {%- if elapsed %}
     <h6>Updated in {{'%0.2f' % elapsed}} seconds</h6>

@@ -21,13 +21,21 @@ def create_full_batter(raw_batter_list):
     batter_model_list = []
     for raw_batter in raw_batter_list:
         if ((raw_batter.get("AB") is not None and float(raw_batter.get("AB")) == 0.0) or
-                (raw_batter.get("OPS") is not None and float(raw_batter.get("OPS")) == .000) or
-                (raw_batter.get("AVG") is not None and float(raw_batter.get("AVG")) == .000) or
+                (raw_batter.get("OPS") is not None and float(raw_batter.get("OPS")) == 0.000) or
+                (raw_batter.get("AVG") is not None and float(raw_batter.get("AVG")) == 0.000) or
                 raw_batter.get("NAME") is None):
             continue
+        # TODO: delete elif?
+        # elif (float(raw_batter["AVG"]) == 0.000 or float(raw_batter["OPS"]) == 0.000 or
+        #       (int(raw_batter["R"]) == 0 and int(raw_batter["HR"]) == 0 and
+        #        int(raw_batter["RBI"]) == 0) or not raw_batter["POS"] or
+        #       raw_batter["NAME"] is None):
+        #     continue
         else:
-            if ("DL" in raw_batter.get("STATUS") or "MiLB" in raw_batter.get("STATUS")
-                or "NA" in raw_batter.get("STATUS") or "Not Active" in raw_batter.get("STATUS")):
+            if raw_batter.get("STATUS") and ("DL" in raw_batter.get("STATUS") or
+                                             "MiLB" in raw_batter.get("STATUS")
+                                             or "NA" in raw_batter.get("STATUS")
+                                             or "Not Active" in raw_batter.get("STATUS")):
                 raw_batter["AB"] = float(raw_batter["AB"]) / 2
                 raw_batter["R"] = float(raw_batter["R"]) / 2
                 raw_batter["HR"] = float(raw_batter["HR"]) / 2
@@ -179,8 +187,10 @@ def create_full_pitcher(raw_pitcher_list):
                 raw_pitcher.get("NAME") is None):
             continue
         else:
-            if ("DL" in raw_pitcher.get("STATUS") or "MiLB" in raw_pitcher.get("STATUS")
-                or "NA" in raw_pitcher.get("STATUS") or "Not Active" in raw_pitcher.get("STATUS")):
+            if raw_pitcher.get("STATUS") and ("DL" in raw_pitcher.get("STATUS") or
+                                               "MiLB" in raw_pitcher.get("STATUS")
+                                               or "NA" in raw_pitcher.get("STATUS")
+                                               or "Not Active" in raw_pitcher.get("STATUS")):
                 raw_pitcher["IP"] = float(raw_pitcher["IP"]) / 2
                 raw_pitcher["W"] = float(raw_pitcher["W"]) / 2
                 raw_pitcher["SV"] = float(raw_pitcher["SV"]) / 2
@@ -211,6 +221,7 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
     era_list = []
     whip_list = []
     # weighted_pitcher_list = []
+    print pitcher_list
     for pitcher in pitcher_list:
         if (pitcher.wins < 0 or pitcher.svs < 0 or pitcher.sos < 0 or
                 pitcher.era < 0 or pitcher.whip < 0):

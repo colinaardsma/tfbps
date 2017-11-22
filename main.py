@@ -18,6 +18,7 @@ import validuser
 import db_models
 import queries
 import yql_queries
+import cgi
 
 # setup jinja2
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
@@ -519,12 +520,15 @@ class User(Handler):
 
     def post(self):
         start = time.time()
-        batting_csv = self.request.get("batting_csv")
-        pitching_csv = self.request.get("pitching_csv")
-        print batting_csv
         import team_tools_db
-        team_tools_db.pull_batters(batting_csv)
-        team_tools_db.pull_pitchers(pitching_csv)
+        batting_csv = self.request.POST["batting_csv"]
+        pitching_csv = self.request.POST["pitching_csv"]
+        if isinstance(batting_csv, cgi.FieldStorage):
+            batting_csv_string = batting_csv.file.read()
+            team_tools_db.pull_batters(batting_csv_string)
+        if isinstance(pitching_csv, cgi.FieldStorage):
+            pitching_csv_string = pitching_csv.file.read()
+            team_tools_db.pull_pitchers(pitching_csv_string)
         end = time.time()
         elapsed = end - start
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
