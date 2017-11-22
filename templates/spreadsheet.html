@@ -40,7 +40,7 @@
           <td>{{'$%0.2f' % player.dollarValue}}</td>
           <td><a href={{'https://baseball.fantasysports.yahoo.com/b1/5091/playersearch?&search=' ~ player.name|replace(' ','%20')}} target="_blank">{{player.name}}</a></td>
           <td>{{player.team}}</td>
-          <td>{{player.pos}}</td>
+          <td>{{player.pos.join(", ")}}</td>
           {%- if 'DL' in player.status %}
             <td style="color:red">{{player.status}}</td>
           {%- elif 'MiLB' in player.status %}
