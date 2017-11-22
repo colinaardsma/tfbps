@@ -512,7 +512,7 @@ class TestPage(Handler):
 
 class User(Handler):
     def render_user(self, elapsed=None, link_yahoo=None):
-        self.render("user.html", username=self.username, link_yahoo=link_yahoo)
+        self.render("user.html", username=self.username, link_yahoo=link_yahoo, elapsed=elapsed)
 
     def get(self):
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)

@@ -27,7 +27,7 @@ def parse_batters_from_csv(csv_string):
         status = ""
         if avail_player:
             avail_player = avail_player[0]
-            pos = avail_player['POS'].split(",")
+            pos = str(avail_player['POS']).split(",")
             status = avail_player['DL_NA_STATUS']
         batter['NAME'] = row['\xef\xbb\xbf"Name"']
         batter['NORMALIZED_FIRST_NAME'] = norm_name['First']
@@ -76,7 +76,7 @@ def parse_pitchers_from_csv(csv_string):
         status = ""
         if avail_player:
             avail_player = avail_player[0]
-            pos = avail_player['POS'].split(",")
+            pos = str(avail_player['POS']).split(",")
             status = avail_player['DL_NA_STATUS']
         pitcher['NAME'] = row['\xef\xbb\xbf"Name"']
         pitcher['TEAM'] = row['Team'] if row['Team'] else "FA"
