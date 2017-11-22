@@ -25,12 +25,10 @@ def create_full_batter(raw_batter_list):
                 (raw_batter.get("AVG") is not None and float(raw_batter.get("AVG")) == 0.000) or
                 raw_batter.get("NAME") is None):
             continue
-        # TODO: delete elif?
-        # elif (float(raw_batter["AVG"]) == 0.000 or float(raw_batter["OPS"]) == 0.000 or
-        #       (int(raw_batter["R"]) == 0 and int(raw_batter["HR"]) == 0 and
-        #        int(raw_batter["RBI"]) == 0) or not raw_batter["POS"] or
-        #       raw_batter["NAME"] is None):
-        #     continue
+        elif (float(raw_batter["AVG"]) == 0.000 or float(raw_batter["OPS"]) == 0.000 or
+              (int(raw_batter["R"]) == 0 and int(raw_batter["HR"]) == 0 and
+               int(raw_batter["RBI"]) == 0) or not raw_batter["POS"]):
+            continue
         else:
             if raw_batter.get("STATUS") and ("DL" in raw_batter.get("STATUS") or
                                              "MiLB" in raw_batter.get("STATUS")
@@ -188,9 +186,9 @@ def create_full_pitcher(raw_pitcher_list):
             continue
         else:
             if raw_pitcher.get("STATUS") and ("DL" in raw_pitcher.get("STATUS") or
-                                               "MiLB" in raw_pitcher.get("STATUS")
-                                               or "NA" in raw_pitcher.get("STATUS")
-                                               or "Not Active" in raw_pitcher.get("STATUS")):
+                                              "MiLB" in raw_pitcher.get("STATUS")
+                                              or "NA" in raw_pitcher.get("STATUS")
+                                              or "Not Active" in raw_pitcher.get("STATUS")):
                 raw_pitcher["IP"] = float(raw_pitcher["IP"]) / 2
                 raw_pitcher["W"] = float(raw_pitcher["W"]) / 2
                 raw_pitcher["SV"] = float(raw_pitcher["SV"]) / 2
