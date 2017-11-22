@@ -36,7 +36,6 @@ def parse_batters_from_csv(csv_string):
         batter['POS'] = pos
         batter['STATUS'] = status
         batter['category'] = "batter"
-        # batter['AB'] = int(row['AB']) if row['AB'] else int((row['PA'] - row['BB'] - row['HBP']) * .99)
         batter['AB'] = int(row['AB'])
         batter['PA'] = int(row['PA'])
         batter['R'] = int(row['R'])
