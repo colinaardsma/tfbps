@@ -184,6 +184,8 @@ def create_full_pitcher(raw_pitcher_list):
                 raw_pitcher.get("WHIP") is None or float(raw_pitcher.get("WHIP")) <= 0.0 or
                 raw_pitcher.get("NAME") is None):
             continue
+        elif not raw_pitcher["POS"]):
+            continue
         else:
             if raw_pitcher.get("STATUS") and ("DL" in raw_pitcher.get("STATUS") or
                                               "MiLB" in raw_pitcher.get("STATUS")
