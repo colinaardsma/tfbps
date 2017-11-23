@@ -350,7 +350,7 @@ def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_pr
             current_ip += int(math.ceil(float(standing['StatsIP'])))
     current_ip += starter_ip
     for player in team_player_list:
-        if any("P" in pos for pos in player.pos):
+        if player.category == "pitcher":
             if current_ip < max_ip:
                 if player.ips + current_ip > max_ip:
                     player = partial_pitcher(player, max_ip, current_ip)

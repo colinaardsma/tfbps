@@ -126,9 +126,6 @@ def final_standing_projection(league_key, user, user_id, redirect):
     Raises:\n
         None.
     """
-    ros_proj_b_list = queries.get_batters()
-    ros_proj_p_list = queries.get_pitchers()
-
     # ros_proj_b_list = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
     #                                                      ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
     #                                                      B_PLAYER_POOL_MULT)
@@ -140,8 +137,8 @@ def final_standing_projection(league_key, user, user_id, redirect):
     league_pos_dict = league_settings['Roster Positions']
     current_standings = yql_queries.get_league_standings(league_key, user, user_id, redirect)
     team_list = yql_queries.get_all_team_rosters(league_key, user, user_id, redirect)
-    final_stats = player_rater.final_stats_projection(team_list, ros_proj_b_list,
-                                                      ros_proj_p_list, league_pos_dict,
+    final_stats = player_rater.final_stats_projection(team_list, ROS_PROJ_B_LIST,
+                                                      ROS_PROJ_P_LIST, league_pos_dict,
                                                       current_standings, league_settings)
     volatility_standings = player_rater.league_volatility(SGP_DICT, final_stats)
     ranked_standings = player_rater.rank_list(volatility_standings)
