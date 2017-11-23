@@ -13,7 +13,7 @@ def parse_batters_from_csv(csv_string):
     Raises:\n
         None.
     """
-    avail_players = html_parser.yahoo_players(5091, "B", 300, True)
+    avail_players = html_parser.yahoo_players(5091, "B", 600, True)
     batter_dict_list = []
     csv_data = csv_string.split('\n')
     reader = csv.DictReader(csv_data)
@@ -62,7 +62,7 @@ def parse_pitchers_from_csv(csv_string):
     Raises:\n
         None.
     """
-    avail_players = html_parser.yahoo_players(5091, "P", 300, True)
+    avail_players = html_parser.yahoo_players(5091, "P", 600, True)
     pitcher_dict_list = []
     csv_data = csv_string.split('\n')
     reader = csv.DictReader(csv_data)
