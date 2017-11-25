@@ -25,12 +25,10 @@ TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
                             'templates') # set template_dir to main.py dir(current dir)/templates
 JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
                                autoescape=True) # set jinja2's working directory to template_dir
-"""TESTING"""
-GUID_REDIRECT_PATH = "/get_token"
-QUERY_REDIRECT_PATH = "/query_localhost"
-"""PRODUCTION"""
-# GUID_REDIRECT_PATH = "/get_token"
-# QUERY_REDIRECT_PATH = "/query_redirect"
+
+PROD_REDIRECT_PATH = "/get_token"
+LOCALHOST_REDIRECT_PATH = "/localhost_token"
+GUID_REDIRECT_PATH = LOCALHOST_REDIRECT_PATH
 
 # define some functions that will be used by all pages
 class Handler(webapp2.RequestHandler):
@@ -330,21 +328,13 @@ class QueryRedirect(Handler):
     #     code = self.request.get('code')
     #     self.render_query_redirect(code=code)
 
-class GuidLocalhost(Handler):
+class TokenLocalhost(Handler):
     def render_guid_locahost(self, code):
-        self.redirect(str('http://localhost:8080/guid_redirect?code=' + code))
+        self.redirect(str('http://localhost:8080/get_token?code=' + code))
 
     def get(self):
         code = self.request.get('code')
         self.render_guid_locahost(code=code)
-
-class QueryLocalhost(Handler):
-    def render_guery_locahost(self, code):
-        self.redirect(str('http://localhost:8080/query_redirect?code=' + code))
-
-    def get(self):
-        code = self.request.get('code')
-        self.render_guery_locahost(code=code)
 
 class Registration(Handler):
     def render_registration(self, username="", email="", username_error="",
@@ -479,8 +469,8 @@ class TestPage(Handler):
         print ":::::::::::::::::::::::"
         league_key = "370.l.5091"
         redirect = "/get_leagues"
-        settings = yql_queries.get_fa_players(league_key, self.user, self.user_id, redirect, "B")
-        # print settings
+        auction_results = yql_queries.get_auction_results(league_key, self.user, self.user_id, redirect)
+        print auction_results
 
         # for league in league_list:
 
@@ -579,8 +569,7 @@ app = webapp2.WSGIApplication([
     ('/oauth/?', Oauth),
     ('/guid_redirect/?', GuidRedirect),
     ('/query_redirect/?', QueryRedirect),
-    ('/localhost_guid/?', GuidLocalhost),
-    ('/localhost_query/?', QueryLocalhost),
+    ('/localhost_token/?', TokenLocalhost),
     ('/test_page/?', TestPage),
     ('/code_auth/?', CodeAuth),
     ('/get_token/?', GetToken),

@@ -131,6 +131,7 @@ def update_user(user, user_id, username=None, hashed_password=None, email=None,
                 authorization=None, yahooGuid=None, last_accessed=None,
                 location=None, access_token=None, token_expiration=None,
                 refresh_token=None):
+    print user.username
     user = queries.get_user_by_name(user.username)
     if username:
         user.username = username
