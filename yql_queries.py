@@ -25,6 +25,16 @@ def get_league_query(league_key, user, user_id, redirect, endpoint):
     league_base_dict = json.loads(league_base_json)
     return league_base_dict
 
+def get_player_query(player_keys, user, user_id, redirect, endpoint):
+    updated_user = api_connector.check_token_expiration(user, user_id, redirect)
+    if updated_user:
+        user = updated_user
+    player_key_string = ", ".join(player_keys)
+    query_path = "/player;player_key in (" + player_key_string + ")" + endpoint
+    league_base_json = api_connector.yql_query(query_path, user.access_token)
+    league_base_dict = json.loads(league_base_json)
+    return league_base_dict
+
 def get_league_settings(league_key, user, user_id, redirect):
     query_dict = get_league_query(league_key, user, user_id, redirect, "/settings")
     settings_dict = query_dict['fantasy_content']['leagues']['0']['league']
@@ -299,6 +309,42 @@ def get_fa_players(league_key, user, user_id, redirect, pOrB):
                     player_dict['TEAM'] = normalizer.team_normalizer(team)
             formatted_fas.append(player_dict)
     return formatted_fas
+
+def get_auction_results(league_key, user, user_id, redirect):
+    auction_results = []
+    auction_query_results_dict = get_league_query(league_key, user, user_id, redirect, '/draftresults')
+    auction_results_dict = auction_query_results_dict['fantasy_content']['leagues']['0']['league'][1]['draft_results']
+    auction_count = auction_results_dict['count']
+    player_keys = []
+    for i in range(auction_count):
+        for draft_result in auction_results_dict['{}'.format(i)]['draft_result']:
+            auction_result = {}
+            auction_result['cost'] = draft_result['cost']
+            auction_result['player_key'] = draft_result['player_key']
+            auction_result['team_key'] = draft_result['team_key']
+            player_keys.append(draft_result['player_key'])
+    player_query_results_dict = get_player_query(player_keys, user, user_id, redirect, '')
+    players_dict = player_query_results_dict['fantasy_content']['players']
+    player_count = players_dict['count']
+    player_data = []
+    for i in range(player_count):
+        for player_info in players_dict['{}'.format(i)]['player'][0][0]:
+            player = {}
+            player['player_key'] = player_info['player_key']
+            player['first_name'] = player_info['ascii_first']
+            player['last_name'] = player_info['ascii_last']
+            player['status'] = player_info['status_full']
+            player['pos'] = []
+            for player_pos in player_info['eligible_positions']:
+                player['pos'].append(player_pos['position'])
+            player_data.append(player)
+    for i in range(len(auction_results)):
+        auction_result[i]['first_name'] = player[i]['first_name']
+        auction_result[i]['last_name'] = player[i]['last_name']
+        auction_result[i]['status'] = player[i]['status']
+        auction_result[i]['pos'] = player[i]['pos']
+    auction_results.append(auction_result)
+    return auction_results
 
 STAT_ID_DICT = {'1': 'TotalGP',
                 '60': '',

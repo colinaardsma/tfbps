@@ -435,7 +435,7 @@ class Login(Handler):
         self.render_login()
 
     def post(self):
-        username = self.request.get("username")
+        username = self.request.get("username").lower()
         password = self.request.get("password")
 
         if not caching.cached_check_username(username):
@@ -445,7 +445,7 @@ class Login(Handler):
             user = caching.cached_get_user_by_id(user_id)
             pword = user.password
             salt = pword.split("|")[1]
-            if username.lower() == user.username.lower():
+            if username == user.username:
                 if hashing.make_pw_hash(username, password, salt) == pword:
                     error = ""
                 else:
