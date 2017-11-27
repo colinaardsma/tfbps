@@ -29,8 +29,8 @@ def get_player_query(player_keys, user, user_id, redirect, endpoint):
     updated_user = api_connector.check_token_expiration(user, user_id, redirect)
     if updated_user:
         user = updated_user
-    player_key_string = ", ".join(player_keys)
-    query_path = "/player;player_key in (" + player_key_string + ")" + endpoint
+    player_key_string = ",".join(player_keys)
+    query_path = "/players;player_keys=" + player_key_string + endpoint
     league_base_json = api_connector.yql_query(query_path, user.access_token)
     league_base_dict = json.loads(league_base_json)
     return league_base_dict
@@ -315,34 +315,69 @@ def get_auction_results(league_key, user, user_id, redirect):
     auction_query_results_dict = get_league_query(league_key, user, user_id, redirect, '/draftresults')
     auction_results_dict = auction_query_results_dict['fantasy_content']['leagues']['0']['league'][1]['draft_results']
     auction_count = auction_results_dict['count']
-    player_keys = []
+    all_player_keys = []
     for i in range(auction_count):
-        for draft_result in auction_results_dict['{}'.format(i)]['draft_result']:
-            auction_result = {}
-            auction_result['cost'] = draft_result['cost']
-            auction_result['player_key'] = draft_result['player_key']
-            auction_result['team_key'] = draft_result['team_key']
-            player_keys.append(draft_result['player_key'])
-    player_query_results_dict = get_player_query(player_keys, user, user_id, redirect, '')
-    players_dict = player_query_results_dict['fantasy_content']['players']
-    player_count = players_dict['count']
+        result = auction_results_dict['{}'.format(i)]['draft_result']
+        auction_result = {}
+        auction_result['cost'] = result['cost']
+        auction_result['player_key'] = result['player_key']
+        auction_result['team_key'] = result['team_key']
+        all_player_keys.append(result['player_key'])
+        auction_results.append(auction_result)
+    max_list_values = 25
+    query_player_keys = []
+    player_query_results_dict_list = []
+    for i, player_key in enumerate(all_player_keys):
+        if i != 0 and i % 25 == 0:
+            player_query_results_dict_list.append(get_player_query(query_player_keys, user, user_id, redirect, ''))
+            max_list_values = i + 25
+            query_player_keys[:] = []
+        if i < max_list_values:
+            query_player_keys.append(player_key)
+    player_query_results_dict_list.append(get_player_query(query_player_keys, user, user_id, redirect, ''))
     player_data = []
-    for i in range(player_count):
-        for player_info in players_dict['{}'.format(i)]['player'][0][0]:
+    for results_dict in player_query_results_dict_list:
+        data_dict = results_dict['fantasy_content']['players']
+        player_count = data_dict['count']
+        for i in range(player_count):
             player = {}
-            player['player_key'] = player_info['player_key']
-            player['first_name'] = player_info['ascii_first']
-            player['last_name'] = player_info['ascii_last']
-            player['status'] = player_info['status_full']
-            player['pos'] = []
-            for player_pos in player_info['eligible_positions']:
-                player['pos'].append(player_pos['position'])
+            print i
+            result = data_dict['{}'.format(i)]['player'][0]
+            player['player_key'] = result[0]['player_key']
+            player['full_name'] = result[2]['name']['full']
+            player['first_name'] = result[2]['name']['ascii_first']
+            player['last_name'] = result[2]['name']['ascii_last']
+            player['status'] = result[3]['status_full'] if 'status_full' in result[3] else ''
+            if 'editorial_team_abbr' in result[6]:
+                player['team'] = result[6]['editorial_team_abbr']
+            elif 'editorial_team_abbr' in result[7]:
+                player['team'] = result[7]['editorial_team_abbr']
+            else:
+                player['team'] = 'FA'
+            if 'position_type' in result[11]:
+                if result[11]['position_type'] == 'B':
+                    player['category'] = 'batter'
+            elif 'position_type' in result[12]:
+                if result[12]['position_type'] == 'B':
+                    player['category'] = 'batter'
+            else:
+                player['category'] = 'pitcher'
+            positions = []
+            if 'eligible_positions' in result[12]:
+                for pos in result[12]['eligible_positions']:
+                    positions.append(pos['position'])
+            elif 'eligible_positions' in result[13]:
+                for pos in result[13]['eligible_positions']:
+                    positions.append(pos['position'])
+            else:
+                positions.append('')
+            player['pos'] = positions
             player_data.append(player)
-    for i in range(len(auction_results)):
-        auction_result[i]['first_name'] = player[i]['first_name']
-        auction_result[i]['last_name'] = player[i]['last_name']
-        auction_result[i]['status'] = player[i]['status']
-        auction_result[i]['pos'] = player[i]['pos']
+    for i, auction_result in enumerate(auction_results):
+        auction_result['first_name'] = player_data[i]['first_name']
+        auction_result['last_name'] = player_data[i]['last_name']
+        auction_result['status'] = player_data[i]['status']
+        auction_result['pos'] = player_data[i]['pos']
     auction_results.append(auction_result)
     return auction_results
 
