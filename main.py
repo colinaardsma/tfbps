@@ -469,8 +469,10 @@ class TestPage(Handler):
         print ":::::::::::::::::::::::"
         league_key = "370.l.5091"
         redirect = "/get_leagues"
-        auction_results = yql_queries.get_auction_results(league_key, self.user, self.user_id, redirect)
-        print auction_results
+        # auction_results = yql_queries.get_auction_results(league_key, self.user, self.user_id, redirect)
+        # print auction_results
+        rosters = yql_queries.get_current_rosters(league_key, self.user, self.user_id, redirect)
+        print rosters
 
         # for league in league_list:
 

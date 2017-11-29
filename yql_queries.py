@@ -381,6 +381,75 @@ def get_auction_results(league_key, user, user_id, redirect):
     auction_results.append(auction_result)
     return auction_results
 
+# http://fantasysports.yahooapis.com/fantasy/v2/leagues;league_keys=370.l.5091/teams/roster;date=2017-11-28
+def get_current_rosters(league_key, user, user_id, redirect):
+    current_rosters = []
+    now = datetime.datetime.now()
+    date = '{year}-{month}-{day}'.format(year=now.year, month=now.month, day=now.day)
+    endpoint = '/teams/roster;date={date}'.format(date=date)
+    roster_query_results_dict = get_league_query(league_key, user, user_id, redirect, endpoint)
+    current_rosters_dict = roster_query_results_dict['fantasy_content']['leagues']['0']['league'][1]['teams']
+    team_count = current_rosters_dict['count']
+    for i in range(team_count):
+        team = {}
+        team_data = current_rosters_dict['{}'.format(i)]['team']
+        team['team_key'] = team_data[0][0]['team_key']
+        team['team_name'] = team_data[0][2]['name']
+        team['waiver_priority'] = team_data[0][7]['waiver_priority']
+        team['faab_balance'] = team_data[0][8]['faab_balance']
+        managers = team_data[0][19]['managers']
+        manager_guid_list = []
+        for manager in managers:
+            guid = manager['manager']['guid']
+            manager_guid_list.append(guid)
+        team['manager_guids'] = manager_guid_list
+        roster = []
+        roster_dict = team_data[1]['roster']['0']['players']
+        roster_count = roster_dict['count']
+        for j in range(roster_count):
+            player = {}
+            player_data = roster_dict['{}'.format(j)]['player'][0]
+            player['player_key'] = player_data[0]['player_key']
+            player['full_name'] = player_data[2]['name']['full']
+            player['first_name'] = player_data[2]['name']['ascii_first']
+            player['last_name'] = player_data[2]['name']['ascii_last']
+            if 'status_full' in player_data[3]:
+                player['status'] = player_data[3]['status_full']
+            else:
+                player['status'] = ''
+            if 'editorial_team_abbr' in player_data[6]:
+                player['team'] = player_data[6]['editorial_team_abbr']
+            elif 'editorial_team_abbr' in player_data[7]:
+                player['team'] = player_data[7]['editorial_team_abbr']
+            else:
+                player['team'] = 'FA'
+            if 'position_type' in player_data[10]:
+                if player_data[10]['position_type'] == 'B':
+                    player['category'] = 'batter'
+            elif 'position_type' in player_data[11]:
+                if player_data[11]['position_type'] == 'B':
+                    player['category'] = 'batter'
+            elif 'position_type' in player_data[12]:
+                if player_data[12]['position_type'] == 'B':
+                    player['category'] = 'batter'
+            else:
+                player['category'] = 'pitcher'
+            if 'eligible_positions' in player_data[11]:
+                positions = player_data[11]['eligible_positions']
+            elif 'eligible_positions' in player_data[12]:
+                positions = player_data[12]['eligible_positions']
+            elif 'eligible_positions' in player_data[13]:
+                positions = player_data[13]['eligible_positions']
+            position_list = []
+            for position in positions:
+                pos = position['position']
+                position_list.append(pos)
+            player['positions'] = position_list
+            roster.append(player)
+        team['roster'] = roster
+        current_rosters.append(team)
+    return current_rosters
+
 STAT_ID_DICT = {'1': 'TotalGP',
                 '60': '',
                 '7': 'R',
