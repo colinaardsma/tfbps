@@ -58,9 +58,6 @@ def get_league_players(league_key, user, user_id, redirect, player_type):
     return players_dict
     # return format_players_dict(players_dict)
 
-def get_league_transactions(league_key, user, user_id, redirect):
-    return get_league_query(league_key, user, user_id, redirect, "/transactions")
-
 def get_user_query(user, user_id, redirect, endpoint):
     updated_user = api_connector.check_token_expiration(user, user_id, redirect)
     if updated_user:
@@ -449,6 +446,57 @@ def get_current_rosters(league_key, user, user_id, redirect):
         team['roster'] = roster
         current_rosters.append(team)
     return current_rosters
+
+def get_league_transactions(league_key, user, user_id, redirect):
+    query_dict = get_league_query(league_key, user, user_id, redirect, "/transactions")
+    transactions_dict = query_dict['fantasy_content']['leagues']['0']['league'][1]['transactions']
+    transaction_count = transactions_dict['count']
+    transactions = []
+    for i in range(transaction_count):
+        transaction = {}
+        players = []
+        transaction_list = transactions_dict['{}'.format(i)]['transaction']
+        transaction_data = transaction_list[0]
+        transaction['transaction_type'] = transaction_data['type']
+        transaction['transaction_datetime'] = datetime.datetime.fromtimestamp(int(transaction_data['timestamp'])).strftime('%Y-%m-%d %H:%M:%S')
+        if 'faab_bid' in transaction_data:
+            transaction['faab_bid'] = transaction_data['faab_bid']
+        if 'players' in transaction_list[1]:
+            player_dict = transaction_list[1]['players']
+            player_count = player_dict['count']
+            for j in range(player_count):
+                player = {}
+                player_list = player_dict['{}'.format(j)]['player']
+                player['player_key'] = player_list[0][0]['player_key']
+                player['full_name'] = player_list[0][2]['name']['full']
+                player['first_name'] = player_list[0][2]['name']['ascii_first']
+                player['last_name'] = player_list[0][2]['name']['ascii_last']
+                player['team'] = player_list[0][3]['editorial_team_abbr']
+                player['pos'] = player_list[0][4]['display_position'].split(',')
+                if player_list[0][5]['position_type'] == 'B':
+                    player['category'] = 'batter'
+                else:
+                    player['category'] = 'pitcher'
+                player_trans_data = player_list[1]['transaction_data']
+                player_transaction_data = {}
+                if isinstance(player_trans_data, list):
+                    player_transaction_data = player_trans_data[0]
+                else:
+                    player_transaction_data = player_trans_data
+                player['transaction_type'] = player_transaction_data['type']
+                if player_transaction_data['type'] == "add":
+                    player['destination_type'] = player_transaction_data['destination_type']
+                    player['destination_team'] = player_transaction_data['destination_team_name']
+                    player['destination_team_key'] = player_transaction_data['destination_team_key']
+                if (player_transaction_data['type'] == "trade"
+                        or player_transaction_data['type'] == "drop"):
+                    player['source_type'] = player_transaction_data['source_type']
+                    player['source_team'] = player_transaction_data['source_team_name']
+                    player['source_team_key'] = player_transaction_data['source_team_key']
+                players.append(player)
+        transaction['players'] = players
+        transactions.append(transaction)
+    return transactions
 
 STAT_ID_DICT = {'1': 'TotalGP',
                 '60': '',
