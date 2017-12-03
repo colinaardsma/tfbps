@@ -473,8 +473,10 @@ class TestPage(Handler):
         # print auction_results
         # rosters = yql_queries.get_current_rosters(league_key, self.user, self.user_id, redirect)
         # print rosters
-        transactions = yql_queries.get_league_transactions(league_key, self.user, self.user_id, redirect)
-        print transactions
+        # transactions = yql_queries.get_league_transactions(league_key, self.user, self.user_id, redirect)
+        # print transactions
+        keepers = yql_queries.get_keepers(league_key, self.user, self.user_id, redirect)
+        # print keepers
 
         # for league in league_list:
 

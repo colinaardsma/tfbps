@@ -1,4 +1,5 @@
 import json
+import pprint
 import datetime
 import api_connector
 import normalizer
@@ -338,7 +339,6 @@ def get_auction_results(league_key, user, user_id, redirect):
         player_count = data_dict['count']
         for i in range(player_count):
             player = {}
-            print i
             result = data_dict['{}'.format(i)]['player'][0]
             player['player_key'] = result[0]['player_key']
             player['full_name'] = result[2]['name']['full']
@@ -375,7 +375,6 @@ def get_auction_results(league_key, user, user_id, redirect):
         auction_result['last_name'] = player_data[i]['last_name']
         auction_result['status'] = player_data[i]['status']
         auction_result['pos'] = player_data[i]['pos']
-    auction_results.append(auction_result)
     return auction_results
 
 # http://fantasysports.yahooapis.com/fantasy/v2/leagues;league_keys=370.l.5091/teams/roster;date=2017-11-28
@@ -484,19 +483,53 @@ def get_league_transactions(league_key, user, user_id, redirect):
                 else:
                     player_transaction_data = player_trans_data
                 player['transaction_type'] = player_transaction_data['type']
+                player['source_type'] = player_transaction_data['source_type']
                 if player_transaction_data['type'] == "add":
                     player['destination_type'] = player_transaction_data['destination_type']
                     player['destination_team'] = player_transaction_data['destination_team_name']
                     player['destination_team_key'] = player_transaction_data['destination_team_key']
                 if (player_transaction_data['type'] == "trade"
                         or player_transaction_data['type'] == "drop"):
-                    player['source_type'] = player_transaction_data['source_type']
                     player['source_team'] = player_transaction_data['source_team_name']
                     player['source_team_key'] = player_transaction_data['source_team_key']
                 players.append(player)
         transaction['players'] = players
         transactions.append(transaction)
     return transactions
+
+def get_keepers(league_key, user, user_id, redirect):
+    current_rosters = get_current_rosters(league_key, user, user_id, redirect)
+    auction_results = get_auction_results(league_key, user, user_id, redirect)
+    league_transactions = get_league_transactions(league_key, user, user_id, redirect)
+
+    for team in current_rosters:
+        for player in team['roster']:
+            player['keeper_cost'] = 5
+            player['keeper_found'] = False
+            transaction_found = False
+            for transaction in league_transactions:
+                for plyr in transaction['players']:
+                    if plyr['player_key'] == player['player_key']:
+                        # FA pickup
+                        if plyr['source_type'] == 'freeagents':
+                            transaction_found = True
+                            player['keeper_found'] = True
+                            continue
+                        # Waiver Claim
+                        if plyr['source_type'] == 'waivers':
+                            if 'faab_bid' in transaction:
+                                player['keeper_cost'] += int(transaction['faab_bid'])
+                            transaction_found = True
+                            player['keeper_found'] = True
+                            continue
+                if transaction_found:
+                    continue
+            if not transaction_found:
+                player['keeper_cost'] += [int(result['cost']) for result in auction_results
+                                          if result['player_key'] == player['player_key']][0]
+                player['keeper_found'] = True
+    return current_rosters
+
 
 STAT_ID_DICT = {'1': 'TotalGP',
                 '60': '',
