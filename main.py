@@ -28,7 +28,7 @@ JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
 
 PROD_REDIRECT_PATH = "/get_token"
 LOCALHOST_REDIRECT_PATH = "/localhost_token"
-GUID_REDIRECT_PATH = LOCALHOST_REDIRECT_PATH
+GUID_REDIRECT_PATH = PROD_REDIRECT_PATH
 
 # define some functions that will be used by all pages
 class Handler(webapp2.RequestHandler):
