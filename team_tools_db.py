@@ -144,6 +144,18 @@ def final_standing_projection(league_key, user, user_id, redirect):
     ranked_standings = player_rater.rank_list(volatility_standings)
     return ranked_standings
 
+def get_keepers(league_key, user, user_id, redirect):
+    """Returns current keepers\n
+    Args:\n
+        league_no: Yahoo! fantasy baseball league number.\n
+    Returns:\n
+        Final point standings.\n
+    Raises:\n
+        None.
+    """
+    keepers = yql_queries.get_keepers(league_key, user, user_id, redirect)
+    return keepers
+
 def batter_projections():
     # projections = ROS_PROJ_B_LIST
     start = time.time()

@@ -1,0 +1,77 @@
+<!-- TODO: move this into bootstrap -->
+<style type="text/css">
+  th, td
+  {
+      padding:0 10px 0 10px;
+  }
+</style>
+<div>
+    {%- if top_fa or projected_standings or trade_result or team_a or team_b or single_player %}
+    {%- elif keepers %}
+      <h2>Keepers</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Cost</th>
+            <th>Name</th>
+            <th>Team</th>
+            <th>POS</th>
+            <th>Status</th>
+            <th>Fantasy Team</th>
+          </tr>
+        </thead>
+        {%- for team in keepers %}
+          {%- for player in team.roster %}
+            <tr>
+              <td>{{'$%0.0f' % player.keeper_cost}}</td>
+              {% set full_name = player.first_name + ' ' + player.last_name %}
+              <td><a href={{'https://baseball.fantasysports.yahoo.com/b1/5091/playersearch?&search=' ~ full_name|replace(' ','%20')}} target="_blank">{{full_name}}</a></td>
+              <td>{{player.team}}</td>
+              <td>{{", ".join(player.positions)}}</td>
+              {%- if 'DL' in player.status %}
+                <td style="color:red">{{player.status}}</td>
+              {%- elif 'MiLB' in player.status %}
+                <td style="color:blue">{{player.status}}</td>
+              {%- else %}
+                <td></td>
+              {%- endif %}
+              <td>{{team.team_name}}</td>
+            </tr>
+            {%- endfor %}
+        {%- endfor %}
+      </table>
+    {%- elif username %}
+      <h2>Keepers</h2>
+      Current Leagues:
+      <form method="post">
+          <select name="keeper_league_key">
+              {%- for league in current_leagues %}
+              <option value="{{league.league_key}}">{{league.name}} - {{league.season}}</option>
+              {%- endfor %}                
+          </select>
+          <br><br>
+          <input type="submit">
+      </form>
+      <br/>
+    {%- else %}
+      <h2>Keepers</h2>
+      <form method="post">
+        <table>
+          <tr>
+            <td>League Number:</td>
+            <td>
+              <input class="regform" type="text" name="league_no" value="{{league_no}}" placeholder="5091" />
+            </td>
+          </tr>
+        </table>
+        <!--<div style="color: red">{{error}}</div>-->
+        <table>
+          <tr>
+            <td>
+              <input type = "submit" />
+            </td>
+          </tr>
+        </table>
+      </form>
+    {%- endif %}
+  </div>

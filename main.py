@@ -19,6 +19,7 @@ import db_models
 import queries
 import yql_queries
 import cgi
+import pprint
 
 # setup jinja2
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
@@ -28,7 +29,7 @@ JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
 
 PROD_REDIRECT_PATH = "/get_token"
 LOCALHOST_REDIRECT_PATH = "/localhost_token"
-GUID_REDIRECT_PATH = PROD_REDIRECT_PATH
+GUID_REDIRECT_PATH = LOCALHOST_REDIRECT_PATH
 
 # define some functions that will be used by all pages
 class Handler(webapp2.RequestHandler):
@@ -52,7 +53,7 @@ class Handler(webapp2.RequestHandler):
         self.username = ""
         if self.user:
             self.username = self.user.username
-    
+
     def get_user(self):
         user_cookie = self.request.cookies.get('user') # pull cookie value
 
@@ -81,7 +82,7 @@ class Handler(webapp2.RequestHandler):
         self.response.headers.add_header('Set-Cookie', 'user=%s' %
                                          hashing.make_secure_val(user_id)) # hash user id for use in cookie
         # self.redirect('/welcome')
-    
+
     def set_cookie(self, user_id):
         self.response.headers.add_header('Set-Cookie', 'user=%s' %
                                          hashing.make_secure_val(user_id)) # hash user id for use in cookie
@@ -165,7 +166,7 @@ class TeamToolsHTML(Handler):
             team_a = ast.literal_eval(team_a)
             team_b = ast.literal_eval(team_b)
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
-                                                        team_b, team_b_players)
+                                                          team_b, team_b_players)
         else:
             team_a = None
             team_b = None
@@ -206,8 +207,8 @@ class TeamToolsHTML(Handler):
 
 class TeamToolsDB(Handler):
     def render_team_tools_db(self, league_no="", team_name="", player_name="", update="",
-                             fa_league_key="", proj_league_key="", current_leagues=None,
-                             redirect=""):
+                             fa_league_key="", proj_league_key="", keeper_league_key="",
+                             current_leagues=None, redirect=""):
         import team_tools_db
         # update projections
         if update == "":
@@ -241,12 +242,22 @@ class TeamToolsDB(Handler):
         if proj_league_key == "":
             projected_standings = None
         else:
-            projected_standings = team_tools_db.final_standing_projection(proj_league_key, self.user, self.user_id, redirect)
+            projected_standings = team_tools_db.final_standing_projection(proj_league_key,
+                                                                          self.user, self.user_id,
+                                                                          redirect)
+
+        # keepers
+        if keeper_league_key == "":
+            keepers = None
+        else:
+            keepers = team_tools_db.get_keepers(keeper_league_key, self.user, self.user_id,
+                                                redirect)
 
         self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name, elapsed=elapsed,
-                    username=self.username, fa_league_key=fa_league_key, proj_league_key=proj_league_key,
-                    current_leagues=current_leagues)
+                    username=self.username, fa_league_key=fa_league_key,
+                    proj_league_key=proj_league_key, keeper_league_key=keeper_league_key,
+                    current_leagues=current_leagues, keepers=keepers)
 
     def get(self):
         # if datetime.datetime.now() > datetime.datetime(2017,10,1):
@@ -268,10 +279,11 @@ class TeamToolsDB(Handler):
         player_name = self.request.get("player_name")
         update = self.request.get("update")
         fa_league_key = self.request.get("fa_league_key")
-        proj_league_key = self.request.get("proj_league_key")        
+        proj_league_key = self.request.get("proj_league_key")
+        keeper_league_key = self.request.get("keeper_league_key")
         self.render_team_tools_db(league_no=league_no, team_name=team_name, redirect=redirect,
                                   player_name=player_name, update=update, fa_league_key=fa_league_key,
-                                  proj_league_key=proj_league_key)
+                                  proj_league_key=proj_league_key, keeper_league_key=keeper_league_key)
 
 class UpdateProjections(Handler):
     def render_update_projections(self, elapsed=""):
@@ -349,7 +361,7 @@ class Registration(Handler):
         self.render_registration()
 
     def post(self):
-        username = self.request.get("username")
+        username = self.request.get("username").lower()
         password = self.request.get("password")
         pass_verify = self.request.get("pass_verify")
         email = self.request.get("email")
@@ -476,7 +488,7 @@ class TestPage(Handler):
         # transactions = yql_queries.get_league_transactions(league_key, self.user, self.user_id, redirect)
         # print transactions
         keepers = yql_queries.get_keepers(league_key, self.user, self.user_id, redirect)
-        # print keepers
+        pprint.pprint(keepers)
 
         # for league in league_list:
 

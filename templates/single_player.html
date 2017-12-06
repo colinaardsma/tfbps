@@ -1,10 +1,9 @@
   <div>
-    {%- if top_fa or projected_standings or trade_result or team_a or team_b %}
+    {%- if top_fa or projected_standings or trade_result or team_a or team_b or keepers %}
     {%- elif single_player %}
       <h2>Single Player Search</h2>
       <p>{{single_player|safe}}</p>
     {%- else %}
-      <br/>
       <h2>Single Player Search</h2>
       <form method="post">
         <table>
