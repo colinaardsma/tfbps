@@ -143,10 +143,11 @@ class PitchingProjections(Handler):
 class TeamToolsHTML(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name="", team_a={},
                         team_a_name="", team_a_players=[], team_b={}, team_b_name="",
-                        team_b_players=[], trade_result={}):
-        import team_tools_html
+                        team_b_players=[], trade_result={}, keeper_league_key="",
+                        redirect=""):
         # fa rater
         if league_no != "" and team_name != "":
+            import team_tools_html
             top_fa = team_tools_html.fa_finder(league_no, team_name)
             team_name = top_fa['Team Name']
             print top_fa
@@ -154,6 +155,7 @@ class TeamToolsHTML(Handler):
             top_fa = None
         # single player lookup
         if player_name != "":
+            import team_tools_html
             single_player = team_tools_html.single_player_rater(player_name)
         else:
             single_player = None
@@ -163,6 +165,7 @@ class TeamToolsHTML(Handler):
             team_b = html_parser.get_single_yahoo_team(league_no, team_b_name)
             league_no = league_no
         elif league_no != "" and team_a and team_b and team_a_players and team_b_players:
+            import team_tools_html
             team_a = ast.literal_eval(team_a)
             team_b = ast.literal_eval(team_b)
             trade_result = team_tools_html.trade_analyzer(league_no, team_a, team_a_players,
@@ -176,22 +179,33 @@ class TeamToolsHTML(Handler):
             projected_standings = None
         # final stanings projection
         if league_no != "" and team_name == "" and not (team_a or team_b):
+            import team_tools_html
             projected_standings = team_tools_html.final_standing_projection(league_no)
         else:
             projected_standings = None
 
+        # keepers
+        if keeper_league_key == "":
+            keepers = None
+        else:
+            import team_tools_html
+            keepers = team_tools_html.get_keepers(keeper_league_key, self.user, self.user_id,
+                                                  redirect)
+
         self.render("team_tools_html.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name,
                     league_no=league_no, team_a=team_a, team_b=team_b, trade_result=trade_result,
-                    username=self.username)
+                    username=self.username, keeper_league_key=keeper_league_key, keepers=keepers)
 
     def get(self):
         # if datetime.datetime.now() > datetime.datetime(2017,10,1):
         #     self.render("offseason.html", username=self.username)
         # else:
-        self.render_fa_rater()
+        redirect = "/team_tools_html"
+        self.render_fa_rater(redirect=redirect)
 
     def post(self):
+        redirect = "/team_tools_html"
         league_no = self.request.get("league_no")
         team_name = self.request.get("team_name")
         player_name = self.request.get("player_name")
@@ -201,15 +215,16 @@ class TeamToolsHTML(Handler):
         team_b = self.request.get("team_b")
         team_b_name = self.request.get("team_b_name")
         team_b_players = self.request.POST.getall("team_b_players")
+        keeper_league_key = self.request.get("keeper_league_key")
         self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name,
                              team_a=team_a, team_a_name=team_a_name, team_a_players=team_a_players,
-                             team_b=team_b, team_b_name=team_b_name, team_b_players=team_b_players)
+                             team_b=team_b, team_b_name=team_b_name, team_b_players=team_b_players,
+                             keeper_league_key=keeper_league_key, redirect=redirect)
 
 class TeamToolsDB(Handler):
     def render_team_tools_db(self, league_no="", team_name="", player_name="", update="",
                              fa_league_key="", proj_league_key="", keeper_league_key="",
                              current_leagues=None, redirect=""):
-        import team_tools_db
         # update projections
         if update == "":
             elapsed = None
@@ -225,12 +240,14 @@ class TeamToolsDB(Handler):
         if fa_league_key == "":
             top_fa = None
         else:
+            import team_tools_db
             top_fa = team_tools_db.fa_finder(fa_league_key, self.user, self.user_id, redirect)
             team_name = top_fa['Team Name']
         # single player lookup
         if player_name == "":
             single_player = None
         else:
+            import team_tools_db
             start = time.time()
             single_player = team_tools_db.single_player_rater(player_name)
             end = time.time()
@@ -242,6 +259,7 @@ class TeamToolsDB(Handler):
         if proj_league_key == "":
             projected_standings = None
         else:
+            import team_tools_db
             projected_standings = team_tools_db.final_standing_projection(proj_league_key,
                                                                           self.user, self.user_id,
                                                                           redirect)
@@ -250,6 +268,7 @@ class TeamToolsDB(Handler):
         if keeper_league_key == "":
             keepers = None
         else:
+            import team_tools_db
             keepers = team_tools_db.get_keepers(keeper_league_key, self.user, self.user_id,
                                                 redirect)
 
