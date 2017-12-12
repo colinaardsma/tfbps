@@ -6,9 +6,9 @@
   }
 </style>
 <div>
-    {%- if top_fa or projected_standings or trade_result or team_a or team_b or single_player %}
-    {%- elif keepers %}
-      <h2>Keepers</h2>
+    {%- if top_fa or projected_standings or trade_result or team_a or team_b or single_player or proj_keepers %}
+    {%- elif all_keepers %}
+      <h2>All Keepers</h2>
       <table>
         <thead>
           <tr>
@@ -41,10 +41,10 @@
         {%- endfor %}
       </table>
     {%- elif username %}
-      <h2>Keepers</h2>
+      <h2>All Keepers</h2>
       Current Leagues:
       <form method="post">
-          <select name="keeper_league_key">
+          <select name="all_keepers_key">
               {%- for league in current_leagues %}
               <option value="{{league.league_key}}">{{league.name}} - {{league.season}}</option>
               {%- endfor %}                
@@ -54,13 +54,13 @@
       </form>
       <br/>
     {%- else %}
-      <h2>Keepers</h2>
+      <h2>All Keepers</h2>
       <form method="post">
         <table>
           <tr>
             <td>League Number:</td>
             <td>
-              <input class="regform" type="text" name="keeper_league_key" value="{{keeper_league_key}}" placeholder="5091" />
+              <input class="regform" type="text" name="all_keepers_key" value="{{all_keepers_key}}" placeholder="5091" />
             </td>
           </tr>
         </table>

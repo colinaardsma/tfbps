@@ -143,7 +143,7 @@ class PitchingProjections(Handler):
 class TeamToolsHTML(Handler):
     def render_fa_rater(self, league_no="", team_name="", player_name="", team_a={},
                         team_a_name="", team_a_players=[], team_b={}, team_b_name="",
-                        team_b_players=[], trade_result={}, keeper_league_key="",
+                        team_b_players=[], trade_result={}, all_keepers_key="",
                         redirect=""):
         # fa rater
         if league_no != "" and team_name != "":
@@ -185,17 +185,17 @@ class TeamToolsHTML(Handler):
             projected_standings = None
 
         # keepers
-        if keeper_league_key == "":
+        if all_keepers_key == "":
             keepers = None
         else:
             import team_tools_html
-            keepers = team_tools_html.get_keepers(keeper_league_key, self.user, self.user_id,
+            keepers = team_tools_html.get_keepers(all_keepers_key, self.user, self.user_id,
                                                   redirect)
 
         self.render("team_tools_html.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name,
                     league_no=league_no, team_a=team_a, team_b=team_b, trade_result=trade_result,
-                    username=self.username, keeper_league_key=keeper_league_key, keepers=keepers)
+                    username=self.username, all_keepers_key=all_keepers_key, keepers=keepers)
 
     def get(self):
         # if datetime.datetime.now() > datetime.datetime(2017,10,1):
@@ -215,16 +215,16 @@ class TeamToolsHTML(Handler):
         team_b = self.request.get("team_b")
         team_b_name = self.request.get("team_b_name")
         team_b_players = self.request.POST.getall("team_b_players")
-        keeper_league_key = self.request.get("keeper_league_key")
+        all_keepers_key = self.request.get("all_keepers_key")
         self.render_fa_rater(league_no=league_no, team_name=team_name, player_name=player_name,
                              team_a=team_a, team_a_name=team_a_name, team_a_players=team_a_players,
                              team_b=team_b, team_b_name=team_b_name, team_b_players=team_b_players,
-                             keeper_league_key=keeper_league_key, redirect=redirect)
+                             all_keepers_key=all_keepers_key, redirect=redirect)
 
 class TeamToolsDB(Handler):
     def render_team_tools_db(self, league_no="", team_name="", player_name="", update="",
-                             fa_league_key="", proj_league_key="", keeper_league_key="",
-                             current_leagues=None, redirect=""):
+                             fa_league_key="", proj_league_key="", all_keepers_key="",
+                             proj_keepers_key="", current_leagues=None, redirect=""):
         # update projections
         if update == "":
             elapsed = None
@@ -265,18 +265,27 @@ class TeamToolsDB(Handler):
                                                                           redirect)
 
         # keepers
-        if keeper_league_key == "":
-            keepers = None
+        if all_keepers_key == "":
+            all_keepers = None
         else:
             import team_tools_db
-            keepers = team_tools_db.get_keepers(keeper_league_key, self.user, self.user_id,
-                                                redirect)
+            all_keepers = team_tools_db.get_keeper_costs(all_keepers_key, self.user, self.user_id,
+                                                         redirect)
+
+        if proj_keepers_key == "":
+            proj_keepers = None
+        else:
+            import team_tools_db
+            proj_keepers = team_tools_db.get_projected_keepers(proj_keepers_key, self.user,
+                                                               self.user_id, redirect)
+
 
         self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name, elapsed=elapsed,
                     username=self.username, fa_league_key=fa_league_key,
-                    proj_league_key=proj_league_key, keeper_league_key=keeper_league_key,
-                    current_leagues=current_leagues, keepers=keepers)
+                    proj_league_key=proj_league_key, all_keepers_key=all_keepers_key,
+                    proj_keepers_key=proj_keepers_key, current_leagues=current_leagues,
+                    all_keepers=all_keepers, proj_keepers=proj_keepers)
 
     def get(self):
         # if datetime.datetime.now() > datetime.datetime(2017,10,1):
@@ -299,10 +308,12 @@ class TeamToolsDB(Handler):
         update = self.request.get("update")
         fa_league_key = self.request.get("fa_league_key")
         proj_league_key = self.request.get("proj_league_key")
-        keeper_league_key = self.request.get("keeper_league_key")
+        proj_keepers_key = self.request.get("proj_keepers_key")
+        all_keepers_key = self.request.get("all_keepers_key")
         self.render_team_tools_db(league_no=league_no, team_name=team_name, redirect=redirect,
                                   player_name=player_name, update=update, fa_league_key=fa_league_key,
-                                  proj_league_key=proj_league_key, keeper_league_key=keeper_league_key)
+                                  proj_league_key=proj_league_key, proj_keepers_key=proj_keepers_key,
+                                  all_keepers_key=all_keepers_key)
 
 class UpdateProjections(Handler):
     def render_update_projections(self, elapsed=""):
@@ -506,8 +517,11 @@ class TestPage(Handler):
         # print rosters
         # transactions = yql_queries.get_league_transactions(league_key, self.user, self.user_id, redirect)
         # print transactions
-        keepers = yql_queries.get_keepers(league_key, self.user, self.user_id, redirect)
-        pprint.pprint(keepers)
+        # keepers = yql_queries.get_keepers(league_key, self.user, self.user_id, redirect)
+        # pprint.pprint(keepers)
+        import team_tools_db
+        proj_keepers = team_tools_db.get_projected_keepers(league_key, self.user, self.user_id, redirect)
+        pprint.pprint(proj_keepers)
 
         # for league in league_list:
 

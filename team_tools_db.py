@@ -44,8 +44,8 @@ SGP_DICT = {'R SGP': 19.16666667, 'HR SGP': 11.5, 'RBI SGP': 20.83333333, 'SB SG
             'ERA SGP': -0.08444444444, 'WHIP SGP': -0.01666666667}
 
 # # dynamic variables
-ROS_PROJ_B_LIST = queries.get_batters()
-ROS_PROJ_P_LIST = queries.get_pitchers()
+# ROS_PROJ_B_LIST = queries.get_batters()
+# ROS_PROJ_P_LIST = queries.get_pitchers()
 # ROS_PROJ_B_LIST = player_creator.calc_batter_z_score(BATTER_LIST, BATTERS_OVER_ZERO_DOLLARS,
 #                                                      ONE_DOLLAR_BATTERS, B_DOLLAR_PER_FVAAZ,
 #                                                      B_PLAYER_POOL_MULT)
@@ -71,18 +71,18 @@ def fa_finder(league_key, user, user_id, redirect):
     Raises:\n
         None.
     """
-    # ros_proj_b_list = queries.get_batters()
-    # ros_proj_p_list = queries.get_pitchers()
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
 
     player_comp = {}
     pitching_fa_list = yql_queries.get_fa_players(league_key, user, user_id, redirect, "P")
     batting_fa_list = yql_queries.get_fa_players(league_key, user, user_id, redirect, "B")
-    avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ROS_PROJ_P_LIST)
+    avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ros_proj_p_list)
     yahoo_team = yql_queries.get_single_team_roster(league_key, user, user_id, redirect)
     # yahoo_team = html_parser.get_single_yahoo_team(league_no, team_name)
-    team_pitching_values = player_rater.rate_team(yahoo_team, ROS_PROJ_P_LIST)
-    avail_batting_fas = player_rater.rate_fa(batting_fa_list, ROS_PROJ_B_LIST)
-    team_batting_values = player_rater.rate_team(yahoo_team, ROS_PROJ_B_LIST)
+    team_pitching_values = player_rater.rate_team(yahoo_team, ros_proj_p_list)
+    avail_batting_fas = player_rater.rate_fa(batting_fa_list, ros_proj_b_list)
+    team_batting_values = player_rater.rate_team(yahoo_team, ros_proj_b_list)
 
     player_comp['Team Name'] = yahoo_team['TEAM_NAME']
     player_comp['Pitching FAs'] = avail_pitching_fas
@@ -103,7 +103,9 @@ def single_player_rater(player_name):
     """
     # player_list = player_rater.single_player_rater_db(player_name)
     # player = player_list[0]
-    player = player_rater.single_player_rater_html(player_name, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST)
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
+    player = player_rater.single_player_rater_html(player_name, ros_proj_b_list, ros_proj_p_list)
     player_stats = ""
     if any("P" in pos for pos in player.pos):
         player_stats = ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
@@ -132,19 +134,20 @@ def final_standing_projection(league_key, user, user_id, redirect):
     # ros_proj_p_list = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
     #                                                      ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
     #                                                      P_PLAYER_POOL_MULT)
-
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
     league_settings = yql_queries.get_league_settings(league_key, user, user_id, redirect)
     league_pos_dict = league_settings['Roster Positions']
     current_standings = yql_queries.get_league_standings(league_key, user, user_id, redirect)
     team_list = yql_queries.get_all_team_rosters(league_key, user, user_id, redirect)
-    final_stats = player_rater.final_stats_projection(team_list, ROS_PROJ_B_LIST,
-                                                      ROS_PROJ_P_LIST, league_pos_dict,
+    final_stats = player_rater.final_stats_projection(team_list, ros_proj_b_list,
+                                                      ros_proj_p_list, league_pos_dict,
                                                       current_standings, league_settings)
     volatility_standings = player_rater.league_volatility(SGP_DICT, final_stats)
     ranked_standings = player_rater.rank_list(volatility_standings)
     return ranked_standings
 
-def get_keepers(league_key, user, user_id, redirect):
+def get_keeper_costs(league_key, user, user_id, redirect):
     """Returns current keepers\n
     Args:\n
         league_no: Yahoo! fantasy baseball league number.\n
@@ -155,6 +158,23 @@ def get_keepers(league_key, user, user_id, redirect):
     """
     keepers = yql_queries.get_keepers(league_key, user, user_id, redirect)
     return keepers
+
+def get_projected_keepers(league_key, user, user_id, redirect):
+    """Returns current keepers\n
+    Args:\n
+        league_no: Yahoo! fantasy baseball league number.\n
+    Returns:\n
+        Final point standings.\n
+    Raises:\n
+        None.
+    """
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
+    keepers = yql_queries.get_keepers(league_key, user, user_id, redirect)
+    eval_keepers = player_rater.evaluate_keepers(keepers, ros_proj_b_list, ros_proj_p_list)        
+    # import pprint
+    # pprint.pprint(eval_keepers)
+    return eval_keepers
 
 def batter_projections():
     # projections = ROS_PROJ_B_LIST
@@ -173,7 +193,7 @@ def pitcher_projections():
     projections = queries.get_pitchers()
     end = time.time()
     elapsed = end - start
-    logging.info("\r\n***************\r\Get Pitcher in %f seconds", elapsed)
+    logging.info("\r\n***************\r\nGet Pitcher in %f seconds", elapsed)
 
     # sorted_proj = sorted(projections, key=lambda x: x.dollarValue, reverse=True)
     return projections
@@ -195,7 +215,8 @@ def pull_batters(csv):
     logging.info("\r\n***************\r\nBatter Get for Deletion in %f seconds", elapsed)
 
     start = time.time()
-    db.delete_async(batter_query)
+    # db.delete_async(batter_query)
+    db.delete(batter_query)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nBatter Deletion in %f seconds", elapsed)
@@ -208,7 +229,8 @@ def pull_batters(csv):
     for batter in batters:
         batter_model = player_models.store_batter(batter)
         batter_models.append(batter_model)
-    db.put_async(batter_models)
+    # db.put_async(batter_models)
+    db.put(batter_models)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nBatter DB in %f seconds", elapsed)
@@ -231,7 +253,8 @@ def pull_pitchers(csv):
     logging.info("\r\n***************\r\nPitcher Get for Deletion in %f seconds", elapsed)
 
     start = time.time()
-    db.delete_async(pitcher_query)
+    # db.delete_async(pitcher_query)
+    db.delete(pitcher_query)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nPitcher Deletion in %f seconds", elapsed)
@@ -244,12 +267,13 @@ def pull_pitchers(csv):
     for pitcher in pitchers:
         pitcher_model = player_models.store_pitcher(pitcher)
         pitcher_models.append(pitcher_model)
-    db.put_async(pitcher_models)
+    # db.put_async(pitcher_models)
+    db.put(pitcher_models)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nPitcher DB in %f seconds", elapsed)
 
-    
+
 def pull_players(pitcher_csv, batter_csv):
     # pitcher_list = player_creator.create_full_pitcher_html(ROS_PITCHER_URL)
     # batter_list = player_creator.create_full_batter_html(ROS_BATTER_URL)
@@ -274,11 +298,15 @@ def pull_players(pitcher_csv, batter_csv):
     for batter in batters:
         batter_model = player_models.store_batter(batter)
         batter_models.append(batter_model)
-    
-    db.delete_async(pitcher_query)
-    db.delete_async(batter_query)
-    db.put_async(pitcher_models)
-    db.put_async(batter_models)
+
+    # db.delete_async(pitcher_query)
+    # db.delete_async(batter_query)
+    # db.put_async(pitcher_models)
+    # db.put_async(batter_models)
+    db.delete(pitcher_query)
+    db.delete(batter_query)
+    db.put(pitcher_models)
+    db.put(batter_models)
 
 
 

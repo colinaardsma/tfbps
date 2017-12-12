@@ -42,8 +42,8 @@ SGP_DICT = {'R SGP': 19.16666667, 'HR SGP': 11.5, 'RBI SGP': 20.83333333, 'SB SG
 # ROS_PROJ_P_LIST = player_creator.calc_pitcher_z_score(PITCHER_LIST, PITCHERS_OVER_ZERO_DOLLARS,
 #                                                       ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
 #                                                       P_PLAYER_POOL_MULT)
-ROS_PROJ_B_LIST = queries.get_batters()
-ROS_PROJ_P_LIST = queries.get_pitchers()
+# ROS_PROJ_B_LIST = queries.get_batters()
+# ROS_PROJ_P_LIST = queries.get_pitchers()
 
 # variable defined within methods
 # BATTER_FA_LIST = html_parser.yahoo_fa(LEAGUE_NO, "B")
@@ -63,14 +63,16 @@ def fa_finder(league_no, team_name):
     Raises:\n
         None.
     """
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
     player_comp = {}
     pitching_fa_list = html_parser.yahoo_players(league_no, "P")
     batting_fa_list = html_parser.yahoo_players(LEAGUE_NO, "B")
-    avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ROS_PROJ_P_LIST)
+    avail_pitching_fas = player_rater.rate_fa(pitching_fa_list, ros_proj_p_list)
     yahoo_team = html_parser.get_single_yahoo_team(league_no, team_name)
-    team_pitching_values = player_rater.rate_team(yahoo_team, ROS_PROJ_P_LIST)
-    avail_batting_fas = player_rater.rate_fa(batting_fa_list, ROS_PROJ_B_LIST)
-    team_batting_values = player_rater.rate_team(yahoo_team, ROS_PROJ_B_LIST)
+    team_pitching_values = player_rater.rate_team(yahoo_team, ros_proj_p_list)
+    avail_batting_fas = player_rater.rate_fa(batting_fa_list, ros_proj_b_list)
+    team_batting_values = player_rater.rate_team(yahoo_team, ros_proj_b_list)
 
     player_comp['Team Name'] = yahoo_team['TEAM_NAME']
     player_comp['Pitching FAs'] = avail_pitching_fas
@@ -89,7 +91,9 @@ def single_player_rater(player_name):
     Raises:\n
         None.
     """
-    player = player_rater.single_player_rater_html(player_name, ROS_PROJ_B_LIST, ROS_PROJ_P_LIST)
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
+    player = player_rater.single_player_rater_html(player_name, ros_proj_b_list, ros_proj_p_list)
     player_stats = ""
     if any("P" in pos for pos in player.pos):
         player_stats = ("${player.dollarValue:^5.2f} - {player.name:^25} - {player.pos:^25}" +
@@ -112,12 +116,14 @@ def final_standing_projection(league_no):
     Raises:\n
         None.
     """
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
     league_settings = html_parser.get_league_settings(league_no)
     current_standings = html_parser.get_standings(league_no, int(league_settings['Max Teams:']))
     team_list = html_parser.yahoo_teams(league_no)
     league_pos_dict = html_parser.split_league_pos_types(league_settings["Roster Positions:"])
-    final_stats = player_rater.final_stats_projection(team_list, ROS_PROJ_B_LIST,
-                                                      ROS_PROJ_P_LIST, league_pos_dict,
+    final_stats = player_rater.final_stats_projection(team_list, ros_proj_b_list,
+                                                      ros_proj_p_list, league_pos_dict,
                                                       current_standings, league_settings)
     volatility_standings = player_rater.league_volatility(SGP_DICT, final_stats)
     ranked_standings = player_rater.rank_list(volatility_standings)
@@ -140,13 +146,15 @@ def pitcher_projections():
     return sorted_proj
 
 def trade_analyzer(league_no, team_a, team_a_players, team_b, team_b_players):
+    ros_proj_b_list = queries.get_batters()
+    ros_proj_p_list = queries.get_pitchers()
     league_settings = html_parser.get_league_settings(league_no)
     current_standings = html_parser.get_standings(league_no, int(league_settings['Max Teams:']))
     team_list = html_parser.yahoo_teams(league_no)
     league_pos_dict = html_parser.split_league_pos_types(league_settings["Roster Positions:"])
     new_standings = player_rater.trade_analyzer(team_a, team_a_players, team_b, team_b_players,
-                                                team_list, league_pos_dict, ROS_PROJ_B_LIST,
-                                                ROS_PROJ_P_LIST, current_standings,
+                                                team_list, league_pos_dict, ros_proj_b_list,
+                                                ros_proj_p_list, current_standings,
                                                 league_settings, SGP_DICT)
     return new_standings
 

@@ -419,6 +419,7 @@ def get_current_rosters(league_key, user, user_id, redirect):
                 player['team'] = player_data[7]['editorial_team_abbr']
             else:
                 player['team'] = 'FA'
+            player['category'] = 'pitcher'
             if 'position_type' in player_data[10]:
                 if player_data[10]['position_type'] == 'B':
                     player['category'] = 'batter'
@@ -428,8 +429,6 @@ def get_current_rosters(league_key, user, user_id, redirect):
             elif 'position_type' in player_data[12]:
                 if player_data[12]['position_type'] == 'B':
                     player['category'] = 'batter'
-            else:
-                player['category'] = 'pitcher'
             if 'eligible_positions' in player_data[11]:
                 positions = player_data[11]['eligible_positions']
             elif 'eligible_positions' in player_data[12]:
