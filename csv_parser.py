@@ -6,21 +6,17 @@ import urllib2
 import yql_queries
 import pprint
 
-def parse_batters_from_csv(user, user_id, league, csv_string):
+def parse_batters_from_csv(user, user_id, league, csv_file):
     """Parse batter data from CSV file\n
     Args:\n
-        csv_string: the CSV data in string form.\n
+        csv_file: the CSV file.\n
     Returns:\n
         list of dict of player projections.\n
     Raises:\n
         None.
     """
-    # TODO: yahoo not returning all players for some reason
-    # avail_players = yql_queries.get_players(league.league_key, user, user_id,
-    #                                         "team_tools_db.html", 600, "B", "A")
     batter_dict_list = []
-    csv_data = csv_string.split('\n')
-    reader = csv.DictReader(csv_data)
+    reader = csv.DictReader(csv_file.file)
     for row in reader:
         batter = {}
         name = ''
@@ -28,24 +24,25 @@ def parse_batters_from_csv(user, user_id, league, csv_string):
             name = row["Name"].decode('utf-8').replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u"\u201c", "").replace(u"\u201d", "")
         elif '\xef\xbb\xbf"Name"' in row:
             name = row['\xef\xbb\xbf"Name"'].decode('utf-8').replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u"\u201c", "").replace(u"\u201d", "")
+
+        if ((row['AB'] is not None and float(row['AB']) == 0.0) or
+                (row['OPS'] is not None and float(row['OPS']) == 0.000) or
+                (row['AVG'] is not None and float(row['AVG']) == 0.000) or
+                (name is None or name == '') or float(row['G']) <= 0.0):
+                # or not row["POS"]):
+            continue
+
         norm_name = normalizer.name_normalizer(name)
-        # avail_player = [player for player in avail_players
-        #                 if player['NORMALIZED_FIRST_NAME'] in norm_name['First']
-        #                 and player['LAST_NAME'] in norm_name['Last']]
         pos = []
         status = ""
-        # if avail_player:
-        #     avail_player = avail_player[0]
-        #     pos = avail_player['POS']
-        #     status = avail_player['STATUS']
-        #questionable_float_cats = ['Off', 'WAR', 'G', '1B', '2B', '3B', 'TB']
-        #questionable_string_cats = ['playerid']
+
         if 'YAHOO' in row:
             pos = row['YAHOO'].decode('utf-8').split('/')
         batter['NAME'] = name
         batter['NORMALIZED_FIRST_NAME'] = norm_name['First']
         batter['LAST_NAME'] = norm_name['Last']
-        batter['TEAM'] = normalizer.team_normalizer(row['Team'].decode('utf-8')) if row['Team'] else "FA"
+        batter['TEAM'] = (normalizer.team_normalizer(row['Team'].decode('utf-8'))
+                          if row['Team'] else "FA")
         batter['POS'] = pos
         batter['STATUS'] = status
         batter['category'] = "batter"
@@ -66,25 +63,26 @@ def parse_batters_from_csv(user, user_id, league, csv_string):
         #         batter[cat] = str(row[cat])
         batter_dict_list.append(batter)
     return batter_dict_list
-# ['\xef\xbb\xbf"Name"', 'Team', 'G', 'PA', 'AB', 'H', '2B', '3B', 'HR',
-#  'R', 'RBI', 'BB', 'SO', 'HBP', 'SB', 'CS', '-1', 'AVG', 'OBP', 'SLG',
-# 'OPS', 'wOBA', '-1', 'wRC+', 'BsR', 'Fld', '-1', 'Off', 'Def', 'WAR', 'playerid']
 
-def parse_pitchers_from_csv(user, user_id, league, csv_string):
+def parse_pitchers_from_csv(user, user_id, league, csv_file):
     """Parse pitcher data from CSV file\n
     Args:\n
-        csv_string: the CSV data in string form.\n
+        csv_file: the CSV file.\n
     Returns:\n
         list of dict of player projections.\n
     Raises:\n
         None.
     """
-    # TODO: yahoo not returning all players for some reason
-    # avail_players = yql_queries.get_players(league.league_key, user, user_id,
-    #                                         "team_tools_db.html", 600, "P", "A")
     pitcher_dict_list = []
-    csv_data = csv_string.split('\n')
-    reader = csv.DictReader(csv_data)
+    reader = csv.DictReader(csv_file.file)
+    max_ip = 0.0
+    for row in reader:
+        if float(row['IP']) > max_ip:
+            max_ip = float(row['IP'])
+    print "MAX IP:"
+    print max_ip
+    csv_file.file.seek(0)
+    reader = csv.DictReader(csv_file.file)
     for row in reader:
         pitcher = {}
         name = ''
@@ -92,25 +90,28 @@ def parse_pitchers_from_csv(user, user_id, league, csv_string):
             name = row["Name"].decode('utf-8').replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u"\u201c", "").replace(u"\u201d", "")
         elif '\xef\xbb\xbf"Name"' in row:
             name = row['\xef\xbb\xbf"Name"'].decode('utf-8').replace(u"\u2018", "'").replace(u"\u2019", "'").replace(u"\u201c", "").replace(u"\u201d", "")
+
+        if (row['IP'] is None or float(row['IP']) <= (max_ip * 0.05) or
+                row['W'] is None or float(row['W']) < 0.0 or
+                row['SV'] is None or float(row['SV']) < 0.0 or
+                row['K'] is None or float(row['K']) < 0.0 or
+                row['ERA'] is None or float(row['ERA']) <= 0.0 or
+                row['WHIP'] is None or float(row['WHIP']) <= 0.0 or
+                (name is None or name == '') or float(row['G']) <= 0.0):
+                # or not row['POS']):
+            continue
+
         norm_name = normalizer.name_normalizer(name)
-        # avail_player = [player for player in avail_players
-        #                 if player['NORMALIZED_FIRST_NAME'] in norm_name['First']
-        #                 and player['LAST_NAME'] in norm_name['Last']]
         pos = []
         status = ""
-        # if avail_player:
-        #     avail_player = avail_player[0]
-        #     pos = avail_player['POS']
-        #     status = avail_player['STATUS']
-#,Name,Team,POS,R/L,G,GS,QS,TBF,IP,W,L,SV,HLD,ERA,SIERA,WHIP,K,BB,H,HBP,ER,R,HR,GB%,FB%,LD%,BABIP
-        #questionable_float_cats = ['QS', 'FIP', 'WAR']
-        #questionable_string_cats = ['playerid']
+
         if 'POS' in row:
             pos = row['POS'].decode('utf-8')
         pitcher['NAME'] = name
         pitcher['NORMALIZED_FIRST_NAME'] = norm_name['First']
         pitcher['LAST_NAME'] = norm_name['Last']
-        pitcher['TEAM'] = normalizer.team_normalizer(row['Team'].decode('utf-8')) if row['Team'] else "FA"
+        pitcher['TEAM'] = (normalizer.team_normalizer(row['Team'].decode('utf-8'))
+                           if row['Team'] else "FA")
         pitcher['POS'] = pos
         pitcher['STATUS'] = status
         pitcher['category'] = "pitcher"
@@ -132,8 +133,3 @@ def parse_pitchers_from_csv(user, user_id, league, csv_string):
         #         pitcher[cat] = str(row[cat])
         pitcher_dict_list.append(pitcher)
     return pitcher_dict_list
-# ['\xef\xbb\xbf"Name"', 'Team', 'W', 'L', 'SV', 'HLD', 'ERA', 'GS', 'G',
-# 'IP', 'H', 'ER', 'HR', 'SO', 'BB', 'WHIP', 'K/9', 'BB/9', 'FIP', 'WAR', 'playerid']
-
-# print parse_batters_from_csv("/Users/colinaardsma/Downloads/FanGraphsLeaderboard.csv")
-# print parse_pitchers_from_csv("/Users/colinaardsma/Downloads/FanGraphs Leaderboard (1).csv")

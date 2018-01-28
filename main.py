@@ -572,11 +572,9 @@ class User(Handler):
         pitching_csv = self.request.POST["pitching_csv"]
         league = caching.cached_get_leagues_by_league_key(self.user.main_league)
         if isinstance(batting_csv, cgi.FieldStorage):
-            batting_csv_string = batting_csv.file.read()
-            team_tools_db.pull_batters(self.user, self.user_id, league, batting_csv_string)
+            team_tools_db.pull_batters(self.user, self.user_id, league, batting_csv)
         if isinstance(pitching_csv, cgi.FieldStorage):
-            pitching_csv_string = pitching_csv.file.read()
-            team_tools_db.pull_pitchers(self.user, self.user_id, league, pitching_csv_string)
+            team_tools_db.pull_pitchers(self.user, self.user_id, league, pitching_csv)
         end = time.time()
         elapsed = end - start
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
