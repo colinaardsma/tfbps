@@ -5,7 +5,11 @@ import datetime
 sys.path.append('/usr/local/google_appengine/')
 sys.path.append('/usr/local/google_appengine/lib/yaml/lib/')
 from google.appengine.ext import db
+import pprint
 import normalizer
+import caching
+import time
+import player_creator
 # sys.path.insert(0, '//Users/colinaardsma/google_appengine')
 #define columns of database objects
 
@@ -59,6 +63,7 @@ class BatterHTML(object):
     def __init__(self, name, team, pos, status, category, atbats=0.0, runs=0.0, hrs=0.0, rbis=0.0,
                  sbs=0.0, avg=0.000, ops=0.000):
         # Descriptive Properties
+        pprint.pprint(name)
         self.name = str(name)
         norm_name = normalizer.name_normalizer(name)
         self.normalized_first_name = str(norm_name['First'])
@@ -148,8 +153,8 @@ class PitcherHTML(object):
         self.is_sp = (False if 'SP' not in str(pos) or int(svs) > 0 or
                       float(wins) / float(ips) < 0.05 else True)
 
-class BatterDB(db.Model):
-    """The Batter Database Model"""
+class BatterProj(db.Model):
+    """The Batter Projection Database Model"""
     # Descriptive Properties
     name = db.StringProperty(required=True)
     normalized_first_name = db.StringProperty()
@@ -195,8 +200,111 @@ class BatterDB(db.Model):
     # FA Status
     isFA = db.BooleanProperty()
 
-class PitcherDB(db.Model):
-    """The Pitcher Database Model"""
+class BatterValue(db.Model):
+    """The Batter Value Database Model"""
+    # Descriptive Properties
+    name = db.StringProperty(required=True)
+    normalized_first_name = db.StringProperty()
+    last_name = db.StringProperty()
+    team = db.StringProperty(required=True)
+    pos = db.StringListProperty(required=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
+    category = db.StringProperty(required=True)
+    league_key = db.StringProperty(required=True)
+    yahooGuid = db.StringProperty(required=True)
+    # Initial zScore Properties
+    zScoreR = db.FloatProperty()
+    zScoreHr = db.FloatProperty()
+    zScoreRbi = db.FloatProperty()
+    zScoreSb = db.FloatProperty()
+    zScoreAvg = db.FloatProperty()
+    zScoreOps = db.FloatProperty()
+    # Weighted (Multiplied by AB) Properties
+    weightedR = db.FloatProperty()
+    weightedHr = db.FloatProperty()
+    weightedRbi = db.FloatProperty()
+    weightedSb = db.FloatProperty()
+    weightedAvg = db.FloatProperty()
+    weightedOps = db.FloatProperty()
+    # Weighted and RezScored Properties
+    weightedZscoreR = db.FloatProperty()
+    weightedZscoreHr = db.FloatProperty()
+    weightedZscoreRbi = db.FloatProperty()
+    weightedZscoreSb = db.FloatProperty()
+    weightedZscoreAvg = db.FloatProperty()
+    weightedZscoreOps = db.FloatProperty()
+    # Values
+    fvaaz = db.FloatProperty()
+    dollarValue = db.FloatProperty()
+    keeper = db.FloatProperty()
+
+def store_batter(batter):
+    batter = BatterProj(name=batter.name, normalized_first_name=batter.normalized_first_name,
+                        last_name=batter.last_name, team=batter.team, pos=batter.pos,
+                        status=batter.status,
+                        category=batter.category, atbats=batter.atbats, runs=batter.runs,
+                        hrs=batter.hrs, rbis=batter.rbis, sbs=batter.sbs, avg=batter.avg,
+                        ops=batter.ops, zScoreR=batter.zScoreR, zScoreHr=batter.zScoreHr,
+                        zScoreRbi=batter.zScoreRbi, zScoreSb=batter.zScoreSb,
+                        zScoreAvg=batter.zScoreAvg, zScoreOps=batter.zScoreOps,
+                        weightedR=batter.weightedR, weightedHr=batter.weightedHr,
+                        weightedRbi=batter.weightedRbi, weightedSb=batter.weightedSb,
+                        weightedAvg=batter.weightedAvg, weightedOps=batter.weightedOps,
+                        weightedZscoreR=batter.weightedZscoreR,
+                        weightedZscoreHr=batter.weightedZscoreHr,
+                        weightedZscoreRbi=batter.weightedZscoreRbi,
+                        weightedZscoreSb=batter.weightedZscoreSb,
+                        weightedZscoreAvg=batter.weightedZscoreAvg,
+                        weightedZscoreOps=batter.weightedZscoreOps, fvaaz=batter.fvaaz,
+                        dollarValue=batter.dollarValue, keeper=batter.keeper, isFA=batter.isFA)
+    return batter
+    # db.put_async(batter)
+
+def store_batter_values(yahooGuid, league, batter_proj_list):
+    batter_value_list = []
+    for batter_proj in batter_proj_list:
+        batter_values = player_creator.calc_batter_z_score(batter_proj_list,
+                                                           league.batters_over_zero_dollars_avg,
+                                                           league.one_dollar_batters_avg,
+                                                           league.b_dollar_per_fvaaz_avg,
+                                                           league.b_player_pool_mult_avg)
+        batter_proj_value = [batter for batter in batter_values
+                             if batter.name == batter_proj.name
+                             and batter.team == batter_proj.team
+                             and batter.pos == batter_proj.pos][0]
+
+        batter_value = BatterValue(name=batter_proj.name,
+                                   normalized_first_name=batter_proj.normalized_first_name,
+                                   last_name=batter_proj.last_name, team=batter_proj.team,
+                                   pos=batter_proj.pos, category=batter_proj.category,
+                                   league_key=league.league_key, yahooGuid=yahooGuid,
+                                   zScoreR=batter_proj_value.zScoreR,
+                                   zScoreHr=batter_proj_value.zScoreHr,
+                                   zScoreRbi=batter_proj_value.zScoreRbi,
+                                   zScoreSb=batter_proj_value.zScoreSb,
+                                   zScoreAvg=batter_proj_value.zScoreAvg,
+                                   zScoreOps=batter_proj_value.zScoreOps,
+                                   weightedR=batter_proj_value.weightedR,
+                                   weightedHr=batter_proj_value.weightedHr,
+                                   weightedRbi=batter_proj_value.weightedRbi,
+                                   weightedSb=batter_proj_value.weightedSb,
+                                   weightedAvg=batter_proj_value.weightedAvg,
+                                   weightedOps=batter_proj_value.weightedOps,
+                                   weightedZscoreR=batter_proj_value.weightedZscoreR,
+                                   weightedZscoreHr=batter_proj_value.weightedZscoreHr,
+                                   weightedZscoreRbi=batter_proj_value.weightedZscoreRbi,
+                                   weightedZscoreSb=batter_proj_value.weightedZscoreSb,
+                                   weightedZscoreAvg=batter_proj_value.weightedZscoreAvg,
+                                   weightedZscoreOps=batter_proj_value.weightedZscoreOps,
+                                   fvaaz=batter_proj_value.fvaaz,
+                                   dollarValue=batter_proj_value.dollarValue,
+                                   keeper=batter_proj_value.keeper)
+        batter_value_list.append(batter_value)
+    db.put(batter_value_list)
+    return batter_value_list
+
+class PitcherProj(db.Model):
+    """The Pitcher Projection Database Model"""
     # Descriptive Properties
     name = db.StringProperty(required=True)
     normalized_first_name = db.StringProperty()
@@ -241,46 +349,116 @@ class PitcherDB(db.Model):
     # FA Status
     isFA = db.BooleanProperty()
 
-def store_batter(batter):
-    batter = BatterDB(name=batter.name, normalized_first_name=batter.normalized_first_name,
-                      last_name=batter.last_name, team=batter.team, pos=batter.pos,
-                      status=batter.status,
-                      category=batter.category, atbats=batter.atbats, runs=batter.runs,
-                      hrs=batter.hrs, rbis=batter.rbis, sbs=batter.sbs, avg=batter.avg,
-                      ops=batter.ops, zScoreR=batter.zScoreR, zScoreHr=batter.zScoreHr,
-                      zScoreRbi=batter.zScoreRbi, zScoreSb=batter.zScoreSb,
-                      zScoreAvg=batter.zScoreAvg, zScoreOps=batter.zScoreOps,
-                      weightedR=batter.weightedR, weightedHr=batter.weightedHr,
-                      weightedRbi=batter.weightedRbi, weightedSb=batter.weightedSb,
-                      weightedAvg=batter.weightedAvg, weightedOps=batter.weightedOps,
-                      weightedZscoreR=batter.weightedZscoreR,
-                      weightedZscoreHr=batter.weightedZscoreHr,
-                      weightedZscoreRbi=batter.weightedZscoreRbi,
-                      weightedZscoreSb=batter.weightedZscoreSb,
-                      weightedZscoreAvg=batter.weightedZscoreAvg,
-                      weightedZscoreOps=batter.weightedZscoreOps, fvaaz=batter.fvaaz,
-                      dollarValue=batter.dollarValue, keeper=batter.keeper, isFA=batter.isFA)
-    return batter
-    # db.put_async(batter)
+class PitcherValue(db.Model):
+    """The Pitcher Value Database Model"""
+    name = db.StringProperty(required=True)
+    normalized_first_name = db.StringProperty()
+    last_name = db.StringProperty()
+    team = db.StringProperty(required=True)
+    pos = db.StringListProperty(required=True)
+    last_modified = db.DateTimeProperty(auto_now=True)
+    category = db.StringProperty(required=True)
+    league_key = db.StringProperty(required=True)
+    yahooGuid = db.StringProperty(required=True)
+    # Initial zScore Properties
+    zScoreW = db.FloatProperty()
+    zScoreSv = db.FloatProperty()
+    zScoreK = db.FloatProperty()
+    zScoreEra = db.FloatProperty()
+    zScoreWhip = db.FloatProperty()
+    # Weighted (Multiplied by IP) Properties
+    weightedW = db.FloatProperty()
+    weightedSv = db.FloatProperty()
+    weightedK = db.FloatProperty()
+    weightedEra = db.FloatProperty()
+    weightedWhip = db.FloatProperty()
+    # Weighted and RezScored Properties
+    weightedZscoreW = db.FloatProperty()
+    weightedZscoreSv = db.FloatProperty()
+    weightedZscoreK = db.FloatProperty()
+    weightedZscoreEra = db.FloatProperty()
+    weightedZscoreWhip = db.FloatProperty()
+    # Values
+    fvaaz = db.FloatProperty()
+    dollarValue = db.FloatProperty()
+    keeper = db.FloatProperty()
+    # FA Status
+    isFA = db.BooleanProperty()
 
 def store_pitcher(pitcher):
-    pitcher = PitcherDB(name=pitcher.name, normalized_first_name=pitcher.normalized_first_name,
-                        last_name=pitcher.last_name, team=pitcher.team, pos=pitcher.pos,
-                        is_sp=pitcher.is_sp, status=pitcher.status,
-                        category=pitcher.category, ips=pitcher.ips,
-                        wins=pitcher.wins, svs=pitcher.svs, sos=pitcher.sos, era=pitcher.era,
-                        whip=pitcher.whip, kip=pitcher.kip, winsip=pitcher.winsip,
-                        zScoreW=pitcher.zScoreW, zScoreSv=pitcher.zScoreSv,
-                        zScoreK=pitcher.zScoreK, zScoreEra=pitcher.zScoreEra,
-                        zScoreWhip=pitcher.zScoreWhip, weightedW=pitcher.weightedW,
-                        weightedSv=pitcher.weightedSv, weightedK=pitcher.weightedK,
-                        weightedEra=pitcher.weightedEra, weightedWhip=pitcher.weightedWhip,
-                        weightedZscoreW=pitcher.weightedZscoreW,
-                        weightedZscoreSv=pitcher.weightedZscoreSv,
-                        weightedZscoreK=pitcher.weightedZscoreK,
-                        weightedZscoreEra=pitcher.weightedZscoreEra,
-                        weightedZscoreWhip=pitcher.weightedZscoreWhip,
-                        fvaaz=pitcher.fvaaz, dollarValue=pitcher.dollarValue, keeper=pitcher.keeper,
-                        isFA=pitcher.isFA)
+    pitcher = PitcherProj(name=pitcher.name, normalized_first_name=pitcher.normalized_first_name,
+                          last_name=pitcher.last_name, team=pitcher.team, pos=pitcher.pos,
+                          is_sp=pitcher.is_sp, status=pitcher.status,
+                          category=pitcher.category, ips=pitcher.ips,
+                          wins=pitcher.wins, svs=pitcher.svs, sos=pitcher.sos, era=pitcher.era,
+                          whip=pitcher.whip, kip=pitcher.kip, winsip=pitcher.winsip,
+                          zScoreW=pitcher.zScoreW, zScoreSv=pitcher.zScoreSv,
+                          zScoreK=pitcher.zScoreK, zScoreEra=pitcher.zScoreEra,
+                          zScoreWhip=pitcher.zScoreWhip, weightedW=pitcher.weightedW,
+                          weightedSv=pitcher.weightedSv, weightedK=pitcher.weightedK,
+                          weightedEra=pitcher.weightedEra, weightedWhip=pitcher.weightedWhip,
+                          weightedZscoreW=pitcher.weightedZscoreW,
+                          weightedZscoreSv=pitcher.weightedZscoreSv,
+                          weightedZscoreK=pitcher.weightedZscoreK,
+                          weightedZscoreEra=pitcher.weightedZscoreEra,
+                          weightedZscoreWhip=pitcher.weightedZscoreWhip,
+                          fvaaz=pitcher.fvaaz, dollarValue=pitcher.dollarValue, keeper=pitcher.keeper,
+                          isFA=pitcher.isFA)
     return pitcher
     # db.put_async(pitcher)
+
+def store_pitcher_values(yahooGuid, league, pitcher_proj_list):
+    pitcher_value_list = []
+    for pitcher_proj in pitcher_proj_list:
+        pitcher_values = player_creator.calc_pitcher_z_score(pitcher_proj_list,
+                                                             league.pitchers_over_zero_dollars_avg,
+                                                             league.one_dollar_pitchers_avg,
+                                                             league.p_dollar_per_fvaaz_avg,
+                                                             league.p_player_pool_mult_avg)
+        pitcher_proj_value = [pitcher for pitcher in pitcher_values
+                              if pitcher.name == pitcher_proj.name
+                              and pitcher.team == pitcher_proj.team
+                              and pitcher.pos == pitcher_proj.pos][0]
+
+        pitcher_value = PitcherValue(name=pitcher_proj.name,
+                                     normalized_first_name=pitcher_proj.normalized_first_name,
+                                     last_name=pitcher_proj.last_name, team=pitcher_proj.team,
+                                     pos=pitcher_proj.pos, category=pitcher_proj.category,
+                                     league_key=league.league_key, yahooGuid=yahooGuid,
+                                     zScoreW=pitcher_proj_value.zScoreW,
+                                     zScoreSv=pitcher_proj_value.zScoreSv,
+                                     zScoreK=pitcher_proj_value.zScoreK,
+                                     zScoreEra=pitcher_proj_value.zScoreEra,
+                                     zScoreWhip=pitcher_proj_value.zScoreWhip,
+                                     weightedW=pitcher_proj_value.weightedW,
+                                     weightedSv=pitcher_proj_value.weightedSv,
+                                     weightedK=pitcher_proj_value.weightedK,
+                                     weightedEra=pitcher_proj_value.weightedEra,
+                                     weightedWhip=pitcher_proj_value.weightedWhip,
+                                     weightedZscoreW=pitcher_proj_value.weightedZscoreW,
+                                     weightedZscoreSv=pitcher_proj_value.weightedZscoreSv,
+                                     weightedZscoreK=pitcher_proj_value.weightedZscoreK,
+                                     weightedZscoreEra=pitcher_proj_value.weightedZscoreEra,
+                                     weightedZscoreWhip=pitcher_proj_value.weightedZscoreWhip,
+                                     fvaaz=pitcher_proj_value.fvaaz,
+                                     dollarValue=pitcher_proj_value.dollarValue,
+                                     keeper=pitcher_proj_value.keeper)
+        pitcher_value_list.append(pitcher_value)
+    db.put(pitcher_value_list)
+    return pitcher_value_list
+
+def update_batter_memcache():
+    caching.cached_get_all_batters(True)
+    time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
+
+def update_pitcher_memcache():
+    caching.cached_get_all_pitchers(True)
+    time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
+
+def put_batters(batter_list):
+    db.put(batter_list)
+    update_batter_memcache()
+
+def put_pitchers(pitcher_list):
+    db.put(pitcher_list)
+    update_pitcher_memcache()

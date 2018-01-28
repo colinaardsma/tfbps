@@ -7,21 +7,21 @@ import db_models
 # Projection Queries
 def get_batters():
     # logging.info("*******************\r\nget_batters QUERY")
-    batter_table = player_models.BatterDB.all().order("-fvaaz") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
+    batter_table = player_models.BatterProj.all().order("-fvaaz") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
     # players = query.fetch()
     batters = list(batter_table)
     return batters
 
 def get_pitchers():
     # logging.info("*******************\r\nget_pitchers QUERY")
-    pitcher_table = player_models.PitcherDB.all().order("-fvaaz") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
+    pitcher_table = player_models.PitcherProj.all().order("-fvaaz") # .all() = "SELECT *"; .order("-sgp") = "ORDER BY sgp DESC"
     # players = query.fetch()
     pitchers = list(pitcher_table)
     return pitchers
 
 def get_single_batter(player_name):
     # logging.info("\r\n*******************\r\nget_single_batter QUERY")
-    batter_query = player_models.BatterDB.all()
+    batter_query = player_models.BatterProj.all()
     batter_query.filter("normalized_first_name =", player_name['First'])
     batter_query.filter("last_name =", player_name['Last'])
     batter_table = batter_query.run()
@@ -30,7 +30,7 @@ def get_single_batter(player_name):
 
 def get_single_pitcher(player_name):
     # logging.info("\r\n*******************\r\nget_single_pitcher QUERY")
-    pitcher_query = player_models.PitcherDB.all()
+    pitcher_query = player_models.PitcherProj.all()
     pitcher_query.filter("normalized_first_name =", player_name['First'])
     pitcher_query.filter("last_name =", player_name['Last'])
     pitcher_table = pitcher_query.run()
@@ -69,3 +69,31 @@ def get_authorization(username):
     user = get_user_by_name(username)
     if user:
         return user.authorization
+
+# League Queries
+def get_all_user_leagues_by_user(user):
+    # logging.info("*******************\r\nget_batters QUERY")
+    user_leagues_table = db_models.User_League.all().filter("user", user)
+    user_leagues = list(user_leagues_table)
+    return user_leagues
+
+def get_leagues_by_user(user):
+    # logging.info("*******************\r\nget_batters QUERY")
+    user_leagues = get_all_user_leagues_by_user(user)
+    league_list = []
+    for user_league in user_leagues:
+        league = db_models.League.all().filter("Key", user_league.league)
+        league_list.append(league)
+    return league_list
+
+def get_all_leagues():
+    # logging.info("*******************\r\nget_batters QUERY")
+    league_table = db_models.League.all()
+    leagues = list(league_table)
+    return leagues
+
+def get_leagues_by_league_key(league_key):
+    # logging.info("*******************\r\nget_batters QUERY")
+    league = db_models.League.all().filter("league_key", league_key)
+    if league:
+        return league.get()

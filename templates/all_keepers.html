@@ -20,7 +20,7 @@
             <th>Fantasy Team</th>
           </tr>
         </thead>
-        {%- for team in keepers %}
+        {%- for team in all_keepers %}
           {%- for player in team.roster %}
             <tr>
               <td>{{'$%0.0f' % player.keeper_cost}}</td>

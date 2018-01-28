@@ -5,46 +5,25 @@ from dbmodels import Users, FPProjB, FPProjP #import classes from python file na
 from google.appengine.api import memcache
 
 # stat retrieval methods
-def get_cached_batter(update=False):
-    key = "batter" # create key
-    sheet = memcache.get(key) # search memcache for data at key, set data to sheet
-    if sheet is None or update: # if nothing in memcache (or if update is called) run gql query and set memcache
-        sheet = gqlqueries.get_fpprojb()
-        memcache.set(key, sheet)
-    return sheet
+def cached_get_all_batters(update=False):
+    key = "allBatters"
+    batters = memcache.get(key)
+    if batters is None or update:
+        batters = queries.get_batters()
+        memcache.set(key, batters)
+    return batters
 
-def get_cached_pitcher(update=False):
-    key = "pitcher" # create key
-    sheet = memcache.get(key) # search memcache for data at key, set data to sheet
-    if sheet is None or update: # if nothing in memcache (or if update is called) run gql query and set memcache
-        sheet = gqlqueries.get_fpprojp()
-        memcache.set(key, sheet)
-    return sheet
-
-
-
-
-
-# stat retrieval methods
-def cached_get_fpprojb(update=False):
-    key = "fpprojb" # create key
-    sheet = memcache.get(key) # search memcache for data at key, set data to sheet
-    if sheet is None or update: # if nothing in memcache (or if update is called) run gql query and set memcache
-        sheet = gqlqueries.get_fpprojb()
-        memcache.set(key, sheet)
-    return sheet
-
-def cached_get_fpprojp(update=False):
-    key = "fpprojp" # create key
-    sheet = memcache.get(key) # search memcache for data at key, set data to sheet
-    if sheet is None or update: # if nothing in memcache (or if update is called) run gql query and set memcache
-        sheet = gqlqueries.get_fpprojp()
-        memcache.set(key, sheet)
-    return sheet
+def cached_get_all_pitchers(update=False):
+    key = "allPitchers"
+    pitchers = memcache.get(key)
+    if pitchers is None or update:
+        pitchers = queries.get_pitchers()
+        memcache.set(key, pitchers)
+    return pitchers
 
 # user methods
 def cached_user_by_name(username, update=False): # get user object
-    key = str(username).lower() + "getUbyN"
+    key = str(username).lower() + "_getUbyN"
     user = memcache.get(key)
     if user is None or update:
         user = queries.get_user_by_name(username)
@@ -52,7 +31,7 @@ def cached_user_by_name(username, update=False): # get user object
     return user
 
 def cached_get_user_by_id(user_id, update=False): # get user object
-    key = str(user_id) + "getUbyUID"
+    key = str(user_id) + "_getUbyUID"
     user = memcache.get(key)
     if user is None or update:
         user = queries.get_user_by_id(user_id)
@@ -60,7 +39,7 @@ def cached_get_user_by_id(user_id, update=False): # get user object
     return user
 
 def cached_check_username(username, update=False): #check username
-    key = str(username).lower() + "checkUsername"
+    key = str(username).lower() + "_checkUsername"
     name = memcache.get(key)
     if name is None or update:
         name = queries.check_username(username)
@@ -76,12 +55,38 @@ def cached_get_users(update=False):
     return users
 
 def cached_get_authorization(username, update=False):
-    key = str(username).lower() + "authorization"
+    key = str(username).lower() + "_authorization"
     auth = memcache.get(key)
     if auth is None or update:
         auth = queries.get_authorization(username)
         memcache.set(key, auth)
     return auth
+
+#league methods
+def cached_get_leagues_by_league_key(league_key, update=False):
+    key = str(league_key) + "_leagueByLeagueKey"
+    league = memcache.get(key)
+    if league is None or update:
+        league = queries.get_leagues_by_league_key(str(league_key))
+        memcache.set(key, league)
+    return league
+
+def cached_get_all_leagues(update=False):
+    key = "allLeagues"
+    leagues = memcache.get(key)
+    if leagues is None or update:
+        leagues = queries.get_all_leagues()
+        memcache.set(key, leagues)
+    return leagues
+
+#user_league methods
+def cached_get_all_user_leagues_by_user(user, update=False):
+    key = user.yahooGuid + "_userLeague"
+    user_league = memcache.get(key)
+    if user_league is None or update:
+        user_league = queries.get_all_user_leagues_by_user(user)
+        memcache.set(key, user_league)
+    return user_league
 
 # post methods
 def cached_posts(limit=None, offset=0, user="", author ="", update=False):

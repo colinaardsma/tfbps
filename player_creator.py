@@ -5,15 +5,16 @@ import player_models
 import html_parser
 import z_score_calc
 import csv_parser
+import pprint
 
 def create_full_batter_html(url):
     """Create batters using html"""
     raw_batter_list = html_parser.fantasy_pro_players(url)
     return create_full_batter(raw_batter_list)
 
-def create_full_batter_csv(csv):
+def create_full_batter_csv(user, user_id, league, csv):
     """Create batters using csv"""
-    raw_batter_list = csv_parser.parse_batters_from_csv(csv)
+    raw_batter_list = csv_parser.parse_batters_from_csv(user, user_id, league, csv)
     return create_full_batter(raw_batter_list)
 
 def create_full_batter(raw_batter_list):
@@ -23,11 +24,13 @@ def create_full_batter(raw_batter_list):
         if ((raw_batter.get("AB") is not None and float(raw_batter.get("AB")) == 0.0) or
                 (raw_batter.get("OPS") is not None and float(raw_batter.get("OPS")) == 0.000) or
                 (raw_batter.get("AVG") is not None and float(raw_batter.get("AVG")) == 0.000) or
-                raw_batter.get("NAME") is None):
+                raw_batter.get("NAME") is None or float(raw_batter.get("G")) <= 0.0):
+            continue
+        elif not raw_batter["POS"]:
             continue
         elif (float(raw_batter["AVG"]) == 0.000 or float(raw_batter["OPS"]) == 0.000 or
               (int(raw_batter["R"]) == 0 and int(raw_batter["HR"]) == 0 and
-               int(raw_batter["RBI"]) == 0) or not raw_batter["POS"]):
+               int(raw_batter["RBI"]) == 0)):# or not raw_batter["POS"]):
             continue
         else:
             if raw_batter.get("STATUS") and ("DL" in raw_batter.get("STATUS") or
@@ -167,22 +170,26 @@ def create_full_pitcher_html(url):
     raw_pitcher_list = html_parser.fantasy_pro_players(url)
     return create_full_pitcher(raw_pitcher_list)
 
-def create_full_pitcher_csv(csv):
+def create_full_pitcher_csv(user, user_id, league, csv):
     """Create pitchers using csv"""
-    raw_pitcher_list = csv_parser.parse_pitchers_from_csv(csv)
+    raw_pitcher_list = csv_parser.parse_pitchers_from_csv(user, user_id, league, csv)
     return create_full_pitcher(raw_pitcher_list)
 
 def create_full_pitcher(raw_pitcher_list):
     """Create pitchers"""
     pitcher_model_list = []
+    max_ip = 0.0
     for raw_pitcher in raw_pitcher_list:
-        if (raw_pitcher.get("IP") is None or float(raw_pitcher.get("IP")) <= 0.0 or
+        if raw_pitcher.get("IP") > max_ip:
+            max_ip = raw_pitcher.get("IP")
+    for raw_pitcher in raw_pitcher_list:
+        if (raw_pitcher.get("IP") is None or float(raw_pitcher.get("IP")) <= (max_ip * 0.05) or
                 raw_pitcher.get("W") is None or float(raw_pitcher.get("W")) < 0.0 or
                 raw_pitcher.get("SV") is None or float(raw_pitcher.get("SV")) < 0.0 or
                 raw_pitcher.get("K") is None or float(raw_pitcher.get("K")) < 0.0 or
                 raw_pitcher.get("ERA") is None or float(raw_pitcher.get("ERA")) <= 0.0 or
                 raw_pitcher.get("WHIP") is None or float(raw_pitcher.get("WHIP")) <= 0.0 or
-                raw_pitcher.get("NAME") is None):
+                raw_pitcher.get("NAME") is None or float(raw_pitcher.get("G")) <= 0.0):
             continue
         elif not raw_pitcher["POS"]:
             continue
@@ -221,7 +228,6 @@ def calc_pitcher_z_score(pitcher_list, players_over_zero_dollars, one_dollar_pla
     era_list = []
     whip_list = []
     # weighted_pitcher_list = []
-    print pitcher_list
     for pitcher in pitcher_list:
         if (pitcher.wins < 0 or pitcher.svs < 0 or pitcher.sos < 0 or
                 pitcher.era < 0 or pitcher.whip < 0):

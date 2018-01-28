@@ -6,6 +6,11 @@
     <br/>
 </div>
 <div>
+    <a href="\get_leagues">Get Yahoo! Leagues</a>
+    <br/>
+</div>
+{%- if user.authorization == "admin" %}
+<div>
     <h2>Update Database Player Projections</h2>
     <td>
     <form method="post" enctype="multipart/form-data">
@@ -21,4 +26,5 @@
     </td>
     <br/>    
 </div>
+{%- endif %}
 {%- endblock -%}

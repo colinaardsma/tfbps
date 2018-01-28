@@ -20,6 +20,8 @@ import queries
 import yql_queries
 import cgi
 import pprint
+import sgp_calc
+import heapq
 
 # setup jinja2
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__),
@@ -150,7 +152,7 @@ class TeamToolsHTML(Handler):
             import team_tools_html
             top_fa = team_tools_html.fa_finder(league_no, team_name)
             team_name = top_fa['Team Name']
-            print top_fa
+            # print top_fa
         else:
             top_fa = None
         # single player lookup
@@ -278,7 +280,6 @@ class TeamToolsDB(Handler):
             import team_tools_db
             proj_keepers = team_tools_db.get_projected_keepers(proj_keepers_key, self.user,
                                                                self.user_id, redirect)
-
 
         self.render("team_tools_db.html", top_fa=top_fa, single_player=single_player,
                     projected_standings=projected_standings, team_name=team_name, elapsed=elapsed,
@@ -519,9 +520,13 @@ class TestPage(Handler):
         # print transactions
         # keepers = yql_queries.get_keepers(league_key, self.user, self.user_id, redirect)
         # pprint.pprint(keepers)
-        import team_tools_db
-        proj_keepers = team_tools_db.get_projected_keepers(league_key, self.user, self.user_id, redirect)
-        pprint.pprint(proj_keepers)
+        # import team_tools_db
+        # proj_keepers = team_tools_db.get_projected_keepers(league_key, self.user, self.user_id, redirect)
+        # pprint.pprint(proj_keepers)
+        settings = yql_queries.get_league_settings(league_key, self.user, self.user_id, redirect)
+        pprint.pprint(settings)
+        # leagues = yql_queries.get_leagues(self.user, self.user_id, redirect)
+        # pprint.pprint(leagues)
 
         # for league in league_list:
 
@@ -553,7 +558,8 @@ class TestPage(Handler):
 
 class User(Handler):
     def render_user(self, elapsed=None, link_yahoo=None):
-        self.render("user.html", username=self.username, link_yahoo=link_yahoo, elapsed=elapsed)
+        self.render("user.html", username=self.username, user=self.user,
+                    link_yahoo=link_yahoo, elapsed=elapsed)
 
     def get(self):
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
@@ -564,12 +570,13 @@ class User(Handler):
         import team_tools_db
         batting_csv = self.request.POST["batting_csv"]
         pitching_csv = self.request.POST["pitching_csv"]
+        league = caching.cached_get_leagues_by_league_key(self.user.main_league)
         if isinstance(batting_csv, cgi.FieldStorage):
             batting_csv_string = batting_csv.file.read()
-            team_tools_db.pull_batters(batting_csv_string)
+            team_tools_db.pull_batters(self.user, self.user_id, league, batting_csv_string)
         if isinstance(pitching_csv, cgi.FieldStorage):
             pitching_csv_string = pitching_csv.file.read()
-            team_tools_db.pull_pitchers(pitching_csv_string)
+            team_tools_db.pull_pitchers(self.user, self.user_id, league, pitching_csv_string)
         end = time.time()
         elapsed = end - start
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
@@ -595,7 +602,13 @@ class GetToken(Handler):
         db_models.update_user(self.user, self.user_id, yahooGuid=yahoo_guid,
                               access_token=access_token, refresh_token=refresh_token,
                               token_expiration=token_expiration)
-        self.redirect("/user")
+        redirect = "/user"
+
+        self.user = self.user_id and caching.cached_get_user_by_id(self.user_id)
+        self.auth = self.user and caching.cached_get_authorization(self.user.username)
+
+        get_leagues(self.user, self.user_id, redirect)
+        self.redirect(redirect)
 
     def get(self):
         code = self.request.get("code")
@@ -604,6 +617,93 @@ class GetToken(Handler):
 class RefreshToken(Handler):
     def get(self):
         api_connector.check_token_expiration(self.user, self.user_id, "/user")
+
+class GetLeagues(Handler):
+    def get(self):
+        get_leagues(self.user, self.user_id, "/user")
+        self.redirect("/user")
+
+def get_leagues(user, user_id, redirect):
+    leagues = yql_queries.get_leagues(user, user_id, redirect)
+    db_leagues = caching.cached_get_all_leagues()
+    user_leagues = caching.cached_get_all_user_leagues_by_user(user)
+    batters = caching.cached_get_all_batters()
+    batter_fvaaz_list = []
+    for batter in batters:
+        batter_fvaaz_list.append(batter.fvaaz)
+    pitchers = caching.cached_get_all_batters()
+    pitcher_fvaaz_list = []
+    for pitcher in pitchers:
+        pitcher_fvaaz_list.append(pitcher.fvaaz)
+    main_league = None
+    for league in leagues:
+        db_league = [db_lg for db_lg in db_leagues if db_lg.league_key == league['league_key']]
+        if not db_league:
+            settings = yql_queries.get_league_settings(league['league_key'], user,
+                                                       user_id, redirect)
+            standings = yql_queries.get_league_standings(league['league_key'], user,
+                                                         user_id, redirect)
+            results = yql_queries.get_auction_results(league['league_key'], user,
+                                                      user_id, redirect)
+            sgp = sgp_calc.get_sgp(standings)
+            avg_sgp = 0.00
+            ops_sgp = 0.00
+            drafted_batters_over_one_dollar = (results['total_batters_drafted']
+                                               - results['one_dollar_batters'])
+            drafted_pitchers_over_one_dollar = (results['total_pitchers_drafted']
+                                                - results['one_dollar_pitchers'])
+
+            batter_fvaaz_over_one_dollar = heapq.nlargest(drafted_batters_over_one_dollar,
+                                                          batter_fvaaz_list)
+            pitcher_fvaaz_over_one_dollar = heapq.nlargest(drafted_pitchers_over_one_dollar,
+                                                           pitcher_fvaaz_list)
+            total_batter_fvaaz_over_one_dollar = sum(batter_fvaaz_over_one_dollar)
+            total_pitcher_fvaaz_over_one_dollar = sum(pitcher_fvaaz_over_one_dollar)
+
+            batter_budget_over_one_dollar = (results['money_spent_on_batters']
+                                             - results['one_dollar_batters'])
+            pitcher_budget_over_one_dollar = (results['money_spent_on_pitchers']
+                                              - results['one_dollar_pitchers'])
+
+            batter_dollar_per_fvaaz = (batter_budget_over_one_dollar
+                                       / total_batter_fvaaz_over_one_dollar)
+            pitcher_dollar_per_fvaaz = (pitcher_budget_over_one_dollar
+                                        / total_pitcher_fvaaz_over_one_dollar)
+
+            b_player_pool_mult = 2.375
+            p_player_pool_mult = 4.45
+
+            if 'AVG' in sgp:
+                avg_sgp = sgp['AVG']
+            if 'OPS' in sgp:
+                ops_sgp = sgp['OPS']
+            db_models.store_league(settings['Name'], settings['League Key'],
+                                   settings['Max Teams'], settings['Max Innings Pitched'],
+                                   settings['Batting POS'], settings['Pitching POS'],
+                                   settings['Bench POS'], settings['DL POS'],
+                                   settings['NA POS'], settings['Prev Year Key'],
+                                   settings['Season'], sgp['R'], sgp['HR'], sgp['RBI'],
+                                   sgp['SB'], ops_sgp, avg_sgp, sgp['W'], sgp['SV'],
+                                   sgp['K'], sgp['ERA'], sgp['WHIP'],
+                                   results['total_batters_drafted'],
+                                   results['total_pitchers_drafted'],
+                                   results['one_dollar_batters'],
+                                   results['one_dollar_pitchers'], results['total_money_spent'],
+                                   results['money_spent_on_batters'],
+                                   results['money_spent_on_pitchers'], results['batter_budget_pct'],
+                                   results['pitcher_budget_pct'],
+                                   batter_dollar_per_fvaaz, pitcher_dollar_per_fvaaz,
+                                   b_player_pool_mult, p_player_pool_mult)
+            new_league = db_models.calc_three_year_avgs(settings['League Key'])
+            db_models.store_user_league(user, new_league)
+        else:
+            db_user_league = [usr_lg for usr_lg in user_leagues
+                              if usr_lg.league_key == db_lg.league_key
+                              for db_lg in db_leagues]
+            if not db_user_league:
+                db_models.store_user_league(user, db_league[0])
+        main_league = league
+    db_models.update_user(user, user_id, main_league=main_league['league_key'])
 
 # routing
 app = webapp2.WSGIApplication([
@@ -625,6 +725,7 @@ app = webapp2.WSGIApplication([
     ('/code_auth/?', CodeAuth),
     ('/get_token/?', GetToken),
     ('/refresh_token/?', RefreshToken),
+    ('/get_leagues/?', GetLeagues),
 
     # projections
     ('/batting_projections/?', BattingProjections),

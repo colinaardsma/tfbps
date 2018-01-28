@@ -235,7 +235,7 @@ def pitching_roster_optimizer(team_dict, ros_projection_list, league_pos_dict, c
     team_player_list = []
     current_ip = 0
     starter_ip = 0
-    max_ip = int(league_settings['Max Innings Pitched:'])
+    max_ip = int(league_settings['Max Innings Pitched'])
     for standing in current_stangings:
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
             current_ip += int(math.ceil(float(standing['StatsIP'])))
@@ -344,7 +344,7 @@ def bench_roster_optimizer(team_dict, ros_batter_projection_list, ros_pitcher_pr
     bench_players['batters'] = []
     current_ip = 0
     bench_ip = 0
-    max_ip = int(league_settings['Max Innings Pitched:'])
+    max_ip = int(league_settings['Max Innings Pitched'])
     for standing in current_stangings:
         if standing['PointsTeam'] == team_dict['TEAM_NAME']:
             current_ip += int(math.ceil(float(standing['StatsIP'])))

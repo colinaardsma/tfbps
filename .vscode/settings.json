@@ -6,6 +6,7 @@
     "/Users/colinaardsma/google_appengine/google/appengine/ext",
     "/Users/colinaardsma/google_appengine/lib/webapp2-2.5.2",
     "/Users/colinaardsma/google_appengine/lib/jinja2-2.6"
-]
+],
+"python.pythonPath": "/usr/local/bin/python2"
 // ,"python.pythonPath": "c:/python27/python.exe"
 }

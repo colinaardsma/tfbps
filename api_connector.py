@@ -13,7 +13,6 @@ import db_models
 import main
 import time
 import httplib
-import requests
 # https://developer.yahoo.com/oauth2/guide/flows_authcode/
 
 """TESTING"""
@@ -107,7 +106,7 @@ def get_xml_data(url, access_token):
         try:
             content = urllib2.urlopen(request)
             raw_xml = content.read()
-        except httplib.HTTPException, error:
+        except httplib.HTTPException as error:
             print error
             continue
         break

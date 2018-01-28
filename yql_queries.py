@@ -3,6 +3,7 @@ import pprint
 import datetime
 import api_connector
 import normalizer
+from operator import itemgetter
 
 def get_guid(access_token):
     url = "https://social.yahooapis.com/v1/me/guid"
@@ -15,7 +16,7 @@ def get_prev_year_league(current_league_dict):
         fantasy_content = fantasy_content['users']['0']['user'][1]['games']['0']['game'][1]
     prev_year_id = fantasy_content['leagues']['0']['league'][0]['renew']
     prev_year_id = prev_year_id.replace("_", ".l.")
-    return prev_year_id 
+    return prev_year_id
 
 def get_league_query(league_key, user, user_id, redirect, endpoint):
     updated_user = api_connector.check_token_expiration(user, user_id, redirect)
@@ -59,11 +60,11 @@ def get_league_players(league_key, user, user_id, redirect, player_type):
     return players_dict
     # return format_players_dict(players_dict)
 
-def get_user_query(user, user_id, redirect, endpoint):
+def get_user_query(user, user_id, redirect, endpoint, game_id = "mlb"):
     updated_user = api_connector.check_token_expiration(user, user_id, redirect)
     if updated_user:
         user = updated_user
-    query_path = "/users;use_login=1/games;game_keys=mlb" + endpoint
+    query_path = "/users;use_login=1/games;game_keys=" + str(game_id) + endpoint
     user_base_json = api_connector.yql_query(query_path, user.access_token)
     user_base_dict = json.loads(user_base_json)
     return user_base_dict
@@ -74,7 +75,14 @@ def get_leagues(user, user_id, redirect):
         user = updated_user
     current_year_dict = get_user_query(user, user_id, redirect, "/leagues")
     current_year_league_list = []
-    current_year_league_base = current_year_dict['fantasy_content']['users']['0']['user'][1]['games']['0']['game'][1]['leagues']
+    current_year_league_base = (current_year_dict['fantasy_content']['users']['0']
+                                ['user'][1]['games']['0']['game'][1]['leagues'])
+    if not current_year_league_base:
+        current_year = datetime.datetime.now().year
+        prev_year_game_id = GAME_ID_DICT[current_year - 1]
+        current_year_dict = get_user_query(user, user_id, redirect, "/leagues", prev_year_game_id)
+        current_year_league_base = (current_year_dict['fantasy_content']['users']['0']
+                                    ['user'][1]['games']['0']['game'][1]['leagues'])
     current_year_league_count = current_year_league_base['count']
     for i in range(current_year_league_count):
         league_dict = current_year_league_base['{}'.format(i)]['league'][0]
@@ -95,10 +103,12 @@ def get_leagues(user, user_id, redirect):
 
         one_year_prior_league_dict = {}
         one_year_prior_league_key = current_year_league_dict['prev_year']
-        one_year_prior_dict_base = get_league_query(one_year_prior_league_key, user, user_id, redirect, "")
-        one_year_prior_dict = one_year_prior_dict_base['fantasy_content']['leagues']['0']['league'][0]
+        one_year_prior_dict_base = get_league_query(one_year_prior_league_key,
+                                                    user, user_id, redirect, "")
+        one_year_prior_dict = (one_year_prior_dict_base['fantasy_content']['leagues']['0']
+                               ['league'][0])
         one_year_prior_league_dict['league_key'] = one_year_prior_league_key
-        one_year_prior_league_dict['season'] = one_year_prior_dict['season']        
+        one_year_prior_league_dict['season'] = one_year_prior_dict['season']
         one_year_prior_league_dict['name'] = one_year_prior_dict['name']
         if one_year_prior_dict['renew'] == '':
             one_year_prior_league_dict['prev_year'] = None
@@ -109,10 +119,12 @@ def get_leagues(user, user_id, redirect):
 
         two_years_prior_league_dict = {}
         two_years_prior_league_key = one_year_prior_league_dict['prev_year']
-        two_years_prior_dict_base = get_league_query(two_years_prior_league_key, user, user_id, redirect, "")
-        two_years_prior_dict = two_years_prior_dict_base['fantasy_content']['leagues']['0']['league'][0]
+        two_years_prior_dict_base = get_league_query(two_years_prior_league_key, user,
+                                                     user_id, redirect, "")
+        two_years_prior_dict = (two_years_prior_dict_base['fantasy_content']['leagues']['0']
+                                ['league'][0])
         two_years_prior_league_dict['league_key'] = two_years_prior_league_key
-        two_years_prior_league_dict['season'] = two_years_prior_dict['season']        
+        two_years_prior_league_dict['season'] = two_years_prior_dict['season']
         two_years_prior_league_dict['name'] = two_years_prior_dict['name']
         if two_years_prior_dict['renew'] == '':
             two_years_prior_league_dict['prev_year'] = None
@@ -120,7 +132,8 @@ def get_leagues(user, user_id, redirect):
             continue
         two_years_prior_league_dict['prev_year'] = two_years_prior_dict['renew'].replace("_", ".l.")
         league_history_list.append(two_years_prior_league_dict)
-    return league_history_list
+    sorted_league_history_list = sorted(league_history_list, key=itemgetter('season'), reverse=False)
+    return sorted_league_history_list
 
 def get_current_leagues(league_list):
     season = datetime.datetime.now().year
@@ -142,17 +155,29 @@ def format_league_standings_dict(league_standings_base_dict):
         standing = {}
         standing['PointsTeam'] = [x['name'] for x in team_info_dict if 'name' in x][0]
         standing['StatsTeam'] = standing['PointsTeam']
+        standing['Stats'] = {}
+        stats = {}
 
         team_stats_dict = team_standing_dict[1]['team_stats']['stats']
         for stat in team_stats_dict:
             stat_name = STAT_ID_DICT['{}'.format(stat['stat']['stat_id'])]
-            standing['Stats{}'.format(stat_name)] = float(stat['stat']['value']) if stat['stat']['value'] != "" else stat['stat']['value']
+            stat_value = float(stat['stat']['value']) if stat['stat']['value'] != "" else stat['stat']['value']
+            standing['Stats{}'.format(stat_name)] = stat_value
+            if stat_name == '':
+                continue
+            stats['{}'.format(stat_name)] = {}
+            stats['{}'.format(stat_name)]['Stat_Value'] = stat_value
 
         team_points_dict = team_standing_dict[1]['team_points']['stats']
         for point in team_points_dict:
             stat_name = STAT_ID_DICT['{}'.format(point['stat']['stat_id'])]
-            standing['Points{}'.format(stat_name)] = float(point['stat']['value']) if point['stat']['value'] != "" else point['stat']['value']
+            point_value = float(point['stat']['value']) if point['stat']['value'] != "" else point['stat']['value']
+            standing['Points{}'.format(stat_name)] = point_value
+            if stat_name == '':
+                continue
+            stats['{}'.format(stat_name)]['Point_Value'] = point_value
 
+        standing['Stats'] = stats
         standing['PointsRank'] = int(team_standing_dict[2]['team_standings']['rank'])
         standing['StatsRank'] = standing['PointsRank']
 
@@ -190,8 +215,18 @@ def format_league_settings_dict(league_settings_base_dict):
     formatted_settings['Roster Positions']['DL POS'] = dl_list
     formatted_settings['Roster Positions']['Batting POS'] = batting_list
     formatted_settings['Roster Positions']['NA POS'] = na_list
+    formatted_settings['Pitching POS'] = pitching_list
+    formatted_settings['Bench POS'] = bench_list
+    formatted_settings['DL POS'] = dl_list
+    formatted_settings['Batting POS'] = batting_list
+    formatted_settings['NA POS'] = na_list
     formatted_settings['Max Teams'] = league_settings_base_dict[0]['num_teams']
-    formatted_settings['Max Innings Pitched:'] = league_settings_base_dict[1]['settings'][1]['max_innings_pitched']
+    formatted_settings['Season'] = int(league_settings_base_dict[0]['season'])
+    formatted_settings['Name'] = league_settings_base_dict[0]['name']
+    formatted_settings['League Key'] = league_settings_base_dict[0]['league_key']
+    formatted_settings['Prev Year Key'] = league_settings_base_dict[0]['renew'].replace("_", ".l.")
+    formatted_settings['Max Innings Pitched'] = int(league_settings_base_dict[1]
+                                                    ['settings'][1]['max_innings_pitched'])
     return formatted_settings
 
 def get_team_query(league_key, user, user_id, redirect, endpoint):
@@ -206,7 +241,8 @@ def get_all_team_rosters(league_key, user, user_id, redirect):
 
 def get_single_team_roster(league_key, user, user_id, redirect):
     query_dict = get_user_query(user, user_id, redirect, "/teams/roster")
-    rosters_dict = query_dict['fantasy_content']['users']['0']['user'][1]['games']['0']['game'][1]['teams']
+    rosters_dict = (query_dict['fantasy_content']['users']['0']['user'][1]
+                    ['games']['0']['game'][1]['teams'])
     user_team_list = format_single_team_rosters_dict(rosters_dict)
     for team in user_team_list:
         if league_key in team['TEAM_KEY']:
@@ -226,9 +262,9 @@ def format_single_team_rosters_dict(team_rosters_base_dict):
         team_dict['TEAM_KEY'] = team_rosters_dict[0][0]['team_key']
         roster = []
         roster_count = team_rosters_dict[2]['roster']['0']['players']['count']
-        for i in range(roster_count):
+        for j in range(roster_count):
             player_dict = {}
-            for info in team_rosters_dict[2]['roster']['0']['players']['{}'.format(i)]['player'][0]:
+            for info in team_rosters_dict[2]['roster']['0']['players']['{}'.format(j)]['player'][0]:
                 if 'name' in info:
                     first_name = info['name']['ascii_first']
                     last_name = info['name']['ascii_last']
@@ -257,9 +293,9 @@ def format_all_team_rosters_dict(team_rosters_base_dict):
         team_dict['TEAM_NUMBER'] = team_rosters_dict[0][1]['team_id']
         roster = []
         roster_count = team_rosters_dict[1]['roster']['0']['players']['count']
-        for i in range(roster_count):
+        for j in range(roster_count):
             player_dict = {}
-            for info in team_rosters_dict[1]['roster']['0']['players']['{}'.format(i)]['player'][0]:
+            for info in team_rosters_dict[1]['roster']['0']['players']['{}'.format(j)]['player'][0]:
                 if 'name' in info:
                     first_name = info['name']['ascii_first']
                     last_name = info['name']['ascii_last']
@@ -285,21 +321,35 @@ def get_teams(user, user_id, redirect):
     teams_dict = json.loads(teams_query_json)
     return teams_dict
 
-def get_fa_players(league_key, user, user_id, redirect, pOrB):
+def get_players(league_key, user, user_id, redirect, total_players, pOrB, player_list_type):
     formatted_fas = []
     count = 25
-    total_players = 300
+    total_players = total_players
     for i in range(0, total_players, count):
-        player_type = "FA;sort=AR;position=" + pOrB + ";count=" + str(count) + ";start=" + str(i)
+        player_type = player_list_type + ";sort=AR;position=" + pOrB + ";count=" + str(count) + ";start=" + str(i)
         fa_dict = get_league_players(league_key, user, user_id, redirect, player_type)
-        for i in range(count):
-            player = fa_dict[1]['players']['{}'.format(i)]['player'][0]
+        for j in range(count):
+            player = fa_dict[1]['players']['{}'.format(j)]['player'][0]
             player_name = player[2]['name']['ascii_first'] + " " + player[2]['name']['ascii_last']
             player_dict = {}
             norm_name = normalizer.name_normalizer(player_name)
             player_dict['NAME'] = player_name
             player_dict["NORMALIZED_FIRST_NAME"] = norm_name['First']
             player_dict["LAST_NAME"] = norm_name['Last']
+            if 'status_full' in player[3]:
+                player_dict['STATUS'] = player[3]['status_full']
+            else:
+                player_dict['STATUS'] = ''
+            positions = []
+            if 'eligible_positions' in player[12]:
+                for pos in player[12]['eligible_positions']:
+                    positions.append(pos['position'])
+            elif 'eligible_positions' in player[13]:
+                for pos in player[13]['eligible_positions']:
+                    positions.append(pos['position'])
+            else:
+                positions.append('')
+            player_dict["POS"] = positions
             team = ""
             for info in player:
                 if 'editorial_team_abbr' in info:
@@ -309,30 +359,48 @@ def get_fa_players(league_key, user, user_id, redirect, pOrB):
     return formatted_fas
 
 def get_auction_results(league_key, user, user_id, redirect):
-    auction_results = []
-    auction_query_results_dict = get_league_query(league_key, user, user_id, redirect, '/draftresults')
-    auction_results_dict = auction_query_results_dict['fantasy_content']['leagues']['0']['league'][1]['draft_results']
+    auction_results = {}
+    auction_results['results'] = []
+
+    total_money_spent = 0
+    money_spent_on_batters = 0
+    money_spent_on_pitchers = 0
+    batter_budget_pct = 0.0
+    pitcher_budget_pct = 0.0
+    total_batters_drafted = 0
+    total_pitchers_drafted = 0
+    one_dollar_batters = 0
+    one_dollar_pitchers = 0
+
+    auction_results['results'] = []
+    auction_query_results_dict = get_league_query(league_key, user, user_id,
+                                                  redirect, '/draftresults')
+    auction_results_dict = (auction_query_results_dict['fantasy_content']
+                            ['leagues']['0']['league'][1]['draft_results'])
     auction_count = auction_results_dict['count']
     all_player_keys = []
     for i in range(auction_count):
         result = auction_results_dict['{}'.format(i)]['draft_result']
         auction_result = {}
-        auction_result['cost'] = result['cost']
+        auction_result['cost'] = int(result['cost'])
+        total_money_spent += int(result['cost'])
         auction_result['player_key'] = result['player_key']
         auction_result['team_key'] = result['team_key']
         all_player_keys.append(result['player_key'])
-        auction_results.append(auction_result)
+        auction_results['results'].append(auction_result)
     max_list_values = 25
     query_player_keys = []
     player_query_results_dict_list = []
     for i, player_key in enumerate(all_player_keys):
         if i != 0 and i % 25 == 0:
-            player_query_results_dict_list.append(get_player_query(query_player_keys, user, user_id, redirect, ''))
+            player_query_results_dict_list.append(get_player_query(query_player_keys,
+                                                                   user, user_id, redirect, ''))
             max_list_values = i + 25
             query_player_keys[:] = []
         if i < max_list_values:
             query_player_keys.append(player_key)
-    player_query_results_dict_list.append(get_player_query(query_player_keys, user, user_id, redirect, ''))
+    player_query_results_dict_list.append(get_player_query(query_player_keys, user,
+                                                           user_id, redirect, ''))
     player_data = []
     for results_dict in player_query_results_dict_list:
         data_dict = results_dict['fantasy_content']['players']
@@ -351,14 +419,20 @@ def get_auction_results(league_key, user, user_id, redirect):
                 player['team'] = result[7]['editorial_team_abbr']
             else:
                 player['team'] = 'FA'
+            is_pitcher = True
             if 'position_type' in result[11]:
                 if result[11]['position_type'] == 'B':
                     player['category'] = 'batter'
+                    is_pitcher = False
+                    total_batters_drafted += 1
             elif 'position_type' in result[12]:
                 if result[12]['position_type'] == 'B':
                     player['category'] = 'batter'
-            else:
+                    is_pitcher = False
+                    total_batters_drafted += 1
+            if is_pitcher:
                 player['category'] = 'pitcher'
+                total_pitchers_drafted += 1
             positions = []
             if 'eligible_positions' in result[12]:
                 for pos in result[12]['eligible_positions']:
@@ -370,11 +444,32 @@ def get_auction_results(league_key, user, user_id, redirect):
                 positions.append('')
             player['pos'] = positions
             player_data.append(player)
-    for i, auction_result in enumerate(auction_results):
+    for i, auction_result in enumerate(auction_results['results']):
         auction_result['first_name'] = player_data[i]['first_name']
         auction_result['last_name'] = player_data[i]['last_name']
         auction_result['status'] = player_data[i]['status']
         auction_result['pos'] = player_data[i]['pos']
+        if player_data[i]['category'] == 'batter':
+            money_spent_on_batters += auction_result['cost']
+            if auction_result['cost'] == 1:
+                one_dollar_batters += 1
+        if player_data[i]['category'] == 'pitcher':
+            money_spent_on_pitchers += auction_result['cost']
+            if auction_result['cost'] == 1:
+                one_dollar_pitchers += 1
+    batter_budget_pct = float(money_spent_on_batters) / float(total_money_spent)
+    pitcher_budget_pct = float(money_spent_on_pitchers) / float(total_money_spent)
+
+    auction_results['total_batters_drafted'] = total_batters_drafted
+    auction_results['total_pitchers_drafted'] = total_pitchers_drafted
+    auction_results['total_money_spent'] = total_money_spent
+    auction_results['money_spent_on_batters'] = money_spent_on_batters
+    auction_results['money_spent_on_pitchers'] = money_spent_on_pitchers
+    auction_results['batter_budget_pct'] = batter_budget_pct
+    auction_results['pitcher_budget_pct'] = pitcher_budget_pct
+    auction_results['one_dollar_batters'] = one_dollar_batters
+    auction_results['one_dollar_pitchers'] = one_dollar_pitchers
+
     return auction_results
 
 # http://fantasysports.yahooapis.com/fantasy/v2/leagues;league_keys=370.l.5091/teams/roster;date=2017-11-28
@@ -384,7 +479,8 @@ def get_current_rosters(league_key, user, user_id, redirect):
     date = '{year}-{month}-{day}'.format(year=now.year, month=now.month, day=now.day)
     endpoint = '/teams/roster;date={date}'.format(date=date)
     roster_query_results_dict = get_league_query(league_key, user, user_id, redirect, endpoint)
-    current_rosters_dict = roster_query_results_dict['fantasy_content']['leagues']['0']['league'][1]['teams']
+    current_rosters_dict = (roster_query_results_dict['fantasy_content']['leagues']['0']
+                            ['league'][1]['teams'])
     team_count = current_rosters_dict['count']
     for i in range(team_count):
         team = {}
@@ -524,7 +620,7 @@ def get_keepers(league_key, user, user_id, redirect):
                 if transaction_found:
                     continue
             if not transaction_found:
-                player['keeper_cost'] += [int(result['cost']) for result in auction_results
+                player['keeper_cost'] += [int(result['cost']) for result in auction_results['results']
                                           if result['player_key'] == player['player_key']][0]
                 player['keeper_found'] = True
     return current_rosters
@@ -543,3 +639,18 @@ STAT_ID_DICT = {'1': 'TotalGP',
                 '42': 'K',
                 '26': 'ERA',
                 '27': 'WHIP'}
+
+GAME_ID_DICT = {2018: 'mlb',
+                2017: 370,
+                2016: 357,
+                2015: 346,
+                2014: 328,
+                2013: 308,
+                2012: 268,
+                2011: 253,
+                2010: 238,
+                2009: 215,
+                2008: 195,
+                2007: 171,
+                2006: 147,
+                2005: 113}
