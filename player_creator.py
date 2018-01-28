@@ -6,6 +6,9 @@ import html_parser
 import z_score_calc
 import csv_parser
 import pprint
+from google.appengine.api import urlfetch
+
+urlfetch.set_default_fetch_deadline(60)
 
 def create_full_batter_html(url):
     """Create batters using html"""
