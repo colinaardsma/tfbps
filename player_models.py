@@ -63,7 +63,6 @@ class BatterHTML(object):
     def __init__(self, name, team, pos, status, category, atbats=0.0, runs=0.0, hrs=0.0, rbis=0.0,
                  sbs=0.0, avg=0.000, ops=0.000):
         # Descriptive Properties
-        pprint.pprint(name)
         self.name = str(name)
         norm_name = normalizer.name_normalizer(name)
         self.normalized_first_name = str(norm_name['First'])
