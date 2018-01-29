@@ -456,17 +456,18 @@ def store_pitcher_values(yahooGuid, league, pitcher_proj_list):
 
 def update_batter_memcache():
     caching.cached_get_all_batters(True)
-    time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
+    time.sleep(.5) # wait .5 seconds while post is entered into memcache
 
 def update_pitcher_memcache():
     caching.cached_get_all_pitchers(True)
-    time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
+    time.sleep(.5) # wait .5 seconds while post is entered into memcache
 
 def put_batters(batter_list):
     if RUN_ASYNC:
         batters = ndb.put_multi_async(batter_list)
     else:
         ndb.put_multi(batter_list)
+    time.sleep(.5) # wait .5 seconds while post is entered into db
     update_batter_memcache()
 
 def put_pitchers(pitcher_list):
@@ -474,4 +475,5 @@ def put_pitchers(pitcher_list):
         pitchers = ndb.put_multi_async(pitcher_list)
     else:
         ndb.put_multi(pitcher_list)
+    time.sleep(.5) # wait .5 seconds while post is entered into db
     update_pitcher_memcache()
