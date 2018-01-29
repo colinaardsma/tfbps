@@ -664,11 +664,11 @@ def evaluate_keepers(keepers, ros_proj_b_list, ros_proj_p_list):
                          if x.normalized_first_name == norm_player_name['First']
                          and x.last_name == norm_player_name['Last']]
                 player['value'] = value[0] if value else 0.00
-                player['worth_keeping'] = True if player['value'] - player['keeper_cost'] >= value_window else False
+                player['worth_keeping'] = True if player['value'] - player['keeper_cost'] >= -value_window else False
             else:
                 value = [x.dollarValue for x in ros_proj_p_list
                          if x.normalized_first_name == norm_player_name['First']
                          and x.last_name == norm_player_name['Last']]
                 player['value'] = value[0] if value else 0.00
-                player['worth_keeping'] = True if player['value'] - player['keeper_cost'] >= value_window else False
+                player['worth_keeping'] = True if player['value'] - player['keeper_cost'] >= -value_window else False
     return keepers
