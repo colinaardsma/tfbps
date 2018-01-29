@@ -1,10 +1,10 @@
 """Models Module"""
 import sys
 sys.path.insert(0, '//Users/colinaardsma/google_appengine')
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 #define columns of database objects
 
-class Users(db.Model):
+class Users(ndb.Model):
     """The user model"""
     username = db.StringProperty(required=True)
     password = db.StringProperty(required=True)
@@ -13,7 +13,7 @@ class Users(db.Model):
     last_modified = db.DateTimeProperty(auto_now=True)
     authorization = db.StringProperty(required=False)
 
-class Batter(db.Model):
+class Batter(ndb.Model):
     """The Batter Model"""
     # Descriptive Properties
     name = db.StringProperty(required=True)
@@ -51,7 +51,7 @@ class Batter(db.Model):
     weightedZscoreAvg = db.FloatProperty
     weightedZscoreOps = db.FloatProperty
 
-class Pitcher(db.Model):
+class Pitcher(ndb.Model):
     """The Pitcher Model"""
     # Descriptive Properties
     name = db.StringProperty(required=True)
@@ -86,7 +86,7 @@ class Pitcher(db.Model):
     weightedZscoreWhip = db.FloatProperty
 
 #define columns of database objects
-class FPProjB(db.Model):
+class FPProjB(ndb.Model):
     """The batter model"""
 
     name = db.StringProperty(required=True)
@@ -117,7 +117,7 @@ class FPProjB(db.Model):
     category = db.StringProperty(required=True)
 
 #define columns of database objects
-class FPProjP(db.Model):
+class FPProjP(ndb.Model):
     """# This is the Pitcher Model"""
 
     name = db.StringProperty(required=True)
@@ -144,7 +144,7 @@ class FPProjP(db.Model):
     category = db.StringProperty(required=True)
 
 #define columns of database objects
-class Blog(db.Model):
+class Blog(ndb.Model):
     title = db.StringProperty(required=True)
     body = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
