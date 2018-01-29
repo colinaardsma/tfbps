@@ -235,14 +235,19 @@ def pull_batters(user, user_id, league, csv):
         batter_models.append(batter_model)
     end = time.time()
     elapsed = end - start
-    logging.info("\r\n***************\r\nBatter Player Creation in %f seconds", elapsed)
+    logging.info("\r\n***************\r\nBatter Valuation in %f seconds", elapsed)
+
     start = time.time()
-    
     player_models.put_batters(batter_models)
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\nGeneric Batter DB Storage in %f seconds", elapsed)
+
+    start = time.time()
     player_models.store_batter_values(user.yahooGuid, league, batter_models)
     end = time.time()
     elapsed = end - start
-    logging.info("\r\n***************\r\nBatter DB Storage in %f seconds", elapsed)
+    logging.info("\r\n***************\r\nBatter Value DB Storage in %f seconds", elapsed)
 
 
 def pull_pitchers(user, user_id, league, csv):
@@ -280,14 +285,19 @@ def pull_pitchers(user, user_id, league, csv):
         pitcher_models.append(pitcher_model)
     end = time.time()
     elapsed = end - start
-    logging.info("\r\n***************\r\nPitcher Player Creation in %f seconds", elapsed)
+    logging.info("\r\n***************\r\nPitcher Valuation in %f seconds", elapsed)
 
     start = time.time()
     player_models.put_pitchers(pitcher_models)
+    end = time.time()
+    elapsed = end - start
+    logging.info("\r\n***************\r\nGeneric Pitcher DB Storage in %f seconds", elapsed)
+    
+    start = time.time()
     player_models.store_pitcher_values(user.yahooGuid, league, pitcher_models)
     end = time.time()
     elapsed = end - start
-    logging.info("\r\n***************\r\nPitcher DB Storage in %f seconds", elapsed)
+    logging.info("\r\n***************\r\nPitcher Value DB Storage in %f seconds", elapsed)
 
 
 def pull_players(user, user_id, league, pitcher_csv, batter_csv):
