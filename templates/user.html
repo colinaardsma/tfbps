@@ -14,10 +14,10 @@
     <h2>Update Database Player Projections</h2>
     <td>
     <form method="post" enctype="multipart/form-data">
-        <label>batter csv file</label>
-        <input type="file" name="batting_csv" />
-        <label>pitcher csv file</label>
-        <input type="file" name="pitching_csv" />
+        <label>batter/pitcher csv file</label>
+        <input type="file" name="csv" />
+        <input type="radio" name="player_type" value="batter" checked="checked"> Batter<br>
+        <input type="radio" name="player_type" value="pitcher"> Pitcher<br>
         <button type="submit">submit</button>
     </form>
     {%- if elapsed %}

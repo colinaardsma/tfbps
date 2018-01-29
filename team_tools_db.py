@@ -17,6 +17,8 @@ import logging
 import yql_queries
 import caching
 
+RUN_ASYNC = True
+
 # https://developer.yahoo.com/fantasysports/guide/players-collection.html
 # https://www.mysportsfeeds.com
 
@@ -215,8 +217,10 @@ def pull_batters(user, user_id, league, csv):
     logging.info("\r\n***************\r\nBatter Get for Deletion in %f seconds", elapsed)
 
     start = time.time()
-    # db.delete_async(batter_query)
-    db.delete(batter_query)
+    if RUN_ASYNC:
+        db.delete_async(batter_query)
+    else:
+        db.delete(batter_query)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nBatter Deletion in %f seconds", elapsed)
@@ -253,8 +257,10 @@ def pull_pitchers(user, user_id, league, csv):
     logging.info("\r\n***************\r\nPitcher Get for Deletion in %f seconds", elapsed)
 
     start = time.time()
-    # db.delete_async(pitcher_query)
-    db.delete(pitcher_query)
+    if RUN_ASYNC:
+        db.delete_async(pitcher_query)
+    else:
+        db.delete(pitcher_query)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nPitcher Deletion in %f seconds", elapsed)
@@ -301,14 +307,16 @@ def pull_players(user, user_id, league, pitcher_csv, batter_csv):
         batter_model = player_models.store_batter(batter)
         batter_models.append(batter_model)
 
-    # db.delete_async(pitcher_query)
-    # db.delete_async(batter_query)
-    # db.put_async(pitcher_models)
-    # db.put_async(batter_models)
-    db.delete(pitcher_query)
-    db.delete(pitcher_value_query)
-    db.delete(batter_query)
-    db.delete(batter_value_query)
+    if RUN_ASYNC:
+        db.delete_async(pitcher_query)
+        db.delete_async(batter_query)
+        db.put_async(pitcher_models)
+        db.put_async(batter_models)
+    else:
+        db.delete(pitcher_query)
+        db.delete(pitcher_value_query)
+        db.delete(batter_query)
+        db.delete(batter_value_query)
     player_models.put_batters(batter_models)
     player_models.store_batter_values(user.yahooGuid, league, batter_models)
     player_models.put_pitchers(pitcher_models)

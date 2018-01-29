@@ -13,6 +13,8 @@ import player_creator
 # sys.path.insert(0, '//Users/colinaardsma/google_appengine')
 #define columns of database objects
 
+RUN_ASYNC = True
+
 class BatterHTML(object):
     """The Batter HTML Model"""
     # Descriptive Properties
@@ -299,7 +301,10 @@ def store_batter_values(yahooGuid, league, batter_proj_list):
                                    dollarValue=batter_proj_value.dollarValue,
                                    keeper=batter_proj_value.keeper)
         batter_value_list.append(batter_value)
-    db.put(batter_value_list)
+    if RUN_ASYNC:
+        db.put_async(batter_value_list)
+    else:
+        db.put(batter_value_list)
     return batter_value_list
 
 class PitcherProj(db.Model):
@@ -443,7 +448,10 @@ def store_pitcher_values(yahooGuid, league, pitcher_proj_list):
                                      dollarValue=pitcher_proj_value.dollarValue,
                                      keeper=pitcher_proj_value.keeper)
         pitcher_value_list.append(pitcher_value)
-    db.put(pitcher_value_list)
+    if RUN_ASYNC:
+        db.put_async(pitcher_value_list)
+    else:
+        db.put(pitcher_value_list)
     return pitcher_value_list
 
 def update_batter_memcache():
@@ -455,9 +463,15 @@ def update_pitcher_memcache():
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
 
 def put_batters(batter_list):
-    db.put(batter_list)
+    if RUN_ASYNC:
+        db.put_async(batter_list)
+    else:
+        db.put(batter_list)
     update_batter_memcache()
 
 def put_pitchers(pitcher_list):
-    db.put(pitcher_list)
+    if RUN_ASYNC:
+        db.put_async(pitcher_list)
+    else:
+        db.put(pitcher_list)
     update_pitcher_memcache()

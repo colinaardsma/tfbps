@@ -568,13 +568,16 @@ class User(Handler):
     def post(self):
         start = time.time()
         import team_tools_db
-        batting_csv = self.request.POST["batting_csv"]
-        pitching_csv = self.request.POST["pitching_csv"]
+        player_type = self.request.POST["player_type"]
+        csv = self.request.POST["csv"]
         league = caching.cached_get_leagues_by_league_key(self.user.main_league)
-        if isinstance(batting_csv, cgi.FieldStorage):
-            team_tools_db.pull_batters(self.user, self.user_id, league, batting_csv)
-        if isinstance(pitching_csv, cgi.FieldStorage):
-            team_tools_db.pull_pitchers(self.user, self.user_id, league, pitching_csv)
+
+        if player_type == 'batter':
+            if isinstance(csv, cgi.FieldStorage):
+                team_tools_db.pull_batters(self.user, self.user_id, league, csv)
+        if player_type == 'pitcher':
+            if isinstance(csv, cgi.FieldStorage):
+                team_tools_db.pull_pitchers(self.user, self.user_id, league, csv)
         end = time.time()
         elapsed = end - start
         link_yahoo = api_connector.request_auth(GUID_REDIRECT_PATH)
