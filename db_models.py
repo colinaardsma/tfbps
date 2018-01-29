@@ -1,6 +1,6 @@
 """Models Module"""
 import sys
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 # sys.path.insert(0, '//Users/colinaardsma/google_appengine')
 #define columns of database objects
 import caching
@@ -10,75 +10,75 @@ import pprint
 import datetime
 # import hashing
 
-class League(db.Model):
+class League(ndb.Model):
     """The League Database Model"""
     # Descriptive Properties
-    league_name = db.StringProperty(required=True)
-    league_key = db.StringProperty(required=True)
-    team_count = db.IntegerProperty(required=True)
-    max_ip = db.IntegerProperty(required=True)
-    season = db.IntegerProperty(required=True)
-    # roster_pos = db.ListProperty(required=True)
-    batting_pos = db.StringListProperty(required=True)
-    pitcher_pos = db.StringListProperty(required=True)
-    bench_pos = db.StringListProperty(required=True)
-    dl_pos = db.StringListProperty(required=True)
-    na_pos = db.StringListProperty(required=True)
-    last_modified = db.DateTimeProperty(auto_now=True)
+    league_name = ndb.StringProperty(required=True)
+    league_key = ndb.StringProperty(required=True)
+    team_count = ndb.IntegerProperty(required=True)
+    max_ip = ndb.IntegerProperty(required=True)
+    season = ndb.IntegerProperty(required=True)
+    # roster_pos = ndb.ListProperty(required=True)
+    batting_pos = ndb.StringProperty(repeated=True)
+    pitcher_pos = ndb.StringProperty(repeated=True)
+    bench_pos = ndb.StringProperty(repeated=True)
+    dl_pos = ndb.StringProperty(repeated=True)
+    na_pos = ndb.StringProperty(repeated=True)
+    last_modified = ndb.DateTimeProperty(auto_now=True)
     # Advanced Stats
-    total_money_spent = db.IntegerProperty()
-    money_spent_on_batters = db.IntegerProperty()
-    money_spent_on_pitchers = db.IntegerProperty()
-    batter_budget_pct = db.FloatProperty()
-    pitcher_budget_pct = db.FloatProperty()
-    batters_over_zero_dollars = db.IntegerProperty()
-    pitchers_over_zero_dollars = db.IntegerProperty()
-    one_dollar_batters = db.IntegerProperty()
-    one_dollar_pitchers = db.IntegerProperty()
-    b_dollar_per_fvaaz = db.FloatProperty()
-    p_dollar_per_fvaaz = db.FloatProperty()
-    b_player_pool_mult = db.FloatProperty()
-    p_player_pool_mult = db.FloatProperty()
+    total_money_spent = ndb.IntegerProperty()
+    money_spent_on_batters = ndb.IntegerProperty()
+    money_spent_on_pitchers = ndb.IntegerProperty()
+    batter_budget_pct = ndb.FloatProperty()
+    pitcher_budget_pct = ndb.FloatProperty()
+    batters_over_zero_dollars = ndb.IntegerProperty()
+    pitchers_over_zero_dollars = ndb.IntegerProperty()
+    one_dollar_batters = ndb.IntegerProperty()
+    one_dollar_pitchers = ndb.IntegerProperty()
+    b_dollar_per_fvaaz = ndb.FloatProperty()
+    p_dollar_per_fvaaz = ndb.FloatProperty()
+    b_player_pool_mult = ndb.FloatProperty()
+    p_player_pool_mult = ndb.FloatProperty()
     # SGP
-    r_sgp = db.FloatProperty()
-    hr_sgp = db.FloatProperty()
-    rbi_sgp = db.FloatProperty()
-    sb_sgp = db.FloatProperty()
-    ops_sgp = db.FloatProperty()
-    avg_sgp = db.FloatProperty()
-    w_sgp = db.FloatProperty()
-    sv_sgp = db.FloatProperty()
-    k_sgp = db.FloatProperty()
-    era_sgp = db.FloatProperty()
-    whip_sgp = db.FloatProperty()
+    r_sgp = ndb.FloatProperty()
+    hr_sgp = ndb.FloatProperty()
+    rbi_sgp = ndb.FloatProperty()
+    sb_sgp = ndb.FloatProperty()
+    ops_sgp = ndb.FloatProperty()
+    avg_sgp = ndb.FloatProperty()
+    w_sgp = ndb.FloatProperty()
+    sv_sgp = ndb.FloatProperty()
+    k_sgp = ndb.FloatProperty()
+    era_sgp = ndb.FloatProperty()
+    whip_sgp = ndb.FloatProperty()
     # Historical
-    prev_year_key = db.StringProperty()
+    prev_year_key = ndb.StringProperty()
     # 3 Year Advanced Stats Avg
-    total_money_spent_avg = db.IntegerProperty()
-    money_spent_on_batters_avg = db.IntegerProperty()
-    money_spent_on_pitchers_avg = db.IntegerProperty()
-    batter_budget_pct_avg = db.FloatProperty()
-    pitcher_budget_pct_avg = db.FloatProperty()
-    batters_over_zero_dollars_avg = db.IntegerProperty()
-    pitchers_over_zero_dollars_avg = db.IntegerProperty()
-    one_dollar_batters_avg = db.IntegerProperty()
-    one_dollar_pitchers_avg = db.IntegerProperty()
-    b_dollar_per_fvaaz_avg = db.FloatProperty()
-    p_dollar_per_fvaaz_avg = db.FloatProperty()
-    b_player_pool_mult_avg = db.FloatProperty()
-    p_player_pool_mult_avg = db.FloatProperty()
+    total_money_spent_avg = ndb.IntegerProperty()
+    money_spent_on_batters_avg = ndb.IntegerProperty()
+    money_spent_on_pitchers_avg = ndb.IntegerProperty()
+    batter_budget_pct_avg = ndb.FloatProperty()
+    pitcher_budget_pct_avg = ndb.FloatProperty()
+    batters_over_zero_dollars_avg = ndb.IntegerProperty()
+    pitchers_over_zero_dollars_avg = ndb.IntegerProperty()
+    one_dollar_batters_avg = ndb.IntegerProperty()
+    one_dollar_pitchers_avg = ndb.IntegerProperty()
+    b_dollar_per_fvaaz_avg = ndb.FloatProperty()
+    p_dollar_per_fvaaz_avg = ndb.FloatProperty()
+    b_player_pool_mult_avg = ndb.FloatProperty()
+    p_player_pool_mult_avg = ndb.FloatProperty()
     # 3 Year SGP Avg
-    r_sgp_avg = db.FloatProperty()
-    hr_sgp_avg = db.FloatProperty()
-    rbi_sgp_avg = db.FloatProperty()
-    sb_sgp_avg = db.FloatProperty()
-    ops_sgp_avg = db.FloatProperty()
-    avg_sgp_avg = db.FloatProperty()
-    w_sgp_avg = db.FloatProperty()
-    sv_sgp_avg = db.FloatProperty()
-    k_sgp_avg = db.FloatProperty()
-    era_sgp_avg = db.FloatProperty()
-    whip_sgp_avg = db.FloatProperty()
+    r_sgp_avg = ndb.FloatProperty()
+    hr_sgp_avg = ndb.FloatProperty()
+    rbi_sgp_avg = ndb.FloatProperty()
+    sb_sgp_avg = ndb.FloatProperty()
+    ops_sgp_avg = ndb.FloatProperty()
+    avg_sgp_avg = ndb.FloatProperty()
+    w_sgp_avg = ndb.FloatProperty()
+    sv_sgp_avg = ndb.FloatProperty()
+    k_sgp_avg = ndb.FloatProperty()
+    era_sgp_avg = ndb.FloatProperty()
+    whip_sgp_avg = ndb.FloatProperty()
 
 def store_league(league_name, league_key, team_count, max_ip, batting_pos, pitcher_pos,
                  bench_pos, dl_pos, na_pos, prev_year_key, season, r_sgp=0.00, hr_sgp=0.00,
@@ -104,7 +104,7 @@ def store_league(league_name, league_key, team_count, max_ip, batting_pos, pitch
                     batter_budget_pct=batter_budget_pct, pitcher_budget_pct=pitcher_budget_pct,
                     b_dollar_per_fvaaz=b_dollar_per_fvaaz, p_dollar_per_fvaaz=p_dollar_per_fvaaz,
                     b_player_pool_mult=b_player_pool_mult, p_player_pool_mult=p_player_pool_mult)
-    db.put(league)
+    ndb.put(league)
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     # league = caching.cached_user_by_name(username)
     # league_id = league.key().id()
@@ -270,7 +270,7 @@ def calc_three_year_avgs(league_key):
     league.b_player_pool_mult_avg = b_player_pool_mult_avg
     league.p_player_pool_mult_avg = p_player_pool_mult_avg
 
-    db.put(league)
+    ndb.put(league)
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     update_league_memcache(league_key)
     return league
@@ -280,27 +280,27 @@ def update_league_memcache(league_key):
     caching.cached_get_all_leagues(True)
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
 
-class User(db.Model):
+class User(ndb.Model):
     """The User database model"""
-    username = db.StringProperty(required=True)
-    password = db.StringProperty(required=True)
-    email = db.EmailProperty(required=True)
-    authorization = db.StringProperty(required=True)
-    yahooGuid = db.StringProperty()
-    created = db.DateTimeProperty(auto_now_add=True)
-    last_modified = db.DateTimeProperty(auto_now=True)
-    last_accessed = db.DateTimeProperty(auto_now=True)
-    location = db.GeoPtProperty()
-    access_token = db.StringProperty()
-    token_expiration = db.DateTimeProperty()
-    refresh_token = db.StringProperty()
-    main_league = db.StringProperty()
+    username = ndb.StringProperty(required=True)
+    password = ndb.StringProperty(required=True)
+    email = ndb.StringProperty(required=True)
+    authorization = ndb.StringProperty(required=True)
+    yahooGuid = ndb.StringProperty()
+    created = ndb.DateTimeProperty(auto_now_add=True)
+    last_modified = ndb.DateTimeProperty(auto_now=True)
+    last_accessed = ndb.DateTimeProperty(auto_now=True)
+    location = ndb.GeoPtProperty()
+    access_token = ndb.StringProperty()
+    token_expiration = ndb.DateTimeProperty()
+    refresh_token = ndb.StringProperty()
+    main_league = ndb.StringProperty()
 
 def store_user(username, password, email, location = None, yahooGuid = None, authorization = "basic"):
     user = User(username=username, password=password, email=email, location=location,
                 yahooGuid=yahooGuid, authorization=authorization, access_token=None,
                 token_expiration=None, refresh_token=None)
-    db.put(user)
+    ndb.put(user)
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     user = caching.cached_user_by_name(username)
     user_id = user.key().id()
@@ -335,7 +335,7 @@ def update_user(user, user_id, username=None, hashed_password=None, email=None,
         user.refresh_token = refresh_token
     if main_league:
         user.main_league = main_league
-    db.put(user)
+    ndb.put(user)
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     update_user_memcache(user, user_id)
     return user
@@ -347,17 +347,17 @@ def update_user_memcache(user, user_id):
     caching.cached_get_users(True)
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
 
-class User_League(db.Model):
+class User_League(ndb.Model):
     """Links between Users and Leagues"""
-    user = db.ReferenceProperty(User)
-    league = db.ReferenceProperty(League)
-    user_guid = db.StringProperty()
-    league_key = db.StringProperty()
+    user = ndb.KeyProperty(kind=User)
+    league = ndb.KeyProperty(kind=League)
+    user_guid = ndb.StringProperty()
+    league_key = ndb.StringProperty()
 
 def store_user_league(user, league):
     user_league = User_League(user=user, league=league, user_guid=user.yahooGuid,
                               league_key=league.league_key)
-    db.put(user_league)
+    ndb.put(user_league)
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     # league = caching.cached_user_by_name(username)
     # league_id = league.key().id()

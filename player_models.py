@@ -4,7 +4,7 @@ import sys
 import datetime
 sys.path.append('/usr/local/google_appengine/')
 sys.path.append('/usr/local/google_appengine/lib/yaml/lib/')
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 import pprint
 import normalizer
 import caching
@@ -154,90 +154,90 @@ class PitcherHTML(object):
         self.is_sp = (False if 'SP' not in str(pos) or int(svs) > 0 or
                       float(wins) / float(ips) < 0.05 else True)
 
-class BatterProj(db.Model):
+class BatterProj(ndb.Model):
     """The Batter Projection Database Model"""
     # Descriptive Properties
-    name = db.StringProperty(required=True)
-    normalized_first_name = db.StringProperty()
-    last_name = db.StringProperty()
-    team = db.StringProperty(required=True)
-    pos = db.StringListProperty(required=True)
-    status = db.StringProperty()
-    last_modified = db.DateTimeProperty(auto_now=True)
-    category = db.StringProperty(required=True)
+    name = ndb.StringProperty(required=True)
+    normalized_first_name = ndb.StringProperty()
+    last_name = ndb.StringProperty()
+    team = ndb.StringProperty(required=True)
+    pos = ndb.StringProperty(repeated=True)
+    status = ndb.StringProperty()
+    last_modified = ndb.DateTimeProperty(auto_now=True)
+    category = ndb.StringProperty(required=True)
     # Raw Stat Properties
-    atbats = db.FloatProperty(required=True)
-    runs = db.FloatProperty(required=True)
-    hrs = db.FloatProperty(required=True)
-    rbis = db.FloatProperty(required=True)
-    sbs = db.FloatProperty(required=True)
-    avg = db.FloatProperty(required=True)
-    ops = db.FloatProperty(required=True)
+    atbats = ndb.FloatProperty(required=True)
+    runs = ndb.FloatProperty(required=True)
+    hrs = ndb.FloatProperty(required=True)
+    rbis = ndb.FloatProperty(required=True)
+    sbs = ndb.FloatProperty(required=True)
+    avg = ndb.FloatProperty(required=True)
+    ops = ndb.FloatProperty(required=True)
     # Initial zScore Properties
-    zScoreR = db.FloatProperty()
-    zScoreHr = db.FloatProperty()
-    zScoreRbi = db.FloatProperty()
-    zScoreSb = db.FloatProperty()
-    zScoreAvg = db.FloatProperty()
-    zScoreOps = db.FloatProperty()
+    zScoreR = ndb.FloatProperty()
+    zScoreHr = ndb.FloatProperty()
+    zScoreRbi = ndb.FloatProperty()
+    zScoreSb = ndb.FloatProperty()
+    zScoreAvg = ndb.FloatProperty()
+    zScoreOps = ndb.FloatProperty()
     # Weighted (Multiplied by AB) Properties
-    weightedR = db.FloatProperty()
-    weightedHr = db.FloatProperty()
-    weightedRbi = db.FloatProperty()
-    weightedSb = db.FloatProperty()
-    weightedAvg = db.FloatProperty()
-    weightedOps = db.FloatProperty()
+    weightedR = ndb.FloatProperty()
+    weightedHr = ndb.FloatProperty()
+    weightedRbi = ndb.FloatProperty()
+    weightedSb = ndb.FloatProperty()
+    weightedAvg = ndb.FloatProperty()
+    weightedOps = ndb.FloatProperty()
     # Weighted and RezScored Properties
-    weightedZscoreR = db.FloatProperty()
-    weightedZscoreHr = db.FloatProperty()
-    weightedZscoreRbi = db.FloatProperty()
-    weightedZscoreSb = db.FloatProperty()
-    weightedZscoreAvg = db.FloatProperty()
-    weightedZscoreOps = db.FloatProperty()
+    weightedZscoreR = ndb.FloatProperty()
+    weightedZscoreHr = ndb.FloatProperty()
+    weightedZscoreRbi = ndb.FloatProperty()
+    weightedZscoreSb = ndb.FloatProperty()
+    weightedZscoreAvg = ndb.FloatProperty()
+    weightedZscoreOps = ndb.FloatProperty()
     # Values
-    fvaaz = db.FloatProperty()
-    dollarValue = db.FloatProperty()
-    keeper = db.FloatProperty()
+    fvaaz = ndb.FloatProperty()
+    dollarValue = ndb.FloatProperty()
+    keeper = ndb.FloatProperty()
     # FA Status
-    isFA = db.BooleanProperty()
+    isFA = ndb.BooleanProperty()
 
-class BatterValue(db.Model):
+class BatterValue(ndb.Model):
     """The Batter Value Database Model"""
     # Descriptive Properties
-    name = db.StringProperty(required=True)
-    normalized_first_name = db.StringProperty()
-    last_name = db.StringProperty()
-    team = db.StringProperty(required=True)
-    pos = db.StringListProperty(required=True)
-    last_modified = db.DateTimeProperty(auto_now=True)
-    category = db.StringProperty(required=True)
-    league_key = db.StringProperty(required=True)
-    yahooGuid = db.StringProperty(required=True)
+    name = ndb.StringProperty(required=True)
+    normalized_first_name = ndb.StringProperty()
+    last_name = ndb.StringProperty()
+    team = ndb.StringProperty(required=True)
+    pos = ndb.StringProperty(repeated=True)
+    last_modified = ndb.DateTimeProperty(auto_now=True)
+    category = ndb.StringProperty(required=True)
+    league_key = ndb.StringProperty(required=True)
+    yahooGuid = ndb.StringProperty(required=True)
     # Initial zScore Properties
-    zScoreR = db.FloatProperty()
-    zScoreHr = db.FloatProperty()
-    zScoreRbi = db.FloatProperty()
-    zScoreSb = db.FloatProperty()
-    zScoreAvg = db.FloatProperty()
-    zScoreOps = db.FloatProperty()
+    zScoreR = ndb.FloatProperty()
+    zScoreHr = ndb.FloatProperty()
+    zScoreRbi = ndb.FloatProperty()
+    zScoreSb = ndb.FloatProperty()
+    zScoreAvg = ndb.FloatProperty()
+    zScoreOps = ndb.FloatProperty()
     # Weighted (Multiplied by AB) Properties
-    weightedR = db.FloatProperty()
-    weightedHr = db.FloatProperty()
-    weightedRbi = db.FloatProperty()
-    weightedSb = db.FloatProperty()
-    weightedAvg = db.FloatProperty()
-    weightedOps = db.FloatProperty()
+    weightedR = ndb.FloatProperty()
+    weightedHr = ndb.FloatProperty()
+    weightedRbi = ndb.FloatProperty()
+    weightedSb = ndb.FloatProperty()
+    weightedAvg = ndb.FloatProperty()
+    weightedOps = ndb.FloatProperty()
     # Weighted and RezScored Properties
-    weightedZscoreR = db.FloatProperty()
-    weightedZscoreHr = db.FloatProperty()
-    weightedZscoreRbi = db.FloatProperty()
-    weightedZscoreSb = db.FloatProperty()
-    weightedZscoreAvg = db.FloatProperty()
-    weightedZscoreOps = db.FloatProperty()
+    weightedZscoreR = ndb.FloatProperty()
+    weightedZscoreHr = ndb.FloatProperty()
+    weightedZscoreRbi = ndb.FloatProperty()
+    weightedZscoreSb = ndb.FloatProperty()
+    weightedZscoreAvg = ndb.FloatProperty()
+    weightedZscoreOps = ndb.FloatProperty()
     # Values
-    fvaaz = db.FloatProperty()
-    dollarValue = db.FloatProperty()
-    keeper = db.FloatProperty()
+    fvaaz = ndb.FloatProperty()
+    dollarValue = ndb.FloatProperty()
+    keeper = ndb.FloatProperty()
 
 def store_batter(batter):
     batter = BatterProj(name=batter.name, normalized_first_name=batter.normalized_first_name,
@@ -259,7 +259,7 @@ def store_batter(batter):
                         weightedZscoreOps=batter.weightedZscoreOps, fvaaz=batter.fvaaz,
                         dollarValue=batter.dollarValue, keeper=batter.keeper, isFA=batter.isFA)
     return batter
-    # db.put_async(batter)
+    # ndb.put_async(batter)
 
 def store_batter_values(yahooGuid, league, batter_proj_list):
     batter_value_list = []
@@ -302,92 +302,92 @@ def store_batter_values(yahooGuid, league, batter_proj_list):
                                    keeper=batter_proj_value.keeper)
         batter_value_list.append(batter_value)
     if RUN_ASYNC:
-        db.put_async(batter_value_list)
+        ndb.put_multi_async(batter_value_list)
     else:
-        db.put(batter_value_list)
+        ndb.put_multi(batter_value_list)
     return batter_value_list
 
-class PitcherProj(db.Model):
+class PitcherProj(ndb.Model):
     """The Pitcher Projection Database Model"""
     # Descriptive Properties
-    name = db.StringProperty(required=True)
-    normalized_first_name = db.StringProperty()
-    last_name = db.StringProperty()
-    team = db.StringProperty(required=True)
-    pos = db.StringListProperty(required=True)
-    is_sp = db.BooleanProperty()
-    status = db.StringProperty()
-    last_modified = db.DateTimeProperty(auto_now=True)
-    category = db.StringProperty(required=True)
+    name = ndb.StringProperty(required=True)
+    normalized_first_name = ndb.StringProperty()
+    last_name = ndb.StringProperty()
+    team = ndb.StringProperty(required=True)
+    pos = ndb.StringProperty(repeated=True)
+    is_sp = ndb.BooleanProperty()
+    status = ndb.StringProperty()
+    last_modified = ndb.DateTimeProperty(auto_now=True)
+    category = ndb.StringProperty(required=True)
     # Raw Stat Properties
-    ips = db.FloatProperty(required=True)
-    wins = db.FloatProperty(required=True)
-    svs = db.FloatProperty(required=True)
-    sos = db.FloatProperty(required=True)
-    era = db.FloatProperty(required=True)
-    whip = db.FloatProperty(required=True)
-    kip = db.FloatProperty()
-    winsip = db.FloatProperty()
+    ips = ndb.FloatProperty(required=True)
+    wins = ndb.FloatProperty(required=True)
+    svs = ndb.FloatProperty(required=True)
+    sos = ndb.FloatProperty(required=True)
+    era = ndb.FloatProperty(required=True)
+    whip = ndb.FloatProperty(required=True)
+    kip = ndb.FloatProperty()
+    winsip = ndb.FloatProperty()
     # Initial zScore Properties
-    zScoreW = db.FloatProperty()
-    zScoreSv = db.FloatProperty()
-    zScoreK = db.FloatProperty()
-    zScoreEra = db.FloatProperty()
-    zScoreWhip = db.FloatProperty()
+    zScoreW = ndb.FloatProperty()
+    zScoreSv = ndb.FloatProperty()
+    zScoreK = ndb.FloatProperty()
+    zScoreEra = ndb.FloatProperty()
+    zScoreWhip = ndb.FloatProperty()
     # Weighted (Multiplied by IP) Properties
-    weightedW = db.FloatProperty()
-    weightedSv = db.FloatProperty()
-    weightedK = db.FloatProperty()
-    weightedEra = db.FloatProperty()
-    weightedWhip = db.FloatProperty()
+    weightedW = ndb.FloatProperty()
+    weightedSv = ndb.FloatProperty()
+    weightedK = ndb.FloatProperty()
+    weightedEra = ndb.FloatProperty()
+    weightedWhip = ndb.FloatProperty()
     # Weighted and RezScored Properties
-    weightedZscoreW = db.FloatProperty()
-    weightedZscoreSv = db.FloatProperty()
-    weightedZscoreK = db.FloatProperty()
-    weightedZscoreEra = db.FloatProperty()
-    weightedZscoreWhip = db.FloatProperty()
+    weightedZscoreW = ndb.FloatProperty()
+    weightedZscoreSv = ndb.FloatProperty()
+    weightedZscoreK = ndb.FloatProperty()
+    weightedZscoreEra = ndb.FloatProperty()
+    weightedZscoreWhip = ndb.FloatProperty()
     # Values
-    fvaaz = db.FloatProperty()
-    dollarValue = db.FloatProperty()
-    keeper = db.FloatProperty()
+    fvaaz = ndb.FloatProperty()
+    dollarValue = ndb.FloatProperty()
+    keeper = ndb.FloatProperty()
     # FA Status
-    isFA = db.BooleanProperty()
+    isFA = ndb.BooleanProperty()
 
-class PitcherValue(db.Model):
+class PitcherValue(ndb.Model):
     """The Pitcher Value Database Model"""
-    name = db.StringProperty(required=True)
-    normalized_first_name = db.StringProperty()
-    last_name = db.StringProperty()
-    team = db.StringProperty(required=True)
-    pos = db.StringListProperty(required=True)
-    last_modified = db.DateTimeProperty(auto_now=True)
-    category = db.StringProperty(required=True)
-    league_key = db.StringProperty(required=True)
-    yahooGuid = db.StringProperty(required=True)
+    name = ndb.StringProperty(required=True)
+    normalized_first_name = ndb.StringProperty()
+    last_name = ndb.StringProperty()
+    team = ndb.StringProperty(required=True)
+    pos = ndb.StringProperty(repeated=True)
+    last_modified = ndb.DateTimeProperty(auto_now=True)
+    category = ndb.StringProperty(required=True)
+    league_key = ndb.StringProperty(required=True)
+    yahooGuid = ndb.StringProperty(required=True)
     # Initial zScore Properties
-    zScoreW = db.FloatProperty()
-    zScoreSv = db.FloatProperty()
-    zScoreK = db.FloatProperty()
-    zScoreEra = db.FloatProperty()
-    zScoreWhip = db.FloatProperty()
+    zScoreW = ndb.FloatProperty()
+    zScoreSv = ndb.FloatProperty()
+    zScoreK = ndb.FloatProperty()
+    zScoreEra = ndb.FloatProperty()
+    zScoreWhip = ndb.FloatProperty()
     # Weighted (Multiplied by IP) Properties
-    weightedW = db.FloatProperty()
-    weightedSv = db.FloatProperty()
-    weightedK = db.FloatProperty()
-    weightedEra = db.FloatProperty()
-    weightedWhip = db.FloatProperty()
+    weightedW = ndb.FloatProperty()
+    weightedSv = ndb.FloatProperty()
+    weightedK = ndb.FloatProperty()
+    weightedEra = ndb.FloatProperty()
+    weightedWhip = ndb.FloatProperty()
     # Weighted and RezScored Properties
-    weightedZscoreW = db.FloatProperty()
-    weightedZscoreSv = db.FloatProperty()
-    weightedZscoreK = db.FloatProperty()
-    weightedZscoreEra = db.FloatProperty()
-    weightedZscoreWhip = db.FloatProperty()
+    weightedZscoreW = ndb.FloatProperty()
+    weightedZscoreSv = ndb.FloatProperty()
+    weightedZscoreK = ndb.FloatProperty()
+    weightedZscoreEra = ndb.FloatProperty()
+    weightedZscoreWhip = ndb.FloatProperty()
     # Values
-    fvaaz = db.FloatProperty()
-    dollarValue = db.FloatProperty()
-    keeper = db.FloatProperty()
+    fvaaz = ndb.FloatProperty()
+    dollarValue = ndb.FloatProperty()
+    keeper = ndb.FloatProperty()
     # FA Status
-    isFA = db.BooleanProperty()
+    isFA = ndb.BooleanProperty()
 
 def store_pitcher(pitcher):
     pitcher = PitcherProj(name=pitcher.name, normalized_first_name=pitcher.normalized_first_name,
@@ -409,7 +409,7 @@ def store_pitcher(pitcher):
                           fvaaz=pitcher.fvaaz, dollarValue=pitcher.dollarValue, keeper=pitcher.keeper,
                           isFA=pitcher.isFA)
     return pitcher
-    # db.put_async(pitcher)
+    # ndb.put_async(pitcher)
 
 def store_pitcher_values(yahooGuid, league, pitcher_proj_list):
     pitcher_value_list = []
@@ -449,9 +449,9 @@ def store_pitcher_values(yahooGuid, league, pitcher_proj_list):
                                      keeper=pitcher_proj_value.keeper)
         pitcher_value_list.append(pitcher_value)
     if RUN_ASYNC:
-        db.put_async(pitcher_value_list)
+        ndb.put_multi_async(pitcher_value_list)
     else:
-        db.put(pitcher_value_list)
+        ndb.put_multi(pitcher_value_list)
     return pitcher_value_list
 
 def update_batter_memcache():
@@ -464,14 +464,14 @@ def update_pitcher_memcache():
 
 def put_batters(batter_list):
     if RUN_ASYNC:
-        db.put_async(batter_list)
+        ndb.put_multi_async(batter_list)
     else:
-        db.put(batter_list)
+        ndb.put_multi(batter_list)
     update_batter_memcache()
 
 def put_pitchers(pitcher_list):
     if RUN_ASYNC:
-        db.put_async(pitcher_list)
+        ndb.put_multi_async(pitcher_list)
     else:
-        db.put(pitcher_list)
+        ndb.put_multi(pitcher_list)
     update_pitcher_memcache()

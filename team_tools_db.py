@@ -5,7 +5,7 @@ import time
 import sys
 sys.path.append('/usr/local/google_appengine/')
 sys.path.append('/usr/local/google_appengine/lib/yaml/lib/')
-from google.appengine.ext import db
+from google.appengine.ext import ndb
 import urllib
 import pprint
 import html_parser
@@ -211,16 +211,16 @@ def pull_batters(user, user_id, league, csv):
     #delete all records from database before rebuidling
     # if player_models.BatterDB:
     start = time.time()
-    batter_query = player_models.BatterProj.all(keys_only=True) #.run() #.fetch(limit=1000) # .all() = "SELECT *"
+    batter_query = player_models.BatterProj.query().fetch(keys_only=True) #.run() #.fetch(limit=1000) # .query() = "SELECT *"
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nBatter Get for Deletion in %f seconds", elapsed)
 
     start = time.time()
     if RUN_ASYNC:
-        db.delete_async(batter_query)
+        ndb.delete_multi_async(batter_query)
     else:
-        db.delete(batter_query)
+        ndb.delete_multi(batter_query)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nBatter Deletion in %f seconds", elapsed)
@@ -251,16 +251,16 @@ def pull_pitchers(user, user_id, league, csv):
     #delete all records from database before rebuidling
     # if player_models.PitcherDB:
     start = time.time()
-    pitcher_query = player_models.PitcherProj.all(keys_only=True) #.run() #.fetch(limit=1000) # .all() = "SELECT *"
+    pitcher_query = player_models.PitcherProj.query().fetch(keys_only=True) #.run() #.fetch(limit=1000) # .query() = "SELECT *"
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nPitcher Get for Deletion in %f seconds", elapsed)
 
     start = time.time()
     if RUN_ASYNC:
-        db.delete_async(pitcher_query)
+        ndb.delete_multi_async(pitcher_query)
     else:
-        db.delete(pitcher_query)
+        ndb.delete_multi(pitcher_query)
     end = time.time()
     elapsed = end - start
     logging.info("\r\n***************\r\nPitcher Deletion in %f seconds", elapsed)
@@ -287,11 +287,11 @@ def pull_players(user, user_id, league, pitcher_csv, batter_csv):
     batter_list = player_creator.create_full_batter_csv(user, user_id, league, batter_csv)
     #delete all records from database before rebuidling
     # if player_models.PitcherDB:
-    pitcher_query = player_models.PitcherProj.all() # .all() = "SELECT *"
-    pitcher_value_query = player_models.PitcherValue.all() # .all() = "SELECT *"
+    pitcher_query = player_models.PitcherProj.query() # .query() = "SELECT *"
+    pitcher_value_query = player_models.PitcherValue.query() # .query() = "SELECT *"
     # if player_models.BatterDB:
-    batter_query = player_models.BatterProj.all() # .all() = "SELECT *"
-    batter_value_query = player_models.BatterValue.all() # .all() = "SELECT *"
+    batter_query = player_models.BatterProj.query() # .query() = "SELECT *"
+    batter_value_query = player_models.BatterValue.query() # .query() = "SELECT *"
     pitchers = player_creator.calc_pitcher_z_score(pitcher_list, PITCHERS_OVER_ZERO_DOLLARS,
                                                    ONE_DOLLAR_PITCHERS, P_DOLLAR_PER_FVAAZ,
                                                    P_PLAYER_POOL_MULT)
@@ -308,15 +308,15 @@ def pull_players(user, user_id, league, pitcher_csv, batter_csv):
         batter_models.append(batter_model)
 
     if RUN_ASYNC:
-        db.delete_async(pitcher_query)
-        db.delete_async(batter_query)
-        db.put_async(pitcher_models)
-        db.put_async(batter_models)
+        ndb.delete_multi_async(pitcher_query)
+        ndb.delete_multi_async(batter_query)
+        ndb.put_multi_async(pitcher_models)
+        ndb.put_multi_async(batter_models)
     else:
-        db.delete(pitcher_query)
-        db.delete(pitcher_value_query)
-        db.delete(batter_query)
-        db.delete(batter_value_query)
+        ndb.delete_multi(pitcher_query)
+        ndb.delete_multi(pitcher_value_query)
+        ndb.delete_multi(batter_query)
+        ndb.delete_multi(batter_value_query)
     player_models.put_batters(batter_models)
     player_models.store_batter_values(user.yahooGuid, league, batter_models)
     player_models.put_pitchers(pitcher_models)
