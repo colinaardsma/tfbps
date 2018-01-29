@@ -46,7 +46,8 @@ def get_user(username):
 
 def check_username(username):
     # n = db.GqlQuery("SELECT * FROM Users ORDER BY username") #pull db of userinfo and order by username
-    name = db_models.User.query().order(db_models.User.username) # .query() = "SELECT *"; .order("username") = "ORDER BY username"
+    query = db_models.User.query().order(db_models.User.username) # .query() = "SELECT *"; .order("username") = "ORDER BY username"
+    name = query.run()
     for n in name:
         if n.username == username:
             return n.key().id()
