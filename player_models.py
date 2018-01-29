@@ -464,18 +464,14 @@ def update_pitcher_memcache():
 
 def put_batters(batter_list):
     if RUN_ASYNC:
-        future = ndb.put_multi_async(batter_list)
-        if future.get_result():
-            update_batter_memcache()
+        batters = ndb.put_multi_async(batter_list)
     else:
         ndb.put_multi(batter_list)
-        update_batter_memcache()
+    update_batter_memcache()
 
 def put_pitchers(pitcher_list):
     if RUN_ASYNC:
-        future = ndb.put_multi_async(pitcher_list)
-        if future.get_result():
-            update_pitcher_memcache()
+        pitchers = ndb.put_multi_async(pitcher_list)
     else:
         ndb.put_multi(pitcher_list)
-        update_pitcher_memcache()
+    update_pitcher_memcache()
