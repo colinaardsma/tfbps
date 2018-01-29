@@ -147,5 +147,5 @@ class Blog(ndb.Model):
     body = ndb.TextProperty(required=True)
     created = ndb.DateTimeProperty(auto_now_add=True)
     last_modified = ndb.DateTimeProperty(auto_now=True)
-    author = ndb.ReferenceProperty(Users, required=True)
+    author = ndb.KeyProperty(kind=Users, required=True)
     coords = ndb.GeoPtProperty(required=False) #store coordinates of user based on URL, not required as it may not always be available
