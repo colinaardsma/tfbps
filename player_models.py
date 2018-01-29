@@ -454,6 +454,7 @@ def store_pitcher_values(yahooGuid, league, pitcher_proj_list):
         ndb.put_multi(pitcher_value_list)
     return pitcher_value_list
 
+@ndb.toplevel
 def update_batter_db(batter_list):
     if RUN_ASYNC:
         batters = ndb.put_multi_async(batter_list)
@@ -464,6 +465,7 @@ def update_batter_memcache():
     caching.cached_get_all_batters(True)
     time.sleep(.5) # wait .5 seconds while post is entered into memcache
 
+@ndb.toplevel
 def update_pitcher_db(pitcher_list):
     if RUN_ASYNC:
         pitchers = ndb.put_multi_async(pitcher_list)
