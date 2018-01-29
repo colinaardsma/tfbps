@@ -50,7 +50,7 @@ def check_username(username):
     name = query.fetch()
     for n in name:
         if n.username == username:
-            return n.key().id()
+            return n.key.id()
 
 def get_user_by_name(username):
     """ Get a user object from the db, based on their username """
