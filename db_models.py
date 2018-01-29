@@ -104,10 +104,10 @@ def store_league(league_name, league_key, team_count, max_ip, batting_pos, pitch
                     batter_budget_pct=batter_budget_pct, pitcher_budget_pct=pitcher_budget_pct,
                     b_dollar_per_fvaaz=b_dollar_per_fvaaz, p_dollar_per_fvaaz=p_dollar_per_fvaaz,
                     b_player_pool_mult=b_player_pool_mult, p_player_pool_mult=p_player_pool_mult)
-    ndb.put(league)
+    league.put_async()
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     # league = caching.cached_user_by_name(username)
-    # league_id = league.key().id()
+    # league_id = league.key.id()
     update_league_memcache(league_key)
     return league
 
@@ -270,7 +270,7 @@ def calc_three_year_avgs(league_key):
     league.b_player_pool_mult_avg = b_player_pool_mult_avg
     league.p_player_pool_mult_avg = p_player_pool_mult_avg
 
-    ndb.put(league)
+    league.put_async()
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     update_league_memcache(league_key)
     return league
@@ -300,10 +300,10 @@ def store_user(username, password, email, location = None, yahooGuid = None, aut
     user = User(username=username, password=password, email=email, location=location,
                 yahooGuid=yahooGuid, authorization=authorization, access_token=None,
                 token_expiration=None, refresh_token=None)
-    ndb.put(user)
+    user.put_async()
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     user = caching.cached_user_by_name(username)
-    user_id = user.key().id()
+    user_id = user.key.id()
     update_user_memcache(user, user_id)
     return user
 
@@ -335,7 +335,7 @@ def update_user(user, user_id, username=None, hashed_password=None, email=None,
         user.refresh_token = refresh_token
     if main_league:
         user.main_league = main_league
-    ndb.put(user)
+    user.put_async()
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     update_user_memcache(user, user_id)
     return user
@@ -357,7 +357,7 @@ class User_League(ndb.Model):
 def store_user_league(user, league):
     user_league = User_League(user=user, league=league, user_guid=user.yahooGuid,
                               league_key=league.league_key)
-    ndb.put(user_league)
+    user_league.put_async()
     time.sleep(.5) # wait .5 seconds while post is entered into db and memcache
     # league = caching.cached_user_by_name(username)
     # league_id = league.key().id()
